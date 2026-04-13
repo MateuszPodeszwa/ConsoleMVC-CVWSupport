@@ -62,6 +62,13 @@
 
         <editorTabTitleProvider
             implementation="com.github.mateuszpodeszwa.consolemvc.cvwsupport.CvwEditorTabTitleProvider"/>
+
+        <lang.foldingBuilder
+            language="CVW"
+            implementationClass="com.github.mateuszpodeszwa.consolemvc.cvwsupport.folding.CvwFoldingBuilder"/>
+
+        <colorSettingsPage
+            implementation="com.github.mateuszpodeszwa.consolemvc.cvwsupport.highlighting.CvwColorSettingsPage"/>
     </extensions>
 
     <actions>
