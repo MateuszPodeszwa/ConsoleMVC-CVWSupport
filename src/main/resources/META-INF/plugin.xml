@@ -48,6 +48,13 @@
         <defaultLiveTemplates file="/liveTemplates/CvwTemplates"/>
 
         <internalFileTemplate name="ConsoleMVC View.cvw"/>
+
+        <codeInsight.lineMarkerProvider
+            language="CVW"
+            implementationClass="com.github.mateuszpodeszwa.consolemvc.cvwsupport.navigation.CvwViewLineMarkerProvider"/>
+
+        <gotoRelatedProvider
+            implementation="com.github.mateuszpodeszwa.consolemvc.cvwsupport.navigation.CvwGotoRelatedProvider"/>
     </extensions>
 
     <actions>
