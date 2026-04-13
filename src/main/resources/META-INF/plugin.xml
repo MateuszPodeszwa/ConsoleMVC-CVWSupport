@@ -25,5 +25,21 @@
         <lang.syntaxHighlighterFactory
             language="CVW"
             implementationClass="com.github.mateuszpodeszwa.consolemvc.cvwsupport.highlighting.CvwSyntaxHighlighterFactory"/>
+
+        <completion.contributor
+            language="CVW"
+            implementationClass="com.github.mateuszpodeszwa.consolemvc.cvwsupport.completion.CvwCompletionContributor"/>
+
+        <annotator
+            language="CVW"
+            implementationClass="com.github.mateuszpodeszwa.consolemvc.cvwsupport.annotator.CvwAnnotator"/>
+
+        <lang.braceMatcher
+            language="CVW"
+            implementationClass="com.github.mateuszpodeszwa.consolemvc.cvwsupport.CvwBraceMatcher"/>
+
+        <lang.commenter
+            language="CVW"
+            implementationClass="com.github.mateuszpodeszwa.consolemvc.cvwsupport.CvwCommenter"/>
     </extensions>
 </idea-plugin>
