@@ -1,16 +1,17 @@
 # TODO — ConsoleMVC .cvw Plugin
 
-## Tier 1 — Essential (Must Have)
+## Tier 1 — Essential (Must Have) -- COMPLETE
 
-- [ ] File type registration (`.cvw` extension, icon, language)
-- [ ] Syntax highlighting (directives + C# code body)
-- [ ] Code completion (directives + code body basics)
-- [ ] Error highlighting (missing `@model`, unknown types in directives)
+- [x] File type registration (`.cvw` extension, icon, language)
+- [x] Syntax highlighting (directives + C# code body)
+- [x] Code completion (directives + code body basics)
+- [x] Error highlighting (missing `@model`, empty args, missing return)
+- [x] Brace matching and commenter
 
 ## Tier 2 — Important (Should Have)
 
 - [ ] Navigation (Ctrl+Click on types, controller <-> view navigation)
-- [ ] Refactoring support (rename/move model updates `.cvw` files)
+- [ ] Refactoring support (rename/move model updates `.cvw` files) — needs Phase 2 backend
 - [ ] Live templates (`cvw`, `navto`, `navquit`)
 - [ ] File templates ("New ConsoleMVC View")
 
