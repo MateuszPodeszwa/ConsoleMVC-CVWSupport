@@ -1,0 +1,11 @@
+@model MyApp.Models.DashboardViewModel
+@using System.Globalization
+
+Console.WriteLine($"Dashboard — {DateTime.Now.ToString("F", CultureInfo.InvariantCulture)}");
+Console.WriteLine($"Welcome, {Model.UserName}!");
+Console.WriteLine($"You have {Model.NotificationCount} notifications.");
+Console.WriteLine();
+Console.Write("Press Enter to continue...");
+Console.ReadLine();
+
+return NavigationResult.ToAction("Menu");

@@ -1,0 +1,20 @@
+@model ConsoleMVC.App.Models.HomeViewModel
+
+Console.WriteLine($"=== {Model.Title} ===");
+Console.WriteLine();
+Console.WriteLine(Model.Message);
+Console.WriteLine();
+
+for (var i = 0; i < Model.MenuOptions.Count; i++)
+    Console.WriteLine($"  [{i + 1}] {Model.MenuOptions[i]}");
+
+Console.WriteLine();
+Console.Write("Select an option: ");
+var input = Console.ReadLine()?.Trim();
+
+return input switch
+{
+    "1" => NavigationResult.To("Home", "About"),
+    "2" => NavigationResult.Quit(),
+    _ => NavigationResult.To("Home", "Index")
+};

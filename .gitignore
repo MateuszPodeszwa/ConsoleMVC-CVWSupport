@@ -3,6 +3,9 @@
 build/
 !gradle/wrapper/gradle-wrapper.jar
 
+# IntelliJ Platform Plugin sandbox
+.intellijPlatform/
+
 # IntelliJ
 .idea/
 *.iml

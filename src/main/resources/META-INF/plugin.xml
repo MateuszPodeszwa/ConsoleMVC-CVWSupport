@@ -1,0 +1,29 @@
+<idea-plugin>
+    <id>com.github.mateuszpodeszwa.consolemvc.cvwsupport</id>
+    <name>ConsoleMVC CvwSupport</name>
+    <vendor url="https://github.com/MateuszPodeszwa">Mateusz Podeszwa</vendor>
+
+    <description><![CDATA[
+        Provides IDE support for ConsoleMVC .cvw (Console View) files in JetBrains Rider.
+        Includes syntax highlighting, code completion, and navigation for the ConsoleMVC framework.
+    ]]></description>
+
+    <depends>com.intellij.modules.rider</depends>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <fileType
+            name="CVW"
+            implementationClass="com.github.mateuszpodeszwa.consolemvc.cvwsupport.CvwFileType"
+            fieldName="INSTANCE"
+            language="CVW"
+            extensions="cvw"/>
+
+        <lang.parserDefinition
+            language="CVW"
+            implementationClass="com.github.mateuszpodeszwa.consolemvc.cvwsupport.parser.CvwParserDefinition"/>
+
+        <lang.syntaxHighlighterFactory
+            language="CVW"
+            implementationClass="com.github.mateuszpodeszwa.consolemvc.cvwsupport.highlighting.CvwSyntaxHighlighterFactory"/>
+    </extensions>
+</idea-plugin>

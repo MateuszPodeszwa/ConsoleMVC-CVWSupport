@@ -1,0 +1,4 @@
+@model System.String
+
+Console.WriteLine(Model);
+return NavigationResult.Quit();
