@@ -46,6 +46,15 @@ class CvwSyntaxHighlighter : SyntaxHighlighterBase() {
         val CS_PUNCTUATION = createTextAttributesKey(
             "CVW_CS_PUNCTUATION", DefaultLanguageHighlighterColors.SEMICOLON
         )
+        val CS_BRACES = createTextAttributesKey(
+            "CVW_CS_BRACES", DefaultLanguageHighlighterColors.BRACES
+        )
+        val CS_PARENTHESES = createTextAttributesKey(
+            "CVW_CS_PARENTHESES", DefaultLanguageHighlighterColors.PARENTHESES
+        )
+        val CS_BRACKETS = createTextAttributesKey(
+            "CVW_CS_BRACKETS", DefaultLanguageHighlighterColors.BRACKETS
+        )
         val CS_DOT = createTextAttributesKey(
             "CVW_CS_DOT", DefaultLanguageHighlighterColors.DOT
         )
@@ -63,6 +72,9 @@ class CvwSyntaxHighlighter : SyntaxHighlighterBase() {
         private val CS_IDENTIFIER_KEYS = arrayOf(CS_IDENTIFIER)
         private val CS_OPERATOR_KEYS = arrayOf(CS_OPERATOR)
         private val CS_PUNCTUATION_KEYS = arrayOf(CS_PUNCTUATION)
+        private val CS_BRACES_KEYS = arrayOf(CS_BRACES)
+        private val CS_PARENTHESES_KEYS = arrayOf(CS_PARENTHESES)
+        private val CS_BRACKETS_KEYS = arrayOf(CS_BRACKETS)
         private val CS_DOT_KEYS = arrayOf(CS_DOT)
         private val BAD_CHARACTER_KEYS = arrayOf(BAD_CHARACTER)
         private val EMPTY_KEYS = emptyArray<TextAttributesKey>()
@@ -82,6 +94,9 @@ class CvwSyntaxHighlighter : SyntaxHighlighterBase() {
             CvwTokenTypes.CS_IDENTIFIER -> CS_IDENTIFIER_KEYS
             CvwTokenTypes.CS_OPERATOR -> CS_OPERATOR_KEYS
             CvwTokenTypes.CS_PUNCTUATION -> CS_PUNCTUATION_KEYS
+            CvwTokenTypes.CS_LBRACE, CvwTokenTypes.CS_RBRACE -> CS_BRACES_KEYS
+            CvwTokenTypes.CS_LPAREN, CvwTokenTypes.CS_RPAREN -> CS_PARENTHESES_KEYS
+            CvwTokenTypes.CS_LBRACKET, CvwTokenTypes.CS_RBRACKET -> CS_BRACKETS_KEYS
             CvwTokenTypes.CS_DOT -> CS_DOT_KEYS
             CvwTokenTypes.BAD_CHARACTER -> BAD_CHARACTER_KEYS
             else -> EMPTY_KEYS

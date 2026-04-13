@@ -30,7 +30,13 @@ object CvwTokenTypes {
     @JvmField val CS_BLOCK_COMMENT = CvwTokenType("CS_BLOCK_COMMENT")
     @JvmField val CS_IDENTIFIER = CvwTokenType("CS_IDENTIFIER")
     @JvmField val CS_OPERATOR = CvwTokenType("CS_OPERATOR")
-    @JvmField val CS_PUNCTUATION = CvwTokenType("CS_PUNCTUATION")
+    @JvmField val CS_PUNCTUATION = CvwTokenType("CS_PUNCTUATION")  // ; ,
+    @JvmField val CS_LBRACE = CvwTokenType("CS_LBRACE")            // {
+    @JvmField val CS_RBRACE = CvwTokenType("CS_RBRACE")            // }
+    @JvmField val CS_LPAREN = CvwTokenType("CS_LPAREN")            // (
+    @JvmField val CS_RPAREN = CvwTokenType("CS_RPAREN")            // )
+    @JvmField val CS_LBRACKET = CvwTokenType("CS_LBRACKET")        // [
+    @JvmField val CS_RBRACKET = CvwTokenType("CS_RBRACKET")        // ]
     @JvmField val CS_DOT = CvwTokenType("CS_DOT")
 
     // Token sets for the parser

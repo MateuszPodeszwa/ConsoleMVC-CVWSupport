@@ -299,8 +299,18 @@ class CvwLexer : LexerBase() {
             return
         }
 
-        // Punctuation (braces, brackets, parens, semicolons, commas)
-        if (ch in "{}[]();,") {
+        // Braces, brackets, parens (with individual token types for brace matching)
+        when (ch) {
+            '{' -> { tokenEnd = pos + 1; tokenType = CvwTokenTypes.CS_LBRACE; return }
+            '}' -> { tokenEnd = pos + 1; tokenType = CvwTokenTypes.CS_RBRACE; return }
+            '(' -> { tokenEnd = pos + 1; tokenType = CvwTokenTypes.CS_LPAREN; return }
+            ')' -> { tokenEnd = pos + 1; tokenType = CvwTokenTypes.CS_RPAREN; return }
+            '[' -> { tokenEnd = pos + 1; tokenType = CvwTokenTypes.CS_LBRACKET; return }
+            ']' -> { tokenEnd = pos + 1; tokenType = CvwTokenTypes.CS_RBRACKET; return }
+        }
+
+        // Other punctuation (semicolons, commas)
+        if (ch in ";,") {
             tokenEnd = pos + 1
             tokenType = CvwTokenTypes.CS_PUNCTUATION
             return

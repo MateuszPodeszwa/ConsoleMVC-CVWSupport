@@ -9,7 +9,9 @@ import com.intellij.psi.tree.IElementType
 class CvwBraceMatcher : PairedBraceMatcher {
     companion object {
         private val PAIRS = arrayOf(
-            BracePair(CvwTokenTypes.CS_PUNCTUATION, CvwTokenTypes.CS_PUNCTUATION, true),
+            BracePair(CvwTokenTypes.CS_LBRACE, CvwTokenTypes.CS_RBRACE, true),
+            BracePair(CvwTokenTypes.CS_LPAREN, CvwTokenTypes.CS_RPAREN, false),
+            BracePair(CvwTokenTypes.CS_LBRACKET, CvwTokenTypes.CS_RBRACKET, false),
         )
     }
 
