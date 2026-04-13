@@ -41,5 +41,19 @@
         <lang.commenter
             language="CVW"
             implementationClass="com.github.mateuszpodeszwa.consolemvc.cvwsupport.CvwCommenter"/>
+
+        <liveTemplateContext
+            implementation="com.github.mateuszpodeszwa.consolemvc.cvwsupport.CvwLiveTemplateContext"/>
+
+        <defaultLiveTemplates file="/liveTemplates/CvwTemplates"/>
+
+        <internalFileTemplate name="ConsoleMVC View.cvw"/>
     </extensions>
+
+    <actions>
+        <action id="ConsoleMVC.NewCvwFile"
+                class="com.github.mateuszpodeszwa.consolemvc.cvwsupport.CvwCreateFileAction">
+            <add-to-group group-id="NewGroup" anchor="after" relative-to-action="NewFile"/>
+        </action>
+    </actions>
 </idea-plugin>

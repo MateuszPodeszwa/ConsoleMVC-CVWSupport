@@ -1,0 +1,4 @@
+@model ${MODEL_TYPE}
+
+Console.WriteLine(Model);
+return NavigationResult.Quit();

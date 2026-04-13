@@ -1,0 +1,47 @@
+<templateSet group="CVW">
+    <template name="cvw"
+              value="@model $MODEL_TYPE$&#10;&#10;$CODE$&#10;return NavigationResult.$NAV_METHOD$;"
+              description="New .cvw file scaffold"
+              toReformat="false"
+              toShortenFQNames="false">
+        <variable name="MODEL_TYPE" expression="" defaultValue="&quot;MyNamespace.MyModel&quot;" alwaysStopAt="true"/>
+        <variable name="CODE" expression="" defaultValue="&quot;Console.WriteLine(Model);&quot;" alwaysStopAt="true"/>
+        <variable name="NAV_METHOD" expression="enum(&quot;Quit()&quot;, &quot;To(\&quot;Home\&quot;, \&quot;Index\&quot;)&quot;, &quot;ToAction(\&quot;Index\&quot;)&quot;)" defaultValue="&quot;Quit()&quot;" alwaysStopAt="true"/>
+        <context>
+            <option name="OTHER" value="true"/>
+        </context>
+    </template>
+
+    <template name="navto"
+              value="NavigationResult.To(&quot;$CONTROLLER$&quot;, &quot;$ACTION$&quot;)"
+              description="Navigate to controller action"
+              toReformat="false"
+              toShortenFQNames="false">
+        <variable name="CONTROLLER" expression="" defaultValue="&quot;Home&quot;" alwaysStopAt="true"/>
+        <variable name="ACTION" expression="" defaultValue="&quot;Index&quot;" alwaysStopAt="true"/>
+        <context>
+            <option name="OTHER" value="true"/>
+        </context>
+    </template>
+
+    <template name="navaction"
+              value="NavigationResult.ToAction(&quot;$ACTION$&quot;)"
+              description="Navigate to action on current controller"
+              toReformat="false"
+              toShortenFQNames="false">
+        <variable name="ACTION" expression="" defaultValue="&quot;Index&quot;" alwaysStopAt="true"/>
+        <context>
+            <option name="OTHER" value="true"/>
+        </context>
+    </template>
+
+    <template name="navquit"
+              value="NavigationResult.Quit()"
+              description="Quit the application"
+              toReformat="false"
+              toShortenFQNames="false">
+        <context>
+            <option name="OTHER" value="true"/>
+        </context>
+    </template>
+</templateSet>
