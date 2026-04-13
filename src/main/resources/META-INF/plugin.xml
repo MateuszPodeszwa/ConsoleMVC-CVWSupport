@@ -55,6 +55,13 @@
 
         <gotoRelatedProvider
             implementation="com.github.mateuszpodeszwa.consolemvc.cvwsupport.navigation.CvwGotoRelatedProvider"/>
+
+        <lang.psiStructureViewFactory
+            language="CVW"
+            implementationClass="com.github.mateuszpodeszwa.consolemvc.cvwsupport.structure.CvwStructureViewFactory"/>
+
+        <editorTabTitleProvider
+            implementation="com.github.mateuszpodeszwa.consolemvc.cvwsupport.CvwEditorTabTitleProvider"/>
     </extensions>
 
     <actions>
