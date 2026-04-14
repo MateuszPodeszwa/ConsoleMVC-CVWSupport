@@ -1,0 +1,32 @@
+@model ConsoleMVC.App.Models.MenuViewModel
+@using System.Linq
+
+// Test: LINQ in code body
+var options = Model.Items
+    .Where(x => x.IsEnabled)
+    .Select((item, idx) => $"  [{idx + 1}] {item.Label}")
+    .ToList();
+
+Console.WriteLine($"=== {Model.Title} ===");
+Console.WriteLine();
+
+foreach (var option in options)
+    Console.WriteLine(option);
+
+Console.WriteLine();
+Console.Write("> ");
+
+// Test: nullable reference types
+string? input = Console.ReadLine()?.Trim();
+
+if (int.TryParse(input, out var selected) && selected > 0 && selected <= Model.Items.Count)
+{
+    var item = Model.Items[selected - 1];
+    return NavigationResult.To(item.Controller, item.Action);
+}
+
+// Test: ternary and null-coalescing
+var fallback = Model.FallbackAction ?? "Index";
+Console.WriteLine(input is null ? "No input" : $"Invalid: {input}");
+
+return NavigationResult.ToAction(fallback);

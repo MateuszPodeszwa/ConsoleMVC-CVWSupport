@@ -1,0 +1,38 @@
+@model ConsoleMVC.App.Models.SettingsViewModel
+@using System.Globalization
+@using System.Text
+
+// Test: comments in code body
+/* Block comment spanning
+   multiple lines */
+
+var sb = new StringBuilder();
+sb.AppendLine($"Settings for {Model.UserName}");
+
+// Test: verbatim string
+var path = @"C:\Users\test\settings.json";
+
+// Test: interpolated verbatim string
+var message = $@"Hello {Model.UserName},
+Your settings have been saved to {path}.";
+
+// Test: verbatim identifier
+var @class = "settings-panel";
+
+// Test: preprocessor directive
+#region Display Settings
+Console.WriteLine(sb.ToString());
+Console.WriteLine(message);
+#endregion
+
+// Test: switch expression with NavigationResult
+Console.Write("Choice [1-3]: ");
+var choice = Console.ReadLine()?.Trim();
+
+return choice switch
+{
+    "1" => NavigationResult.To("Settings", "Profile"),
+    "2" => NavigationResult.ToAction("Display"),
+    "3" => NavigationResult.To("Home", "Index"),
+    _ => NavigationResult.Quit()
+};
