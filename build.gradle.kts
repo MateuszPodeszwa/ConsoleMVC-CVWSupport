@@ -72,7 +72,7 @@ val buildBackend by tasks.registering(Exec::class) {
 tasks.withType<PrepareSandboxTask> {
     dependsOn(buildBackend)
 
-    val outputDir = dotnetDir.resolve("bin/CvwSupport/$buildConfiguration/net472")
+    val outputDir = dotnetDir.resolve("CvwSupport/bin/CvwSupport/$buildConfiguration/net472")
 
     from(outputDir) {
         into("${intellijPlatform.projectName.get()}/dotnet")
