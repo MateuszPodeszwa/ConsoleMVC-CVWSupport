@@ -111,30 +111,72 @@ All extensions are registered under `com.intellij.` namespace:
 - `gotoRelatedProvider` — CvwGotoRelatedProvider
 - `lang.psiStructureViewFactory` — CvwStructureViewFactory
 - `editorTabTitleProvider` — CvwEditorTabTitleProvider
+- `lang.foldingBuilder` — CvwFoldingBuilder
+- `colorSettingsPage` — CvwColorSettingsPage
 
 Action: `ConsoleMVC.NewCvwFile` in `NewGroup`
 
-## Phase 2 — Backend (Future)
+## Phase 2 — Backend (In Progress)
 
-Will add a ReSharper backend component that:
-- Creates virtual C# documents from `.cvw` files (mirroring the source generator output)
-- Injects these into Rider's C# analysis engine
-- Provides full semantic completion, error checking, and refactoring
+### Backend File Structure
 
-This mirrors how Rider handles `.cshtml` (Razor) files internally.
+```
+src/dotnet/
+  CvwSupport.sln                           — .NET solution
+  Plugin.props                             — SDK version (2025.1.1)
+  Directory.Build.props                    — Common build properties
+  CvwSupport/
+    CvwSupport.csproj                      — net472 + JetBrains.Rider.SDK
+    ZoneMarker.cs                          — ICvwSupportZone + ZoneMarker
+    CvwProjectFileType.cs                  — .cvw file type registration
+    CvwLanguage.cs                         — PSI language definition
+    CvwProjectFileLanguageService.cs       — File type -> language bridge
+    CvwFileParser.cs                       — Parses .cvw into directives + code body
+    CvwGeneratedDocumentFactory.cs         — Generates virtual C# documents
+    CvwPsiFileManager.cs                   — Solution component for document access
+```
 
-### Backend Implementation Strategy
+### Virtual Document Generation
 
-1. Create a .NET project targeting `netstandard2.0` with `JetBrains.ReSharper.SDK`
-2. Implement `IProjectFileType` for `.cvw` files
-3. Implement `GeneratedDocumentService` to create virtual C# documents
-4. The virtual document wraps the .cvw code body in the same class structure
-   the source generator produces (see CLAUDE.md Section 3.2)
-5. Register the backend via Rider's protocol connection
+The key insight: ReSharper analyzes C# code. A `.cvw` file is NOT C#, but its
+code body IS C# that will be placed inside a method body. So we create an
+in-memory C# document that wraps the code body exactly as the source generator would:
+
+```csharp
+// Original .cvw:
+@model MyApp.Models.HomeViewModel
+@using System.Globalization
+Console.WriteLine(Model.Title);
+return NavigationResult.Quit();
+
+// Generated virtual C# document:
+using ConsoleMVC.Mvc;
+using System.Globalization;
+namespace MyApp.Views.Home {
+  public class IndexView : ConsoleView<MyApp.Models.HomeViewModel> {
+    public override NavigationResult Render(MyApp.Models.HomeViewModel Model) {
+      Console.WriteLine(Model.Title);
+      return NavigationResult.Quit();
+    }
+  }
+}
+```
+
+A **range map** tracks character offsets so errors/completions in the generated
+document map back to correct positions in the original `.cvw` file.
+
+### What's Left for Backend
+
+The infrastructure is complete. What remains:
+1. Wire `CvwGeneratedDocumentFactory` into ReSharper's `ISecondaryDocumentGenerationService`
+2. This enables C# analysis to run on the generated document
+3. Results (errors, completions, navigation) are projected back via the range map
+4. This is the exact mechanism Razor uses for `.cshtml` files
 
 ### Build System
 
-- Gradle with `intellij-platform-gradle-plugin` 2.14.0
-- Kotlin JVM 2.1.20 with JDK 21 toolchain
+- **Frontend**: Gradle with `intellij-platform-gradle-plugin` 2.14.0, Kotlin JVM 2.1.20, JDK 21
+- **Backend**: `dotnet build` via Gradle `buildBackend` task, net472, JetBrains.Rider.SDK 2025.1.1
+- **Integration**: `PrepareSandboxTask` copies backend DLLs to `{plugin}/dotnet/` in the sandbox
 - Target: Rider 2025.1+ (sinceBuild = 251)
 - Plugin ID: `com.github.mateuszpodeszwa.consolemvc.cvwsupport`

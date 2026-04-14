@@ -86,14 +86,44 @@
 - Refactoring support (rename/move model updates .cvw files) requires Phase 2 backend.
 - Ctrl+Click on @model type to navigate to the type definition requires Phase 2 backend.
 
+### Additional Frontend Features (continued in same session)
+
+11. **Code Folding**
+    - `CvwFoldingBuilder`: folds directive preamble, `{ }` brace blocks, and `/* */` comments
+    - Includes `isInsideStringOrComment` heuristic to avoid folding braces inside strings
+
+12. **Color Settings Page**
+    - `CvwColorSettingsPage` in Settings > Editor > Color Scheme > CVW
+    - Allows customization of all 15 token highlight colors
+    - Includes demo text showing all token types
+
+#### Phase 2 — Backend (STARTED)
+
+13. **ReSharper Backend Structure**
+    - Created `src/dotnet/CvwSupport.sln` with `CvwSupport.csproj` targeting `net472`
+    - NuGet: `JetBrains.Rider.SDK` 2025.1.1 + `Microsoft.NETFramework.ReferenceAssemblies` for cross-platform build
+    - `ZoneMarker.cs`: `ICvwSupportZone` extending `IPsiLanguageZone`
+    - `CvwProjectFileType.cs`: `.cvw` file type registration on the backend
+    - `CvwLanguage.cs`: PSI language definition
+    - `CvwProjectFileLanguageService.cs`: bridges file type to language
+    - Gradle integration: `buildBackend` task + `PrepareSandboxTask` copies DLLs to `dotnet/` folder
+
+14. **Virtual Document Generation**
+    - `CvwFileParser.cs`: parses .cvw directives and code body with precise char offsets
+    - `CvwGeneratedDocumentFactory.cs`: generates synthetic C# documents mirroring the source generator output
+    - Bidirectional offset mapping between original .cvw and generated C# positions
+    - `CvwPsiFileManager.cs`: solution component exposing document generation to ReSharper
+
 ### Build Verification
-- `./gradlew build` passes with BUILD SUCCESSFUL
+- `./gradlew build` passes with BUILD SUCCESSFUL (frontend Kotlin)
+- `./gradlew buildBackend` passes with BUILD SUCCESSFUL (backend C#)
+- `dotnet build CvwSupport.sln` succeeds with 0 errors
 - Plugin JAR produced at `build/libs/ConsoleMVC-CvwSupport-0.1.0.jar`
 
-### Next Steps (Phase 2 — Backend)
-- Add ReSharper backend component (C#/.NET) for deep C# analysis
-- Implement virtual document generation mirroring the source generator transformation
+### Next Steps (Phase 2 — Remaining Backend Work)
+- Wire CvwGeneratedDocumentFactory into ReSharper's ISecondaryDocumentGenerationService
 - Enable Ctrl+Click on @model to resolve to CLR type definitions
-- Full semantic code completion in the code body
+- Full semantic code completion in the code body via the generated document
 - Type-aware inspections (model type mismatch with controller's View() call)
 - Rename/move refactoring propagation to .cvw files
+- Test end-to-end in a real Rider instance with a ConsoleMVC project
