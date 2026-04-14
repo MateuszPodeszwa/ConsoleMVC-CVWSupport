@@ -230,18 +230,35 @@ class CvwLexer : LexerBase() {
             return
         }
         if (ch == '$' && pos + 1 < endOffset && buffer[pos + 1] == '@' && pos + 2 < endOffset && buffer[pos + 2] == '"') {
-            tokenEnd = scanVerbatimString(pos + 2)
+            tokenEnd = scanVerbatimString(pos)
             tokenType = CvwTokenTypes.CS_STRING
             return
         }
         if (ch == '@' && pos + 1 < endOffset && buffer[pos + 1] == '"') {
-            tokenEnd = scanVerbatimString(pos + 1)
+            tokenEnd = scanVerbatimString(pos)
             tokenType = CvwTokenTypes.CS_STRING
             return
         }
         if (ch == '@' && pos + 1 < endOffset && buffer[pos + 1] == '$' && pos + 2 < endOffset && buffer[pos + 2] == '"') {
             tokenEnd = scanInterpolatedString(pos + 1)
             tokenType = CvwTokenTypes.CS_STRING
+            return
+        }
+        // Verbatim identifier: @keyword (e.g., @class, @event)
+        if (ch == '@' && pos + 1 < endOffset && (buffer[pos + 1].isLetter() || buffer[pos + 1] == '_')) {
+            var end = pos + 2
+            while (end < endOffset && (buffer[end].isLetterOrDigit() || buffer[end] == '_')) end++
+            tokenEnd = end
+            tokenType = CvwTokenTypes.CS_IDENTIFIER
+            return
+        }
+
+        // Preprocessor directives (#region, #if, etc.) — treat as line comments
+        if (ch == '#' && isAtLineStart(pos)) {
+            var end = pos + 1
+            while (end < endOffset && buffer[end] != '\n' && buffer[end] != '\r') end++
+            tokenEnd = end
+            tokenType = CvwTokenTypes.CS_LINE_COMMENT
             return
         }
 
@@ -323,6 +340,13 @@ class CvwLexer : LexerBase() {
 
     // --- Helper methods ---
 
+    private fun isAtLineStart(pos: Int): Boolean {
+        if (pos == startOffset) return true
+        var p = pos - 1
+        while (p >= startOffset && (buffer[p] == ' ' || buffer[p] == '\t')) p--
+        return p < startOffset || buffer[p] == '\n' || buffer[p] == '\r'
+    }
+
     private fun lookingAt(pos: Int, text: String): Boolean {
         if (pos + text.length > endOffset) return false
         for (i in text.indices) {
@@ -398,9 +422,11 @@ class CvwLexer : LexerBase() {
     }
 
     private fun scanVerbatimString(pos: Int): Int {
-        // @"..." — pos is at the @, so string starts at pos+1
-        var end = pos + 1 // Skip opening "
-        if (end < endOffset && buffer[end] == '"') end++ // Skip the " after @
+        // pos is at the @ character in @"..." or $@"..."
+        // Find the opening " and start scanning after it
+        var end = pos
+        while (end < endOffset && buffer[end] != '"') end++
+        end++ // Skip opening "
         while (end < endOffset) {
             if (buffer[end] == '"') {
                 if (end + 1 < endOffset && buffer[end + 1] == '"') {
