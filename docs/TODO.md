@@ -26,7 +26,9 @@
 - [x] Quick documentation (hover docs for directives, Model, ViewData, NavigationResult)
 - [x] Extend selection handler (smart Ctrl+W for directives and code body)
 - [x] Lexer: verbatim identifiers (@class), preprocessor directives (#region)
-- [ ] Inspections/quick-fixes (model type mismatch, missing view) — requires cross-file backend analysis
+- [x] Quick-fixes: "Add @model directive" and "Add return NavigationResult.Quit()"
+- [x] NavigationResult.To() gutter icons linking to target controller files
+- [ ] Inspections (model type mismatch with controller's View() call) — requires cross-file daemon stage
 
 ## Backend (Phase 2) — IN PROGRESS
 
@@ -44,5 +46,5 @@
 - [x] Full semantic C# completion in code body via generated document (enabled by GeneratedDocumentService)
 - [x] Semantic error checking (type mismatches, unresolved references) (enabled by GeneratedDocumentService)
 - [x] Refactoring (rename/move model class updates .cvw files) — via range mapping
-- [ ] Inspections (model type mismatch with controller's View() call)
+- [ ] Cross-file inspections (model type mismatch with controller's View() call) — requires daemon stage
 - [ ] End-to-end testing in Rider with a real ConsoleMVC project

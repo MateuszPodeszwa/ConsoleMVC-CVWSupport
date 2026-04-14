@@ -186,10 +186,26 @@
     - Added preprocessor directive support (`#region`, `#if`) as line comments
     - Fixed `$@"..."` interpolated verbatim string offset
 
+20. **Quick-Fixes**
+    - `AddModelDirectiveQuickFix`: inserts `@model \n\n` at file start, positions cursor after `@model `
+    - `AddReturnStatementQuickFix`: appends `return NavigationResult.Quit();\n` at end of code body
+    - Both wired into the annotator's warning annotations
+
+21. **NavigationResult.To() Gutter Navigation**
+    - Extended `CvwViewLineMarkerProvider` to detect `NavigationResult.To("Controller", "Action")` patterns
+    - Shows gutter icon on the controller name string literal linking to the controller file
+    - Uses token-level pattern matching: walks backwards from string to verify `NavigationResult.To(` pattern
+
+22. **Additional Test Data**
+    - `EdgeCases.cvw`: verbatim strings, interpolated verbatim, verbatim identifiers, preprocessor directives
+    - `NoModel.cvw`: missing @model directive (tests annotator warning)
+    - `ComplexCodeBody.cvw`: LINQ, nullable references, ternary, null-coalescing
+
 ### Build Verification
 - `dotnet build CvwSupport.sln` succeeds with 0 errors
-- `./gradlew compileKotlin` passes with BUILD SUCCESSFUL
-- `./gradlew buildBackend` passes with BUILD SUCCESSFUL
+- `./gradlew buildPlugin` passes with BUILD SUCCESSFUL
+- Plugin distribution: `build/distributions/ConsoleMVC-CvwSupport-0.1.0.zip` (102KB)
+  - Contains `lib/ConsoleMVC-CvwSupport-0.1.0.jar` (frontend) and `dotnet/CvwSupport.dll` (backend)
 
 ### Next Steps
 - Cross-file inspections (model type mismatch with controller's View() call) — requires daemon stage
