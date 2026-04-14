@@ -70,7 +70,9 @@ class CvwAnnotator : Annotator {
             holder.newAnnotation(
                 HighlightSeverity.WARNING,
                 "Missing @model directive. This file will be skipped by the ConsoleMVC source generator."
-            ).range(TextRange(0, maxOf(endOffset, 1))).create()
+            ).range(TextRange(0, maxOf(endOffset, 1)))
+                .withFix(AddModelDirectiveQuickFix())
+                .create()
         }
 
         // Check for missing return statement in code body
@@ -81,7 +83,9 @@ class CvwAnnotator : Annotator {
                 holder.newAnnotation(
                     HighlightSeverity.WARNING,
                     "Code body should return a NavigationResult. Missing 'return' statement."
-                ).range(TextRange(codeOffset, minOf(codeOffset + 1, text.length))).create()
+                ).range(TextRange(codeOffset, minOf(codeOffset + 1, text.length)))
+                    .withFix(AddReturnStatementQuickFix())
+                    .create()
             }
         }
 
