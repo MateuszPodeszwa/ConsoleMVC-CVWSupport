@@ -1,3 +1,5 @@
+import org.jetbrains.intellij.platform.gradle.tasks.PrepareSandboxTask
+
 plugins {
     id("java")
     alias(libs.plugins.kotlin)
@@ -44,6 +46,38 @@ intellijPlatform {
         ides {
             recommended()
         }
+    }
+}
+
+// --- ReSharper Backend Build Integration ---
+
+val dotnetDir = projectDir.resolve("src/dotnet")
+val dotnetSolution = dotnetDir.resolve("CvwSupport.sln")
+val buildConfiguration = "Debug"
+
+val buildBackend by tasks.registering(Exec::class) {
+    group = "build"
+    description = "Builds the ReSharper backend plugin"
+
+    inputs.files(fileTree(dotnetDir) {
+        include("**/*.cs", "**/*.csproj", "**/*.sln", "**/*.props")
+    })
+
+    commandLine("dotnet", "build", dotnetSolution.absolutePath,
+        "-c", buildConfiguration,
+        "--nologo", "-v", "minimal")
+    workingDir = dotnetDir
+}
+
+tasks.withType<PrepareSandboxTask> {
+    dependsOn(buildBackend)
+
+    val outputDir = dotnetDir.resolve("bin/CvwSupport/$buildConfiguration/net472")
+
+    from(outputDir) {
+        into("${intellijPlatform.projectName.get()}/dotnet")
+        include("CvwSupport.dll")
+        include("CvwSupport.pdb")
     }
 }
 

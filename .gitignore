@@ -24,3 +24,7 @@ Thumbs.db
 
 # Kotlin
 *.kotlin_module
+
+# .NET Backend
+src/dotnet/**/bin/
+src/dotnet/**/obj/
