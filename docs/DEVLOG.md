@@ -161,9 +161,36 @@
 - `GeneratedDocumentServiceAttribute` ctor: `(Type type, Instantiation instantiation)` — registration attribute
 - `CSharpLanguage` is in `JetBrains.ReSharper.Psi.CSharp` namespace / `JetBrains.ReSharper.Psi.CSharp.dll`
 
+16. **Directive Argument Range Mapping**
+    - Extended `CvwFileParser` to track `DirectiveArgLocation` (offset + length) for @model and @using arguments
+    - Extended `CvwGeneratedDocumentFactory` to track where model type appears in generated text (ConsoleView<T> + Render parameter)
+    - Extended `CvwGeneratedDocumentFactory` to track where @using namespaces appear in generated text
+    - `BuildRangeMap` now maps directive arguments to their generated C# counterparts
+    - This enables Ctrl+Click on @model type → CLR type definition and @using namespace → namespace definition
+
+17. **Frontend: QuickDoc Provider**
+    - `CvwDocumentationProvider` shows hover documentation for:
+      - `@model` and `@using` directive keywords
+      - Directive arguments (model type, namespace)
+      - Key identifiers: `Model`, `ViewData`, `NavigationResult`
+      - `NavigationResult.To()`, `.ToAction()`, `.Quit()` static methods
+
+18. **Frontend: Extend Selection Handler**
+    - `CvwWordSelectionHandler` improves Ctrl+W behavior:
+      - Directive argument → full directive → all directives
+      - Code body selection as a unit
+
+19. **Lexer Edge Case Fixes**
+    - Fixed verbatim string scanner (`@"..."`) offset handling
+    - Added C# verbatim identifier support (`@class`, `@event`)
+    - Added preprocessor directive support (`#region`, `#if`) as line comments
+    - Fixed `$@"..."` interpolated verbatim string offset
+
+### Build Verification
+- `dotnet build CvwSupport.sln` succeeds with 0 errors
+- `./gradlew compileKotlin` passes with BUILD SUCCESSFUL
+- `./gradlew buildBackend` passes with BUILD SUCCESSFUL
+
 ### Next Steps
-- Ctrl+Click on @model type → CLR type navigation
-- Full semantic C# completion in code body
-- Semantic error checking
-- Refactoring propagation
-- End-to-end testing in Rider
+- Cross-file inspections (model type mismatch with controller's View() call) — requires daemon stage
+- End-to-end testing in Rider with a real ConsoleMVC project

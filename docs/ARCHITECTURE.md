@@ -6,9 +6,9 @@ This is a JetBrains Rider plugin providing IDE support for `.cvw` (Console View)
 It follows the standard Rider plugin dual architecture:
 
 - **Frontend (Kotlin/IntelliJ)**: UI, file type, editor, syntax highlighting, completion, navigation
-- **Backend (C#/ReSharper)**: Deep C# analysis, type resolution, refactoring (Phase 2 — not yet started)
+- **Backend (C#/ReSharper)**: Deep C# analysis via secondary document generation, type resolution, refactoring
 
-## Current State: Phase 1 — Frontend Only
+## Frontend (Kotlin/IntelliJ)
 
 ### Key Files
 
@@ -38,12 +38,19 @@ src/main/kotlin/com/github/mateuszpodeszwa/consolemvc/cvwsupport/
   highlighting/
     CvwSyntaxHighlighter.kt      — Token-to-color mapping
     CvwSyntaxHighlighterFactory.kt — Factory registration
+    CvwColorSettingsPage.kt      — Settings > Editor > Color Scheme > CVW
 
   completion/
     CvwCompletionContributor.kt  — Directive + code body completion
 
   annotator/
     CvwAnnotator.kt              — Error/warning annotations
+
+  documentation/
+    CvwDocumentationProvider.kt  — Hover docs for directives and framework types
+
+  editor/
+    CvwWordSelectionHandler.kt   — Smart Ctrl+W extend selection
 
   navigation/
     CvwViewLineMarkerProvider.kt — Gutter icons linking .cvw to controllers
@@ -53,6 +60,9 @@ src/main/kotlin/com/github/mateuszpodeszwa/consolemvc/cvwsupport/
     CvwStructureViewFactory.kt   — Structure view factory
     CvwStructureViewModel.kt     — Structure view model
     CvwStructureViewElement.kt   — Tree elements (directives, nav targets)
+
+  folding/
+    CvwFoldingBuilder.kt         — Code folding for directives, braces, comments
 
 src/main/resources/
   META-INF/plugin.xml            — Plugin descriptor with all extension registrations
