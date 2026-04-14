@@ -134,6 +134,7 @@ src/dotnet/
     CvwFileParser.cs                       — Parses .cvw into directives + code body
     CvwGeneratedDocumentFactory.cs         — Generates virtual C# documents
     CvwPsiFileManager.cs                   — Solution component for document access
+    CvwGeneratedDocumentService.cs         — Wires into ReSharper's secondary document pipeline
 ```
 
 ### Virtual Document Generation
@@ -165,13 +166,28 @@ namespace MyApp.Views.Home {
 A **range map** tracks character offsets so errors/completions in the generated
 document map back to correct positions in the original `.cvw` file.
 
+### Secondary Document Service Wiring
+
+`CvwGeneratedDocumentService` extends `GeneratedDocumentServiceBase` (from `JetBrains.ReSharper.Psi.Web.Generation`)
+and is registered via `[GeneratedDocumentService(typeof(CvwProjectFileType))]`. This is the same mechanism
+Razor uses for `.cshtml` files. When ReSharper opens a `.cvw` file:
+
+1. The service's `Generate()` method is called with the primary file info
+2. It uses `CvwGeneratedDocumentFactory` to create the virtual C# document
+3. A `RangeTranslatorWithGeneratedRangeMap` maps typed `TreeTextRange<Generated>` / `TreeTextRange<Original>` offsets
+4. The result is returned as a `SecondaryDocumentGenerationResult` with C# language type
+5. ReSharper's C# engine analyzes the generated document
+6. Errors, completions, and navigation are projected back via the range map
+
 ### What's Left for Backend
 
-The infrastructure is complete. What remains:
-1. Wire `CvwGeneratedDocumentFactory` into ReSharper's `ISecondaryDocumentGenerationService`
-2. This enables C# analysis to run on the generated document
-3. Results (errors, completions, navigation) are projected back via the range map
-4. This is the exact mechanism Razor uses for `.cshtml` files
+The secondary document generation pipeline is wired. What remains:
+1. Verify end-to-end in a running Rider instance with a real ConsoleMVC project
+2. Ctrl+Click on `@model` type to navigate to CLR type definition
+3. Full semantic C# completion in code body via generated document
+4. Semantic error checking (type mismatches, unresolved references)
+5. Refactoring (rename/move model class updates .cvw files)
+6. Inspections (model type mismatch with controller's View() call)
 
 ### Build System
 

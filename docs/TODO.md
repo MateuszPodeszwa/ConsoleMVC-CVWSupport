@@ -36,7 +36,7 @@
 - [x] Virtual document generator (CvwFileParser + CvwGeneratedDocumentFactory)
 - [x] Bidirectional offset mapping (original <-> generated)
 - [x] PSI file manager solution component
-- [ ] Wire into ISecondaryDocumentGenerationService for live C# analysis
+- [x] Wire into GeneratedDocumentServiceBase for live C# analysis
 - [ ] Ctrl+Click on @model type to navigate to CLR type definition
 - [ ] Full semantic C# completion in code body via generated document
 - [ ] Semantic error checking (type mismatches, unresolved references)

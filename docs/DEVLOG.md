@@ -121,9 +121,49 @@
 - Plugin JAR produced at `build/libs/ConsoleMVC-CvwSupport-0.1.0.jar`
 
 ### Next Steps (Phase 2 — Remaining Backend Work)
-- Wire CvwGeneratedDocumentFactory into ReSharper's ISecondaryDocumentGenerationService
+- ~~Wire CvwGeneratedDocumentFactory into ReSharper's ISecondaryDocumentGenerationService~~ DONE
 - Enable Ctrl+Click on @model to resolve to CLR type definitions
 - Full semantic code completion in the code body via the generated document
 - Type-aware inspections (model type mismatch with controller's View() call)
 - Rename/move refactoring propagation to .cvw files
 - Test end-to-end in a real Rider instance with a ConsoleMVC project
+
+## 2026-04-14 — Session 2: Backend Generated Document Service Wiring
+
+### Decisions Made
+- **Base class**: `GeneratedDocumentServiceBase` from `JetBrains.ReSharper.Psi.Web.Generation` namespace (`JetBrains.ReSharper.Psi.Web.dll`). This is the same base class Razor uses.
+- **Registration**: `[GeneratedDocumentService(typeof(CvwProjectFileType), Instantiation.DemandAnyThreadSafe)]` attribute from `JetBrains.ReSharper.Psi.ExtensionsAPI`.
+- **Range mapping**: Uses typed `TreeTextRange<Generated>` / `TreeTextRange<Original>` (not plain `TreeTextRange`) with `IGeneratedRangeMap.Add()`.
+- **Root namespace**: Falls back to project name since `IProject` doesn't expose `GetDefaultNamespace` directly. The ConsoleMVC source generator uses MSBuild's `RootNamespace` property which typically matches the project name.
+- **DLL location**: `JetBrains.ReSharper.Psi.Web.dll` is transitively available through `JetBrains.Rider.SDK` via the `jetbrains.psi.features.web.core` package.
+
+### Work Completed
+
+15. **CvwGeneratedDocumentService**
+    - Created `CvwGeneratedDocumentService.cs` extending `GeneratedDocumentServiceBase`
+    - Implements `Generate()`: uses `CvwGeneratedDocumentFactory` to produce virtual C#, builds range map with `GeneratedRangeMapFactory.CreateGeneratedRangeMap()`, returns `SecondaryDocumentGenerationResult` with C# language type and C# lexer factory
+    - Implements `GetSecondaryPsiLanguageTypes()`: yields `CSharpLanguage.Instance`
+    - Implements `IsSecondaryPsiLanguageType()`: checks `language.Is<CSharpLanguage>()`
+    - Range map: maps each code body line with typed `TreeTextRange<Generated>` / `TreeTextRange<Original>` offsets, accounting for the 12-char indentation prefix added to each line
+    - Empty result fallback for files without `@model` directive
+
+### Build Verification
+- `dotnet build CvwSupport.sln` succeeds with 0 errors
+- `./gradlew buildBackend` passes with BUILD SUCCESSFUL
+
+### API Discovery Notes (for future sessions)
+- `GeneratedDocumentServiceBase` constructor: parameterless
+- Abstract methods to override: `Generate()`, `GetSecondaryPsiLanguageTypes()`, `IsSecondaryPsiLanguageType()`
+- `SecondaryDocumentGenerationResult` ctor: `(string text, PsiLanguageType language, ISecondaryRangeTranslator, ILexerFactory)`
+- `RangeTranslatorWithGeneratedRangeMap` ctor: `(IGeneratedRangeMap)`
+- `GeneratedRangeMapFactory.CreateGeneratedRangeMap(IFile originalFile)` — static factory
+- `IGeneratedRangeMap.Add(TreeTextRange<Generated>, TreeTextRange<Original>)` — for building the range map
+- `GeneratedDocumentServiceAttribute` ctor: `(Type type, Instantiation instantiation)` — registration attribute
+- `CSharpLanguage` is in `JetBrains.ReSharper.Psi.CSharp` namespace / `JetBrains.ReSharper.Psi.CSharp.dll`
+
+### Next Steps
+- Ctrl+Click on @model type → CLR type navigation
+- Full semantic C# completion in code body
+- Semantic error checking
+- Refactoring propagation
+- End-to-end testing in Rider
