@@ -1,0 +1,7 @@
+@model MyApp.Models.WrongViewModel
+
+Console.WriteLine($"Hello, {Model.Name}!");
+Console.Write("Press Enter...");
+Console.ReadLine();
+
+return NavigationResult.ToAction("Index");

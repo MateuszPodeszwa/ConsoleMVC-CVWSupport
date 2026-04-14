@@ -44,7 +44,9 @@ src/main/kotlin/com/github/mateuszpodeszwa/consolemvc/cvwsupport/
     CvwCompletionContributor.kt  — Directive + code body completion
 
   annotator/
-    CvwAnnotator.kt              — Error/warning annotations
+    CvwAnnotator.kt              — Error/warning annotations (single-file)
+    CvwModelMismatchAnnotator.kt — Cross-file model type mismatch detection
+    CvwQuickFixes.kt             — Quick-fix intentions (add @model, add return)
 
   documentation/
     CvwDocumentationProvider.kt  — Hover docs for directives and framework types
@@ -111,7 +113,7 @@ All extensions are registered under `com.intellij.` namespace:
 - `lang.parserDefinition` — CvwParserDefinition
 - `lang.syntaxHighlighterFactory` — CvwSyntaxHighlighterFactory
 - `completion.contributor` — CvwCompletionContributor
-- `annotator` — CvwAnnotator
+- `annotator` — CvwAnnotator, CvwModelMismatchAnnotator
 - `lang.braceMatcher` — CvwBraceMatcher
 - `lang.commenter` — CvwCommenter
 - `liveTemplateContext` — CvwLiveTemplateContext
@@ -193,11 +195,6 @@ Razor uses for `.cshtml` files. When ReSharper opens a `.cvw` file:
 
 The secondary document generation pipeline is wired. What remains:
 1. Verify end-to-end in a running Rider instance with a real ConsoleMVC project
-2. Ctrl+Click on `@model` type to navigate to CLR type definition
-3. Full semantic C# completion in code body via generated document
-4. Semantic error checking (type mismatches, unresolved references)
-5. Refactoring (rename/move model class updates .cvw files)
-6. Inspections (model type mismatch with controller's View() call)
 
 ### Build System
 

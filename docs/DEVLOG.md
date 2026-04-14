@@ -208,5 +208,29 @@
   - Contains `lib/ConsoleMVC-CvwSupport-0.1.0.jar` (frontend) and `dotnet/CvwSupport.dll` (backend)
 
 ### Next Steps
-- Cross-file inspections (model type mismatch with controller's View() call) — requires daemon stage
+- ~~Cross-file inspections (model type mismatch with controller's View() call)~~ DONE
 - End-to-end testing in Rider with a real ConsoleMVC project
+
+## 2026-04-14 — Session 3: Cross-File Model Mismatch Inspection
+
+### Work Completed
+
+23. **Cross-File Model Mismatch Annotator**
+    - `CvwModelMismatchAnnotator`: detects when a controller's `View()` call passes a model type that doesn't match the `.cvw` file's `@model` directive
+    - Heuristic frontend approach using text/regex analysis of controller C# source:
+      - Extracts controller name and action name from the `.cvw` file path convention
+      - Finds controller file via `FilenameIndex.getVirtualFilesByName()`
+      - Locates the action method in the controller by regex pattern matching
+      - Detects model type from `new TypeName(...)` in `View()` calls (inline or via variable)
+      - Compares with `@model` type (supports both short and fully-qualified names)
+    - Warning annotation placed on the `@model` type argument with descriptive message
+    - Registered in `plugin.xml` as a second annotator for CVW language
+    - Added `ModelMismatch.cvw` test data file
+
+### Build Verification
+- `./gradlew compileKotlin buildBackend` passes with BUILD SUCCESSFUL
+- `./gradlew buildPlugin -x buildSearchableOptions` passes with BUILD SUCCESSFUL
+- Plugin distribution: `build/distributions/ConsoleMVC-CvwSupport-0.1.0.zip`
+
+### Remaining
+- End-to-end testing in Rider with a real ConsoleMVC project (requires manual GUI interaction)
