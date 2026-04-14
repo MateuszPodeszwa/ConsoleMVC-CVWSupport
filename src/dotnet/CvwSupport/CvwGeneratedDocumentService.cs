@@ -86,17 +86,54 @@ public class CvwGeneratedDocumentService : GeneratedDocumentServiceBase
     /// <summary>
     /// Builds the range map that establishes bidirectional correspondence between
     /// character positions in the original .cvw file and the generated C# document.
+    /// Maps directive arguments (@model type, @using namespaces) and code body lines.
     /// </summary>
     private static void BuildRangeMap(
         IGeneratedRangeMap rangeMap,
         CvwGeneratedDocumentFactory.GenerationResult result,
         string originalText)
     {
-        var codeBody = result.Parser.CodeBody;
+        var parser = result.Parser;
+
+        // Map @model type argument to its occurrences in the generated document
+        // (ConsoleView<ModelType> and Render(ModelType Model))
+        if (parser.ModelTypeLocation != null)
+        {
+            var modelLoc = parser.ModelTypeLocation;
+            foreach (var genOffset in result.GeneratedModelTypeOffsets)
+            {
+                var originalRange = new TreeTextRange<Original>(
+                    new TreeOffset(modelLoc.Offset),
+                    new TreeOffset(modelLoc.Offset + modelLoc.Length));
+                var generatedRange = new TreeTextRange<Generated>(
+                    new TreeOffset(genOffset),
+                    new TreeOffset(genOffset + modelLoc.Length));
+
+                rangeMap.Add(generatedRange, originalRange);
+            }
+        }
+
+        // Map @using namespace arguments to their generated "using X;" directives
+        for (var u = 0; u < parser.UsingLocations.Count && u < result.GeneratedUsingOffsets.Count; u++)
+        {
+            var usingLoc = parser.UsingLocations[u];
+            var genOffset = result.GeneratedUsingOffsets[u];
+
+            var originalRange = new TreeTextRange<Original>(
+                new TreeOffset(usingLoc.Offset),
+                new TreeOffset(usingLoc.Offset + usingLoc.Length));
+            var generatedRange = new TreeTextRange<Generated>(
+                new TreeOffset(genOffset),
+                new TreeOffset(genOffset + usingLoc.Length));
+
+            rangeMap.Add(generatedRange, originalRange);
+        }
+
+        // Map code body lines
+        var codeBody = parser.CodeBody;
         if (string.IsNullOrEmpty(codeBody))
             return;
 
-        // Map each line of the code body from original .cvw to generated C#
         var originalOffset = result.OriginalCodeBodyOffset;
         var generatedOffset = result.GeneratedCodeBodyOffset;
         var codeLines = codeBody.Split('\n');
@@ -111,7 +148,6 @@ public class CvwGeneratedDocumentService : GeneratedDocumentServiceBase
 
             if (lineLength > 0)
             {
-                // Map original line content -> generated line content (after indentation)
                 var originalRange = new TreeTextRange<Original>(
                     new TreeOffset(originalOffset),
                     new TreeOffset(originalOffset + lineLength));

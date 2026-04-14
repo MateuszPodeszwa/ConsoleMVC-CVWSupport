@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
@@ -47,6 +48,18 @@ public class CvwGeneratedDocumentFactory
 
         /// <summary>The parsed file data.</summary>
         public CvwFileParser Parser { get; init; } = new();
+
+        /// <summary>
+        /// Offsets in the generated text where the @model type appears.
+        /// The model type appears in two places: ConsoleView&lt;T&gt; and the Render parameter.
+        /// </summary>
+        public List<int> GeneratedModelTypeOffsets { get; init; } = new();
+
+        /// <summary>
+        /// Offsets in the generated text where each @using namespace appears
+        /// (in the "using X;" directives). Parallel to Parser.UsingLocations.
+        /// </summary>
+        public List<int> GeneratedUsingOffsets { get; init; } = new();
     }
 
     /// <summary>
@@ -92,18 +105,34 @@ public class CvwGeneratedDocumentFactory
 
         // Using directives
         sb.AppendLine("using ConsoleMVC.Mvc;");
+        var generatedUsingOffsets = new List<int>();
         foreach (var u in parser.Usings)
         {
+            var usingOffset = sb.Length + "using ".Length;
+            generatedUsingOffsets.Add(usingOffset);
             sb.AppendLine($"using {u};");
         }
         sb.AppendLine();
 
         // Namespace and class
+        var generatedModelTypeOffsets = new List<int>();
         sb.AppendLine($"namespace {rootNamespace}.Views.{controllerName}");
         sb.AppendLine("{");
-        sb.AppendLine($"    public class {fileName} : ConsoleView<{parser.ModelType}>");
+
+        // Track @model type in "ConsoleView<ModelType>"
+        var classLinePrefix = $"    public class {fileName} : ConsoleView<";
+        var modelOffset1 = sb.Length + classLinePrefix.Length;
+        generatedModelTypeOffsets.Add(modelOffset1);
+        sb.AppendLine($"{classLinePrefix}{parser.ModelType}>");
+
         sb.AppendLine("    {");
-        sb.AppendLine($"        public override NavigationResult Render({parser.ModelType} Model)");
+
+        // Track @model type in "Render(ModelType Model)"
+        var renderPrefix = "        public override NavigationResult Render(";
+        var modelOffset2 = sb.Length + renderPrefix.Length;
+        generatedModelTypeOffsets.Add(modelOffset2);
+        sb.AppendLine($"{renderPrefix}{parser.ModelType} Model)");
+
         sb.AppendLine("        {");
 
         // Record where the code body starts in the generated document
@@ -126,7 +155,9 @@ public class CvwGeneratedDocumentFactory
             GeneratedText = sb.ToString(),
             GeneratedCodeBodyOffset = generatedCodeBodyOffset,
             OriginalCodeBodyOffset = parser.CodeBodyOffset,
-            Parser = parser
+            Parser = parser,
+            GeneratedModelTypeOffsets = generatedModelTypeOffsets,
+            GeneratedUsingOffsets = generatedUsingOffsets
         };
     }
 
