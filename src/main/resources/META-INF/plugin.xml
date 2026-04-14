@@ -69,6 +69,13 @@
 
         <colorSettingsPage
             implementation="com.github.mateuszpodeszwa.consolemvc.cvwsupport.highlighting.CvwColorSettingsPage"/>
+
+        <lang.documentationProvider
+            language="CVW"
+            implementationClass="com.github.mateuszpodeszwa.consolemvc.cvwsupport.documentation.CvwDocumentationProvider"/>
+
+        <extendWordSelectionHandler
+            implementation="com.github.mateuszpodeszwa.consolemvc.cvwsupport.editor.CvwWordSelectionHandler"/>
     </extensions>
 
     <actions>
