@@ -2,6 +2,7 @@
 .gradle/
 build/
 !gradle/wrapper/gradle-wrapper.jar
+gradle.properties
 
 # IntelliJ Platform Plugin sandbox
 .intellijPlatform/
