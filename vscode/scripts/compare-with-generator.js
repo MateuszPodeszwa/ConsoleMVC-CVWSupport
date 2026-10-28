@@ -13,7 +13,6 @@ const { spawnSync } = require('node:child_process');
 const { MarkupSchema } = require('../src/schema/MarkupSchema');
 const { SchemaValidator } = require('../src/language/SchemaValidator');
 
-const tool = process.argv[2] || 'cvw-preview';
 const schema = MarkupSchema.load();
 const validator = new SchemaValidator(schema);
 
@@ -41,64 +40,78 @@ function sample(name) {
     return `<${name}${attributes}>${element.children ? sample(element.children[0]) : 'x'}</${name}>`;
 }
 
-const lines = [];
-const labels = [];
-for (const element of schema.elements) {
-    if (element.name === 'partial' || element.name === 'body') {
-        continue; // they need files and a layout
-    }
-    for (const attribute of element.attributes.filter(a => !a.flag)) {
-        const values = new Set([...COMMON_VALUES, ...(attribute.values ?? [])]);
-        for (const edge of [attribute.minimum, attribute.maximum]) {
-            if (edge !== undefined) {
-                values.add(String(edge));
-                values.add(String(edge + (edge === attribute.minimum ? -1 : 1)));
+/**
+ * Checks thousands of generated views with the tool and with SchemaValidator.
+ *
+ * @param {string} tool The cvw-preview command.
+ * @returns {{compared: number, differences: string[]}} Each line where only one of them reports an error.
+ * @example
+ * const { differences } = compare('/home/me/.dotnet/tools/cvw-preview');
+ */
+function compare(tool) {
+    const lines = [];
+    const labels = [];
+    for (const element of schema.elements) {
+        if (element.name === 'partial' || element.name === 'body') {
+            continue; // they need files and a layout
+        }
+        for (const attribute of element.attributes.filter(a => !a.flag)) {
+            const values = new Set([...COMMON_VALUES, ...(attribute.values ?? [])]);
+            for (const edge of [attribute.minimum, attribute.maximum]) {
+                if (edge !== undefined) {
+                    values.add(String(edge));
+                    values.add(String(edge + (edge === attribute.minimum ? -1 : 1)));
+                }
+            }
+            for (const value of values) {
+                const extra = requiredAttributes(element, attribute) + (element.name === 'option' && attribute.name !== 'nav' ? ' quit' : '');
+                const content = element.content === 'void' ? null : element.children ? sample(element.children[0]) : 'x';
+                let markup = content === null
+                    ? `<${element.name} ${attribute.name}="${value}"${extra} />`
+                    : `<${element.name} ${attribute.name}="${value}"${extra}>${content}</${element.name}>`;
+                if (element.parents) {
+                    markup = `<${element.parents[0]}>${markup}</${element.parents[0]}>`;
+                }
+                lines.push(markup);
+                labels.push(`<${element.name} ${attribute.name}="${value}">`);
             }
         }
-        for (const value of values) {
-            const extra = requiredAttributes(element, attribute) + (element.name === 'option' && attribute.name !== 'nav' ? ' quit' : '');
-            const content = element.content === 'void' ? null : element.children ? sample(element.children[0]) : 'x';
-            let markup = content === null
-                ? `<${element.name} ${attribute.name}="${value}"${extra} />`
-                : `<${element.name} ${attribute.name}="${value}"${extra}>${content}</${element.name}>`;
-            if (element.parents) {
-                markup = `<${element.parents[0]}>${markup}</${element.parents[0]}>`;
+    }
+
+    // The tool stops reporting after many errors, so views are checked 40 lines at a time
+    const generator = new Set();
+    const ours = new Set();
+    for (let first = 0; first < lines.length; first += 40) {
+        const text = lines.slice(first, first + 40).join('\n');
+        const result = spawnSync(tool, ['--stdin', '--width', '200'], { input: text });
+        if (result.error) {
+            throw new Error(`Cannot run ${tool}: ${result.error.message}`);
+        }
+        for (const line of result.stderr.toString().split('\n')) {
+            const match = /^(\d+):\d+: error /.exec(line);
+            if (match) {
+                generator.add(Number(match[1]) + first);
             }
-            lines.push(markup);
-            labels.push(`<${element.name} ${attribute.name}="${value}">`);
+        }
+        for (const problem of validator.validate(text)) {
+            ours.add(text.slice(0, problem.start).split('\n').length + first);
         }
     }
-}
 
-// The tool stops reporting after many errors, so views are checked 40 lines at a time
-const tool_ = new Map();
-const ours = new Map();
-const add = (map, line, message) => map.set(line, [...(map.get(line) ?? []), message]);
-for (let first = 0; first < lines.length; first += 40) {
-    const text = lines.slice(first, first + 40).join('\n');
-    const result = spawnSync(tool, ['--stdin', '--width', '200'], { input: text });
-    if (result.error) {
-        console.error(`Cannot run ${tool}: ${result.error.message}`);
-        process.exit(2);
-    }
-    for (const line of result.stderr.toString().split('\n')) {
-        const match = /^(\d+):\d+: error (\w+): (.*)/.exec(line);
-        if (match) {
-            add(tool_, Number(match[1]) + first, `${match[2]} ${match[3]}`);
+    const differences = [];
+    for (let line = 1; line <= lines.length; line++) {
+        if (generator.has(line) !== ours.has(line)) {
+            differences.push(`${generator.has(line) ? 'generator only' : 'extension only'} ${labels[line - 1]}`);
         }
     }
-    for (const problem of validator.validate(text)) {
-        add(ours, text.slice(0, problem.start).split('\n').length + first, problem.message);
-    }
+    return { compared: lines.length, differences };
 }
 
-let differences = 0;
-for (let line = 1; line <= lines.length; line++) {
-    if (tool_.has(line) !== ours.has(line)) {
-        differences++;
-        const [who, messages] = tool_.has(line) ? ['generator only', tool_.get(line)] : ['extension only', ours.get(line)];
-        console.log(`${who.padEnd(15)} ${labels[line - 1]}  ${messages.join(' | ')}`);
-    }
+if (require.main === module) {
+    const { compared, differences } = compare(process.argv[2] || 'cvw-preview');
+    differences.forEach(d => console.log(d));
+    console.log(`${compared} views compared, ${differences.length} differences`);
+    process.exitCode = differences.length > 0 ? 1 : 0;
 }
-console.log(`${lines.length} views compared, ${differences} differences`);
-process.exitCode = differences > 0 ? 1 : 0;
+
+module.exports = { compare };

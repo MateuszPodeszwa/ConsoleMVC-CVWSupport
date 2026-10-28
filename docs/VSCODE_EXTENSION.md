@@ -166,7 +166,7 @@ A test checks that the checked-in grammar matches the schema.
 |---|---|
 | `npm test` (node:test) | Schema lookups; the parser on the template's views and on broken text; completion, hover and checks; the runner with a fake tool (drawn, failing, garbage, too large, missing); the panel's HTML and its escaping; the controller with a fake VS Code API (fallbacks, untrusted folders, debouncing, stale screens); the grammar tokenised by vscode-textmate with Oniguruma; the manifest and snippets |
 | `npm run test:integration` | The extension in a real VS Code: language, completion, hovers, diagnostics while typing, the preview command and block comments |
-| `scripts/compare-with-generator.js` | The schema checks against the real generator |
+| `test/GeneratorComparison.test.js` (with `CVW_PREVIEW`), or `scripts/compare-with-generator.js` | The schema checks against the real generator, on over 7,000 generated views |
 
 Set `CSHARP_GRAMMAR` to VS Code's `csharp.tmLanguage.json` to run the grammar tests with the real C# grammar instead of
 the stand-in, and `CVW_PREVIEW` to a real `cvw-preview` for the integration tests.
