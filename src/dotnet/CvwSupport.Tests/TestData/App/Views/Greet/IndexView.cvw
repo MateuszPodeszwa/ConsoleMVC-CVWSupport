@@ -1,0 +1,29 @@
+@model object
+@using Microsoft.Extensions.Localization
+@* Text comes from Resources/SharedResource*.resx in the run's culture: try dotnet run -- --ConsoleMVC:Culture=pl-PL *@
+@inject IStringLocalizer<ConsoleMVC.App.SharedResource> L
+
+<box title="@L["GreetingTitle"]" border="rounded" color="green">
+    <text>@L["GreetingIntro"]</text>
+</box>
+<br />
+
+@* Shows validation errors when the form is shown again after an invalid submission *@
+<errors />
+
+@* Each field stores its value in Form under its name. Posting Form to the Result
+   action binds the values to the GreetFormModel parameter of GreetController.Result. *@
+<input name="Name" label="@L["NameLabel"]" required />
+
+@* <select> offers fixed choices: arrow keys and Enter in a terminal, or type a number *@
+<select name="Color" label="@L["ColourLabel"]" default="blue">
+    <choice value="red">Red</choice>
+    <choice value="green">Green</choice>
+    <choice value="blue">Blue</choice>
+    <choice value="">No favourite</choice>
+</select>
+
+@* <checkbox> posts "true" or "false", which binds to a bool *@
+<checkbox name="Shout" label="@L["ShoutLabel"]" />
+
+return NavigationResult.ToAction("Result", Form);

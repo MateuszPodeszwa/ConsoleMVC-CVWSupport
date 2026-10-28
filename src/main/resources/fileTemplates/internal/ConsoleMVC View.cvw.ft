@@ -1,4 +1,11 @@
 @model ${MODEL_TYPE}
 
-Console.WriteLine(Model);
-return NavigationResult.Quit();
+<box title="${NAME}" class="panel">
+    <text>@Model</text>
+</box>
+<br />
+
+<menu>
+    <option key="b" back>Back</option>
+    <option key="q" quit>Exit</option>
+</menu>

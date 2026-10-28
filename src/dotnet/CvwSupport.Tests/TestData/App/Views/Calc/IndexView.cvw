@@ -1,0 +1,23 @@
+@model object
+
+<box title="Calculator" border="rounded" color="yellow">
+    <text>Enter two whole numbers and an operator.</text>
+</box>
+<br />
+
+<errors />
+
+@* The values are posted individually and bound by name to the parameters of
+   CalcController.Result(int a, int b, string op). *@
+@* <number> checks the range and whole numbers itself (Up/Down change it in a terminal);
+   <radio> offers the operators side by side (Left/Right in a terminal, or type 1 to 4). *@
+<number name="a" label="  First number:  " default="0" min="-1000000" max="1000000" decimals="0" />
+<radio name="op" label="  Operator:" default="+">
+    <choice>+</choice>
+    <choice>-</choice>
+    <choice>*</choice>
+    <choice>/</choice>
+</radio>
+<number name="b" label="  Second number: " default="0" min="-1000000" max="1000000" decimals="0" />
+
+return NavigationResult.ToAction("Result", Form);

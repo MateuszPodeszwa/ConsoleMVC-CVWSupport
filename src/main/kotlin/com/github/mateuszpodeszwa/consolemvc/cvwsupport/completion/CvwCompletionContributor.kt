@@ -8,13 +8,10 @@ import com.intellij.patterns.PlatformPatterns
 import com.intellij.util.ProcessingContext
 
 /**
- * Provides code completion for .cvw files.
- *
- * Phase 1 (frontend-only) completions:
- * - Directive keywords (@model, @using) at the start of lines in the directive section
- * - NavigationResult static methods in the code body
- * - Common Console methods in the code body
- * - ViewData access in the code body
+ * Provides code completion for .cvw files:
+ * - C-View Markup, from the markup schema ([CvwMarkupCompletionProvider]): elements allowed where the caret is,
+ *   attributes, values, closing tags, directives and `@` constructs
+ * - NavigationResult methods, Console methods, ViewData and Model in the C# parts
  */
 class CvwCompletionContributor : CompletionContributor() {
     init {
@@ -29,12 +26,12 @@ class CvwCompletionContributor : CompletionContributor() {
             CvwCodeBodyCompletionProvider()
         )
 
-        // Completion at the start of directives
+        // C-View Markup and directives, anywhere in a view
         extend(
             CompletionType.BASIC,
             PlatformPatterns.psiElement()
                 .withLanguage(CvwLanguage.INSTANCE),
-            CvwDirectiveCompletionProvider()
+            CvwMarkupCompletionProvider()
         )
     }
 }
@@ -136,7 +133,7 @@ private class CvwCodeBodyCompletionProvider : CompletionProvider<CompletionParam
             result.addElement(MODEL_LOOKUP)
         }
 
-        // return keyword (important since every .cvw must return)
+        // return keyword (a view without a <menu> returns where to go next)
         if ("return".startsWith(prefix, ignoreCase = true)) {
             result.addElement(
                 LookupElementBuilder.create("return")
@@ -144,54 +141,5 @@ private class CvwCodeBodyCompletionProvider : CompletionProvider<CompletionParam
                     .withTailText(" NavigationResult...")
             )
         }
-    }
-}
-
-/**
- * Provides @model and @using directive completions at the start of lines.
- */
-private class CvwDirectiveCompletionProvider : CompletionProvider<CompletionParameters>() {
-    override fun addCompletions(
-        parameters: CompletionParameters,
-        context: ProcessingContext,
-        result: CompletionResultSet
-    ) {
-        val position = parameters.position
-        val document = parameters.editor.document
-        val lineNumber = document.getLineNumber(position.textOffset)
-        val lineStart = document.getLineStartOffset(lineNumber)
-        val textBeforeCaret = document.getText(com.intellij.openapi.util.TextRange(lineStart, position.textOffset)).trim()
-
-        // Only suggest directives if we're at the start of a line and before the code body
-        if (textBeforeCaret.isEmpty() || textBeforeCaret == "@" || textBeforeCaret.startsWith("@m") || textBeforeCaret.startsWith("@u")) {
-            // Check if we're still in the directive section (no code lines above)
-            val isInDirectiveSection = isBeforeCodeBody(document, lineNumber)
-            if (isInDirectiveSection) {
-                result.addElement(
-                    LookupElementBuilder.create("@model ")
-                        .withPresentableText("@model")
-                        .withTailText(" <fully-qualified-type>")
-                        .bold()
-                )
-                result.addElement(
-                    LookupElementBuilder.create("@using ")
-                        .withPresentableText("@using")
-                        .withTailText(" <namespace>")
-                        .bold()
-                )
-            }
-        }
-    }
-
-    private fun isBeforeCodeBody(document: com.intellij.openapi.editor.Document, currentLine: Int): Boolean {
-        for (i in 0 until currentLine) {
-            val lineStart = document.getLineStartOffset(i)
-            val lineEnd = document.getLineEndOffset(i)
-            val lineText = document.getText(com.intellij.openapi.util.TextRange(lineStart, lineEnd)).trim()
-            if (lineText.isNotEmpty() && !lineText.startsWith("@model ") && !lineText.startsWith("@using ")) {
-                return false // Code body has started
-            }
-        }
-        return true
     }
 }

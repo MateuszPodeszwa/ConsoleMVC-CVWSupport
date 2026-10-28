@@ -1,0 +1,54 @@
+name: Rider plugin
+
+# Builds and tests the Rider plugin (Kotlin frontend and ReSharper backend), checks it with the Plugin Verifier and
+# keeps the plugin ZIP as an artifact. When the ConsoleMVC.Preview tool can be installed, the schema checks are also
+# compared with ConsoleMVC's own generator.
+
+on:
+  push:
+    branches: [main]
+    paths-ignore: [vscode/**, .github/workflows/vscode.yml]
+  pull_request:
+    paths-ignore: [vscode/**, .github/workflows/vscode.yml]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      DOTNET_NOLOGO: "1"
+      DOTNET_CLI_TELEMETRY_OPTOUT: "1"
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Install cvw-preview, to compare the checks with the generator
+        run: |
+          if dotnet tool install -g ConsoleMVC.Preview; then
+            echo "CVW_PREVIEW=$HOME/.dotnet/tools/cvw-preview" >> "$GITHUB_ENV"
+          else
+            echo "::notice::ConsoleMVC.Preview is not available; the comparison with the generator is skipped"
+          fi
+
+      - name: Build, test and verify the plugin
+        run: ./gradlew test buildPlugin verifyPlugin -x buildSearchableOptions
+
+      - name: Test the backend's design-time documents
+        run: dotnet test src/dotnet/CvwSupport.Tests --configuration Release
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: rider-plugin
+          path: build/distributions/*.zip

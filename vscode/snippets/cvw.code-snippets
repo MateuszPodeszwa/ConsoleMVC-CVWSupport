@@ -1,0 +1,76 @@
+{
+    "View": {
+        "prefix": "cvw",
+        "description": "A view with a model, a box and a menu",
+        "body": [
+            "@model ${1:MyApp.Models.${2:Home}ViewModel}",
+            "",
+            "<box title=\"@Model.Title\" class=\"panel\">",
+            "\t<text>${3:@Model.Message}</text>",
+            "</box>",
+            "<br />",
+            "",
+            "<menu>",
+            "\t<option key=\"1\" nav=\"${4:Home/About}\">${5:About}</option>",
+            "\t<option key=\"q\" quit>Exit</option>",
+            "</menu>",
+            "$0"
+        ]
+    },
+    "Form": {
+        "prefix": "cvw-form",
+        "description": "A view that collects fields and posts them to an action",
+        "body": [
+            "<errors />",
+            "",
+            "<input name=\"${1:Name}\" label=\"${2:Name: }\" required />",
+            "$0",
+            "",
+            "return NavigationResult.ToAction(\"${3:Result}\", Form);"
+        ]
+    },
+    "Layout": {
+        "prefix": "cvw-layout",
+        "description": "A layout for Views/Shared/_Layout.cvw: header, the page at <body />, footer",
+        "body": [
+            "<breadcrumbs class=\"muted\" />",
+            "<body />",
+            "<separator class=\"muted\" />",
+            "<shortcuts class=\"muted\" />",
+            "$0"
+        ]
+    },
+    "Table": {
+        "prefix": "cvw-table",
+        "description": "A table with a header row and a row per item",
+        "body": [
+            "<table border=\"rounded\">",
+            "\t<row header>",
+            "\t\t<cell>${1:Name}</cell>",
+            "\t</row>",
+            "\t@foreach (var ${2:item} in ${3:Model.Items})",
+            "\t{",
+            "\t\t<row>",
+            "\t\t\t<cell>@${2:item}.${1:Name}</cell>",
+            "\t\t</row>",
+            "\t}",
+            "</table>",
+            "$0"
+        ]
+    },
+    "Columns": {
+        "prefix": "cvw-columns",
+        "description": "Two columns that stack on narrow terminals",
+        "body": [
+            "<columns gap=\"2\" stack-below=\"60\">",
+            "\t<column width=\"50%\">",
+            "\t\t$1",
+            "\t</column>",
+            "\t<column>",
+            "\t\t$2",
+            "\t</column>",
+            "</columns>",
+            "$0"
+        ]
+    }
+}

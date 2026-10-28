@@ -1,0 +1,8 @@
+@model ConsoleMVC.App.Models.HomeViewModel
+
+@* A partial view: files in Views/Shared are reusable pieces of markup.
+   Views render this one with <partial name="PageHeader" model="@Model" />. *@
+<box title="@Model.Title" border="rounded" color="cyan" padding="2">
+    <text>@Model.Message</text>
+</box>
+<br />

@@ -1,0 +1,176 @@
+{
+    "name": "consolemvc-cvw",
+    "displayName": "ConsoleMVC C-View Markup",
+    "description": "Highlighting, completion, documentation, checks and a live preview for ConsoleMVC .cvw views.",
+    "version": "0.1.0",
+    "publisher": "MateuszPodeszwa",
+    "author": {
+        "name": "Mateusz Podeszwa",
+        "email": "podinatubie@gmail.com",
+        "url": "https://github.com/MateuszPodeszwa"
+    },
+    "license": "MIT",
+    "icon": "icons/cvw.png",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/MateuszPodeszwa/ConsoleMVC-CVWSupport"
+    },
+    "bugs": {
+        "url": "https://github.com/MateuszPodeszwa/ConsoleMVC-CVWSupport/issues"
+    },
+    "homepage": "https://github.com/MateuszPodeszwa/ConsoleMVC-CVWSupport/tree/main/vscode#readme",
+    "keywords": [
+        "consolemvc",
+        "cvw",
+        "c-view markup",
+        "console",
+        "mvc",
+        "dotnet"
+    ],
+    "categories": [
+        "Programming Languages",
+        "Snippets",
+        "Linters"
+    ],
+    "engines": {
+        "vscode": "^1.90.0",
+        "node": ">=20"
+    },
+    "main": "./src/extension.js",
+    "activationEvents": [],
+    "capabilities": {
+        "untrustedWorkspaces": {
+            "supported": "limited",
+            "description": "In untrusted folders the preview and its checks are off, so cvw-preview never runs; highlighting, completion and the schema checks still work."
+        },
+        "virtualWorkspaces": {
+            "supported": "limited",
+            "description": "The preview needs files on disk; everything else works."
+        }
+    },
+    "contributes": {
+        "languages": [
+            {
+                "id": "cvw",
+                "aliases": [
+                    "C-View Markup",
+                    "cvw"
+                ],
+                "extensions": [
+                    ".cvw"
+                ],
+                "configuration": "./language-configuration.json",
+                "icon": {
+                    "light": "./icons/cvw.svg",
+                    "dark": "./icons/cvw.svg"
+                }
+            }
+        ],
+        "grammars": [
+            {
+                "language": "cvw",
+                "scopeName": "source.cvw",
+                "path": "./syntaxes/cvw.tmLanguage.json",
+                "embeddedLanguages": {
+                    "meta.embedded.block.cs": "csharp",
+                    "meta.embedded.expression.cs": "csharp"
+                }
+            }
+        ],
+        "snippets": [
+            {
+                "language": "cvw",
+                "path": "./snippets/cvw.code-snippets"
+            }
+        ],
+        "commands": [
+            {
+                "command": "consolemvc.showPreview",
+                "title": "Open Preview",
+                "category": "ConsoleMVC",
+                "icon": "$(open-preview)"
+            },
+            {
+                "command": "consolemvc.showPreviewToSide",
+                "title": "Open Preview to the Side",
+                "category": "ConsoleMVC",
+                "icon": "$(open-preview)"
+            }
+        ],
+        "menus": {
+            "editor/title": [
+                {
+                    "command": "consolemvc.showPreviewToSide",
+                    "when": "editorLangId == cvw",
+                    "group": "navigation"
+                }
+            ],
+            "commandPalette": [
+                {
+                    "command": "consolemvc.showPreview",
+                    "when": "editorLangId == cvw"
+                },
+                {
+                    "command": "consolemvc.showPreviewToSide",
+                    "when": "editorLangId == cvw"
+                }
+            ]
+        },
+        "keybindings": [
+            {
+                "command": "consolemvc.showPreviewToSide",
+                "key": "ctrl+k v",
+                "mac": "cmd+k v",
+                "when": "editorLangId == cvw"
+            }
+        ],
+        "configuration": {
+            "title": "ConsoleMVC",
+            "properties": {
+                "consolemvc.preview.path": {
+                    "type": "string",
+                    "default": "cvw-preview",
+                    "scope": "machine",
+                    "markdownDescription": "The `cvw-preview` command, or its full path. Install it with `dotnet tool install -g ConsoleMVC.Preview`. Only user settings can change it, so a folder cannot make the extension run another program."
+                },
+                "consolemvc.preview.width": {
+                    "type": "integer",
+                    "default": 80,
+                    "minimum": 20,
+                    "maximum": 500,
+                    "markdownDescription": "The width of the preview, in columns."
+                },
+                "consolemvc.preview.highContrast": {
+                    "type": "boolean",
+                    "default": false,
+                    "markdownDescription": "Draws the preview with ConsoleMVC's high-contrast theme."
+                },
+                "consolemvc.preview.delay": {
+                    "type": "integer",
+                    "default": 300,
+                    "minimum": 50,
+                    "maximum": 5000,
+                    "markdownDescription": "How long to wait after typing stops before the preview and checks are updated, in milliseconds."
+                },
+                "consolemvc.diagnostics.enabled": {
+                    "type": "boolean",
+                    "default": true,
+                    "markdownDescription": "Checks views while they are typed: with `cvw-preview` (the build's own checks) when it is installed, otherwise against the markup schema."
+                }
+            }
+        }
+    },
+    "scripts": {
+        "test": "node --test \"test/**/*.test.js\"",
+        "build-grammar": "node scripts/build-grammar.js",
+        "sync-schema": "node scripts/sync-schema.js",
+        "package": "vsce package --no-dependencies",
+        "test:integration": "node test/integration/runTest.js"
+    },
+    "devDependencies": {
+        "@vscode/test-electron": "3.1.0",
+        "@vscode/vsce": "4.0.0",
+        "vscode-oniguruma": "2.0.1",
+        "vscode-textmate": "9.3.2"
+    }
+}

@@ -1,12 +1,22 @@
 package com.github.mateuszpodeszwa.consolemvc.cvwsupport.documentation
 
 import com.github.mateuszpodeszwa.consolemvc.cvwsupport.lexer.CvwTokenTypes
+import com.github.mateuszpodeszwa.consolemvc.cvwsupport.markup.MarkupDocumentation
+import com.github.mateuszpodeszwa.consolemvc.cvwsupport.markup.MarkupParser
+import com.github.mateuszpodeszwa.consolemvc.cvwsupport.markup.MarkupSchema
 import com.intellij.lang.documentation.AbstractDocumentationProvider
 import com.intellij.lang.documentation.DocumentationMarkup
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.elementType
 
+/**
+ * Quick documentation (Ctrl+Q, and on hover) for views: C-View Markup elements, attributes and directives from the
+ * markup schema, and the framework's names in C# (Model, ViewData, NavigationResult).
+ *
+ * Example: on `border` in `<box border="double">` it shows "The border style." and the borders it accepts.
+ */
 class CvwDocumentationProvider : AbstractDocumentationProvider() {
+    private val schema = MarkupSchema.bundled
 
     override fun generateDoc(element: PsiElement?, originalElement: PsiElement?): String? {
         val target = originalElement ?: element ?: return null
@@ -32,6 +42,16 @@ class CvwDocumentationProvider : AbstractDocumentationProvider() {
             )
 
             CvwTokenTypes.CS_IDENTIFIER -> generateIdentifierDoc(target)
+
+            CvwTokenTypes.TAG_NAME -> schema.element(target.text)?.let { markupDoc(MarkupDocumentation.element(it)) }
+
+            CvwTokenTypes.ATTRIBUTE_NAME -> {
+                val text = target.containingFile?.text ?: return null
+                val element = MarkupParser.parse(text, schema).startTagAt(target.textRange.startOffset)
+                element?.let { schema.attribute(it.name, target.text) }?.let { markupDoc(MarkupDocumentation.attribute(it)) }
+            }
+
+            CvwTokenTypes.DIRECTIVE_KEYWORD -> schema.directive(target.text)?.let { markupDoc(MarkupDocumentation.directive(it)) }
 
             CvwTokenTypes.DIRECTIVE_ARGUMENT -> {
                 val prevSibling = findPreviousNonWhitespace(target)
@@ -83,7 +103,7 @@ class CvwDocumentationProvider : AbstractDocumentationProvider() {
                 "NavigationResult",
                 "Class: ConsoleMVC.Mvc",
                 "Represents the navigation outcome of a view's <code>Render()</code> method. " +
-                    "Every .cvw code body must return a <code>NavigationResult</code>.",
+                    "A view without a <code>&lt;menu&gt;</code> returns one to say where to go next.",
                 "NavigationResult.To(\"Controller\", \"Action\")\n" +
                     "NavigationResult.ToAction(\"Action\")\n" +
                     "NavigationResult.Quit()"
@@ -120,6 +140,10 @@ class CvwDocumentationProvider : AbstractDocumentationProvider() {
         }
     }
 
+    /** Wraps documentation from [MarkupDocumentation] in the IDE's documentation layout. */
+    private fun markupDoc(html: String): String =
+        DocumentationMarkup.CONTENT_START + html + DocumentationMarkup.CONTENT_END
+
     private fun isPrecededByNavigationResult(element: PsiElement): Boolean {
         // Walk backwards: expect DOT, then "NavigationResult" identifier
         var prev = element.prevSibling
@@ -142,7 +166,7 @@ class CvwDocumentationProvider : AbstractDocumentationProvider() {
         val sb = StringBuilder()
         sb.append(DocumentationMarkup.DEFINITION_START)
         sb.append("<b>").append(name).append("</b>")
-        sb.append(" &mdash; <i>").append(type).append("</i>")
+        sb.append(": <i>").append(type).append("</i>")
         sb.append(DocumentationMarkup.DEFINITION_END)
 
         sb.append(DocumentationMarkup.CONTENT_START)
@@ -165,8 +189,9 @@ class CvwDocumentationProvider : AbstractDocumentationProvider() {
     override fun getQuickNavigateInfo(element: PsiElement?, originalElement: PsiElement?): String? {
         val target = originalElement ?: element ?: return null
         return when (target.elementType) {
-            CvwTokenTypes.MODEL_KEYWORD -> "@model — CVW directive (declares view model type)"
-            CvwTokenTypes.USING_KEYWORD -> "@using — CVW directive (imports namespace)"
+            CvwTokenTypes.MODEL_KEYWORD -> "@model: CVW directive (declares view model type)"
+            CvwTokenTypes.USING_KEYWORD -> "@using: CVW directive (imports namespace)"
+            CvwTokenTypes.TAG_NAME -> schema.element(target.text)?.let { "<${target.text}>: ${it.description}" }
             else -> null
         }
     }

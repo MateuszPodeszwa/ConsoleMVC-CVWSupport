@@ -1,13 +1,13 @@
 # Development Log
 
-## 2026-04-14 — Session 1: Project Bootstrap & Tier 1
+## 2026-04-14: Session 1: Project Bootstrap & Tier 1
 
 ### Decisions Made
 - **Build system**: Gradle with `intellij-platform-gradle-plugin` 2.14.0
 - **Target IDE**: Rider 2025.1+ (IntelliJ Platform 2025.1, sinceBuild=251)
 - **Language**: Kotlin for frontend plugin code
 - **Strategy**: Frontend-first (Phase 1), then ReSharper backend (Phase 2)
-- **Java**: OpenJDK 25.0.2 (installed via Homebrew — JDK 21 toolchain target)
+- **Java**: OpenJDK 25.0.2 (installed via Homebrew: JDK 21 toolchain target)
 - **Gradle**: 9.4.1 (installed via Homebrew)
 - **Rider SDK**: Using default `useInstaller=true` (the `riderRD` non-installer variant requires ~10GB+ extraction and caused disk space issues on this machine)
 - **Lexer**: Hand-written (not JFlex) for simplicity. Two-mode: directive + C# code body.
@@ -16,7 +16,7 @@
 
 ### Work Completed
 
-#### Tier 1 — Essential (COMPLETE)
+#### Tier 1: Essential (COMPLETE)
 
 1. **File Type Registration**
    - `CvwLanguage` singleton extending `Language`
@@ -38,7 +38,7 @@
 
 4. **Error Highlighting**
    - `CvwAnnotator` at file level with checks:
-     - Missing `@model` directive (warning — file will be skipped by generator)
+     - Missing `@model` directive (warning: file will be skipped by generator)
      - Empty `@model`/`@using` arguments (error)
      - Empty code body (warning)
      - Missing `return` statement (warning)
@@ -48,7 +48,7 @@
    - `CvwBraceMatcher` for paired braces
    - `CvwCommenter` for `//` and `/* */` comment toggling
 
-#### Tier 2 — Important (COMPLETE — frontend scope)
+#### Tier 2, Important (COMPLETE, frontend scope)
 
 5. **Navigation**
    - `CvwViewLineMarkerProvider`: gutter icon on .cvw files linking to controller
@@ -56,17 +56,17 @@
    - Uses naming convention: `Views/{Name}/` -> `{Name}Controller.cs`
 
 6. **Live Templates**
-   - `cvw` — full .cvw file scaffold with @model and return
-   - `navto` — `NavigationResult.To("Controller", "Action")`
-   - `navaction` — `NavigationResult.ToAction("Action")`
-   - `navquit` — `NavigationResult.Quit()`
+   - `cvw`: full .cvw file scaffold with @model and return
+   - `navto`: `NavigationResult.To("Controller", "Action")`
+   - `navaction`: `NavigationResult.ToAction("Action")`
+   - `navquit`: `NavigationResult.Quit()`
    - Registered with `CvwLiveTemplateContext` for .cvw files
 
 7. **File Templates**
    - "ConsoleMVC View" internal file template
    - `CvwCreateFileAction` added to New menu group
 
-#### Tier 3 — Nice to Have (PARTIAL)
+#### Tier 3: Nice to Have (PARTIAL)
 
 8. **Structure View**
    - Shows @model type, @using imports, and NavigationResult targets
@@ -97,7 +97,7 @@
     - Allows customization of all 15 token highlight colors
     - Includes demo text showing all token types
 
-#### Phase 2 — Backend (STARTED)
+#### Phase 2: Backend (STARTED)
 
 13. **ReSharper Backend Structure**
     - Created `src/dotnet/CvwSupport.sln` with `CvwSupport.csproj` targeting `net472`
@@ -120,7 +120,7 @@
 - `dotnet build CvwSupport.sln` succeeds with 0 errors
 - Plugin JAR produced at `build/libs/ConsoleMVC-CvwSupport-0.1.0.jar`
 
-### Next Steps (Phase 2 — Remaining Backend Work)
+### Next Steps (Phase 2: Remaining Backend Work)
 - ~~Wire CvwGeneratedDocumentFactory into ReSharper's ISecondaryDocumentGenerationService~~ DONE
 - Enable Ctrl+Click on @model to resolve to CLR type definitions
 - Full semantic code completion in the code body via the generated document
@@ -128,7 +128,7 @@
 - Rename/move refactoring propagation to .cvw files
 - Test end-to-end in a real Rider instance with a ConsoleMVC project
 
-## 2026-04-14 — Session 2: Backend Generated Document Service Wiring
+## 2026-04-14: Session 2: Backend Generated Document Service Wiring
 
 ### Decisions Made
 - **Base class**: `GeneratedDocumentServiceBase` from `JetBrains.ReSharper.Psi.Web.Generation` namespace (`JetBrains.ReSharper.Psi.Web.dll`). This is the same base class Razor uses.
@@ -156,9 +156,9 @@
 - Abstract methods to override: `Generate()`, `GetSecondaryPsiLanguageTypes()`, `IsSecondaryPsiLanguageType()`
 - `SecondaryDocumentGenerationResult` ctor: `(string text, PsiLanguageType language, ISecondaryRangeTranslator, ILexerFactory)`
 - `RangeTranslatorWithGeneratedRangeMap` ctor: `(IGeneratedRangeMap)`
-- `GeneratedRangeMapFactory.CreateGeneratedRangeMap(IFile originalFile)` — static factory
-- `IGeneratedRangeMap.Add(TreeTextRange<Generated>, TreeTextRange<Original>)` — for building the range map
-- `GeneratedDocumentServiceAttribute` ctor: `(Type type, Instantiation instantiation)` — registration attribute
+- `GeneratedRangeMapFactory.CreateGeneratedRangeMap(IFile originalFile)`: static factory
+- `IGeneratedRangeMap.Add(TreeTextRange<Generated>, TreeTextRange<Original>)`: for building the range map
+- `GeneratedDocumentServiceAttribute` ctor: `(Type type, Instantiation instantiation)`: registration attribute
 - `CSharpLanguage` is in `JetBrains.ReSharper.Psi.CSharp` namespace / `JetBrains.ReSharper.Psi.CSharp.dll`
 
 16. **Directive Argument Range Mapping**
@@ -211,7 +211,7 @@
 - ~~Cross-file inspections (model type mismatch with controller's View() call)~~ DONE
 - End-to-end testing in Rider with a real ConsoleMVC project
 
-## 2026-04-14 — Session 3: Cross-File Model Mismatch Inspection
+## 2026-04-14: Session 3: Cross-File Model Mismatch Inspection
 
 ### Work Completed
 

@@ -1,16 +1,13 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace CvwSupport;
 
 /// <summary>
-/// Parses a .cvw file into its constituent parts: model type, usings, and code body.
-/// This mirrors the parsing logic of the ConsoleMVC source generator exactly.
+/// The location and value of a directive's argument in the original .cvw text.
 /// </summary>
-/// <summary>
-/// Represents the location and value of a directive argument in the original .cvw text.
-/// </summary>
+/// <example><code>var type = parser.ModelTypeLocation?.Value; // "Shop.Models.HomeViewModel"</code></example>
 public class DirectiveArgLocation
 {
     /// <summary>Character offset in the original text where the argument starts.</summary>
@@ -23,111 +20,96 @@ public class DirectiveArgLocation
     public string Value { get; init; } = "";
 }
 
+/// <summary>An <c>@inject Type Name</c> directive: the service's type and the property's name, with their locations.</summary>
+/// <example><code>foreach (var inject in parser.Injects) Console.WriteLine($"{inject.Type.Value} {inject.Name.Value}");</code></example>
+public class InjectLocation
+{
+    /// <summary>The service's type, such as <c>IStringLocalizer&lt;SharedResource&gt;</c>.</summary>
+    public DirectiveArgLocation Type { get; init; } = new();
+
+    /// <summary>The property's name, such as <c>L</c>.</summary>
+    public DirectiveArgLocation Name { get; init; } = new();
+}
+
+/// <summary>
+/// Reads the directives of a .cvw view (<c>@model</c>, <c>@using</c>, <c>@inject</c>; <c>@layout</c> and
+/// <c>@refresh</c> need nothing in the virtual document), with where their arguments are, as ConsoleMVC's generator
+/// does: a directive is a line starting with it, outside markup. The body is classified by <see cref="CvwMarkupMask"/>.
+/// </summary>
+/// <example>
+/// <code>
+/// var parser = new CvwFileParser();
+/// parser.Parse("@model Shop.Models.Cart\n&lt;text&gt;@Model.Count&lt;/text&gt;");
+/// parser.ModelType; // "Shop.Models.Cart"
+/// </code>
+/// </example>
 public class CvwFileParser
 {
-    public string? ModelType { get; private set; }
+    private static readonly Regex DirectiveLine = new(@"^[ \t]*@(model|using|inject)[ \t]+([^\r\n]*?)[ \t]*\r?$", RegexOptions.Multiline);
+
+    private static readonly Regex InjectArguments = new(@"^(.+?)\s+([\p{L}_][\p{L}\p{Nd}_]*)$");
+
+    /// <summary>The model type, or <see langword="null"/> when there is no <c>@model</c> (the model is then <c>object</c>).</summary>
+    public string? ModelType => ModelTypeLocation?.Value;
+
+    /// <summary>The namespaces of the <c>@using</c> directives, in order.</summary>
     public List<string> Usings { get; } = new();
-    public int CodeStartLine { get; private set; }
-    public string CodeBody { get; private set; } = "";
-    public string[] AllLines { get; private set; } = Array.Empty<string>();
 
-    /// <summary>
-    /// Offset in the original text where the code body begins.
-    /// Used for range mapping between original and generated documents.
-    /// </summary>
-    public int CodeBodyOffset { get; private set; }
-
-    /// <summary>
-    /// Location of the @model type argument in the original text.
-    /// Null if no @model directive is present.
-    /// </summary>
+    /// <summary>Location of the @model type argument, or null.</summary>
     public DirectiveArgLocation? ModelTypeLocation { get; private set; }
 
-    /// <summary>
-    /// Locations of @using namespace arguments in the original text, in order.
-    /// </summary>
+    /// <summary>Locations of the @using namespace arguments, in order.</summary>
     public List<DirectiveArgLocation> UsingLocations { get; } = new();
 
+    /// <summary>The <c>@inject</c> directives, in order.</summary>
+    public List<InjectLocation> Injects { get; } = new();
+
+    /// <summary>The kind of each character of the view: C#, markup or an expression.</summary>
+    public CvwCharKind[] Kinds { get; private set; } = Array.Empty<CvwCharKind>();
+
+    /// <summary>Whether the view has a <c>&lt;body /&gt;</c>, which makes it a layout.</summary>
+    public bool HasBodyPlaceholder { get; private set; }
+
+    /// <summary>Parses a view's text.</summary>
+    /// <param name="content">The view's text.</param>
     public void Parse(string content)
     {
-        AllLines = content.Split(new[] { "\r\n", "\n" }, StringSplitOptions.None);
-        ModelType = null;
+        ModelTypeLocation = null;
         Usings.Clear();
         UsingLocations.Clear();
-        ModelTypeLocation = null;
-        CodeStartLine = 0;
-        CodeBodyOffset = 0;
+        Injects.Clear();
+        Kinds = CvwMarkupMask.Classify(content);
+        HasBodyPlaceholder = Regex.IsMatch(content, @"<body\s*/>");
 
-        var charOffset = 0;
-
-        for (var i = 0; i < AllLines.Length; i++)
+        foreach (Match match in DirectiveLine.Matches(content))
         {
-            var line = AllLines[i];
-            var trimmed = line.Trim();
-            var leadingSpaces = line.Length - line.TrimStart().Length;
-
-            if (string.IsNullOrWhiteSpace(trimmed))
-            {
-                CodeStartLine = i + 1;
-                charOffset += line.Length + 1; // +1 for \n
+            var keyword = match.Groups[1];
+            var argument = match.Groups[2];
+            // Only directives outside markup: their characters are marked as markup by the mask
+            if (argument.Length == 0 || Kinds[keyword.Index] != CvwCharKind.Markup)
                 continue;
-            }
 
-            if (trimmed.StartsWith("@model "))
+            var location = new DirectiveArgLocation { Offset = argument.Index, Length = argument.Length, Value = argument.Value };
+            switch (keyword.Value)
             {
-                var argText = trimmed.Substring("@model ".Length).Trim();
-                var argStartInTrimmed = trimmed.IndexOf(argText, "@model ".Length, StringComparison.Ordinal);
-                var argOffset = charOffset + leadingSpaces + argStartInTrimmed;
-
-                ModelType = argText;
-                ModelTypeLocation = new DirectiveArgLocation
-                {
-                    Offset = argOffset,
-                    Length = argText.Length,
-                    Value = argText
-                };
-
-                CodeStartLine = i + 1;
-                charOffset += line.Length + 1;
-                continue;
+                case "model":
+                    ModelTypeLocation ??= location;
+                    break;
+                case "using":
+                    Usings.Add(argument.Value);
+                    UsingLocations.Add(location);
+                    break;
+                case "inject":
+                    var parts = InjectArguments.Match(argument.Value);
+                    if (!parts.Success)
+                        break;
+                    Injects.Add(new InjectLocation
+                    {
+                        Type = new DirectiveArgLocation { Offset = argument.Index + parts.Groups[1].Index, Length = parts.Groups[1].Length, Value = parts.Groups[1].Value },
+                        Name = new DirectiveArgLocation { Offset = argument.Index + parts.Groups[2].Index, Length = parts.Groups[2].Length, Value = parts.Groups[2].Value }
+                    });
+                    break;
             }
-
-            if (trimmed.StartsWith("@using "))
-            {
-                var argText = trimmed.Substring("@using ".Length).Trim();
-                var argStartInTrimmed = trimmed.IndexOf(argText, "@using ".Length, StringComparison.Ordinal);
-                var argOffset = charOffset + leadingSpaces + argStartInTrimmed;
-
-                Usings.Add(argText);
-                UsingLocations.Add(new DirectiveArgLocation
-                {
-                    Offset = argOffset,
-                    Length = argText.Length,
-                    Value = argText
-                });
-
-                CodeStartLine = i + 1;
-                charOffset += line.Length + 1;
-                continue;
-            }
-
-            // First non-directive, non-blank line = code body start
-            CodeStartLine = i;
-            CodeBodyOffset = charOffset;
-            break;
-        }
-
-        // If we exhausted all lines without finding code, CodeBodyOffset is at the end
-        if (CodeStartLine >= AllLines.Length)
-        {
-            CodeBodyOffset = content.Length;
-            CodeBody = "";
-        }
-        else
-        {
-            CodeBodyOffset = charOffset;
-            var codeLines = AllLines.Skip(CodeStartLine).ToArray();
-            CodeBody = string.Join("\n", codeLines);
         }
     }
 }

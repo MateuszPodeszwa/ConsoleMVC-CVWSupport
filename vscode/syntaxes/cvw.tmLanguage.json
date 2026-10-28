@@ -1,0 +1,1559 @@
+{
+    "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+    "name": "C-View Markup",
+    "scopeName": "source.cvw",
+    "comment": "Generated from schema/cvw-schema.json by scripts/build-grammar.js. Do not edit by hand.",
+    "patterns": [
+        {
+            "include": "#directives"
+        },
+        {
+            "include": "#csharp-region"
+        }
+    ],
+    "repository": {
+        "csharp-region": {
+            "patterns": [
+                {
+                    "include": "#cvw-comment"
+                },
+                {
+                    "include": "#markup-comment"
+                },
+                {
+                    "include": "#elements"
+                },
+                {
+                    "include": "#at-constructs"
+                },
+                {
+                    "include": "#csharp-block"
+                },
+                {
+                    "include": "#csharp-keywords"
+                },
+                {
+                    "include": "source.cs#comment"
+                },
+                {
+                    "include": "source.cs#preprocessor"
+                },
+                {
+                    "include": "source.cs#expression"
+                },
+                {
+                    "include": "source.cs#punctuation-semicolon"
+                }
+            ]
+        },
+        "csharp-block": {
+            "begin": "\\{",
+            "beginCaptures": {
+                "0": {
+                    "name": "punctuation.curlybrace.open.cs"
+                }
+            },
+            "end": "\\}",
+            "endCaptures": {
+                "0": {
+                    "name": "punctuation.curlybrace.close.cs"
+                }
+            },
+            "patterns": [
+                {
+                    "include": "#csharp-region"
+                }
+            ]
+        },
+        "csharp-parens": {
+            "begin": "\\(",
+            "beginCaptures": {
+                "0": {
+                    "name": "punctuation.parenthesis.open.cs"
+                }
+            },
+            "end": "\\)",
+            "endCaptures": {
+                "0": {
+                    "name": "punctuation.parenthesis.close.cs"
+                }
+            },
+            "patterns": [
+                {
+                    "include": "#csharp-parens"
+                },
+                {
+                    "include": "#csharp-keywords"
+                },
+                {
+                    "include": "source.cs#expression"
+                }
+            ]
+        },
+        "csharp-keywords": {
+            "patterns": [
+                {
+                    "match": "\\b(if|else|switch|case|default|for|foreach|in|while|do|break|continue|return|goto|try|catch|finally|throw|yield|lock|using)\\b",
+                    "name": "keyword.control.flow.cs"
+                },
+                {
+                    "match": "\\b(var|const|static|readonly|ref|out)\\b",
+                    "name": "storage.modifier.cs"
+                }
+            ]
+        },
+        "directives": {
+            "patterns": [
+                {
+                    "match": "^\\s*(@)(model|using)\\b\\s*(.*)$",
+                    "captures": {
+                        "1": {
+                            "name": "keyword.control.cvw.transition"
+                        },
+                        "2": {
+                            "name": "keyword.control.directive.cvw"
+                        },
+                        "3": {
+                            "name": "entity.name.type.cvw"
+                        }
+                    }
+                },
+                {
+                    "match": "^\\s*(@)(inject)\\b\\s*(?:(.+?)\\s+([\\p{L}_][\\p{L}\\p{Nd}_]*)\\s*$|(.*)$)",
+                    "captures": {
+                        "1": {
+                            "name": "keyword.control.cvw.transition"
+                        },
+                        "2": {
+                            "name": "keyword.control.directive.cvw"
+                        },
+                        "3": {
+                            "name": "entity.name.type.cvw"
+                        },
+                        "4": {
+                            "name": "variable.other.readwrite.cvw"
+                        },
+                        "5": {
+                            "name": "entity.name.type.cvw"
+                        }
+                    }
+                },
+                {
+                    "match": "^\\s*(@)(layout)\\b\\s*(.*)$",
+                    "captures": {
+                        "1": {
+                            "name": "keyword.control.cvw.transition"
+                        },
+                        "2": {
+                            "name": "keyword.control.directive.cvw"
+                        },
+                        "3": {
+                            "name": "entity.name.section.layout.cvw"
+                        }
+                    }
+                },
+                {
+                    "match": "^\\s*(@)(refresh)\\b\\s*(.*)$",
+                    "captures": {
+                        "1": {
+                            "name": "keyword.control.cvw.transition"
+                        },
+                        "2": {
+                            "name": "keyword.control.directive.cvw"
+                        },
+                        "3": {
+                            "name": "constant.numeric.duration.cvw"
+                        }
+                    }
+                }
+            ]
+        },
+        "cvw-comment": {
+            "begin": "@\\*",
+            "beginCaptures": {
+                "0": {
+                    "name": "punctuation.definition.comment.begin.cvw"
+                }
+            },
+            "end": "\\*@",
+            "endCaptures": {
+                "0": {
+                    "name": "punctuation.definition.comment.end.cvw"
+                }
+            },
+            "name": "comment.block.cvw"
+        },
+        "markup-comment": {
+            "begin": "<!--",
+            "beginCaptures": {
+                "0": {
+                    "name": "punctuation.definition.comment.begin.cvw"
+                }
+            },
+            "end": "-->",
+            "endCaptures": {
+                "0": {
+                    "name": "punctuation.definition.comment.end.cvw"
+                }
+            },
+            "name": "comment.block.markup.cvw"
+        },
+        "at-constructs": {
+            "patterns": [
+                {
+                    "match": "@@",
+                    "name": "constant.character.escape.cvw"
+                },
+                {
+                    "include": "#code-block"
+                },
+                {
+                    "include": "#control-flow"
+                },
+                {
+                    "include": "#explicit-expression"
+                },
+                {
+                    "include": "#implicit-expression"
+                }
+            ]
+        },
+        "code-block": {
+            "begin": "(?<![\\p{L}\\p{Nd}@])(@)(\\{)",
+            "beginCaptures": {
+                "1": {
+                    "name": "keyword.control.cvw.transition"
+                },
+                "2": {
+                    "name": "punctuation.curlybrace.open.cs"
+                }
+            },
+            "end": "\\}",
+            "endCaptures": {
+                "0": {
+                    "name": "punctuation.curlybrace.close.cs"
+                }
+            },
+            "contentName": "meta.embedded.block.cs",
+            "patterns": [
+                {
+                    "include": "#csharp-region"
+                }
+            ]
+        },
+        "control-flow": {
+            "begin": "(?<![\\p{L}\\p{Nd}@])(@)(if|foreach|for|while|switch|lock|using|do|try)\\b",
+            "beginCaptures": {
+                "1": {
+                    "name": "keyword.control.cvw.transition"
+                },
+                "2": {
+                    "name": "keyword.control.flow.cs"
+                }
+            },
+            "end": "(?<=\\})(?!\\s*(?:else|catch|finally|while)\\b)",
+            "patterns": [
+                {
+                    "match": "\\b(else|if|catch|finally|while)\\b",
+                    "name": "keyword.control.flow.cs"
+                },
+                {
+                    "include": "#csharp-parens"
+                },
+                {
+                    "include": "#csharp-block"
+                }
+            ]
+        },
+        "else-continuation": {
+            "begin": "^\\s*(else|catch|finally)\\b",
+            "beginCaptures": {
+                "1": {
+                    "name": "keyword.control.flow.cs"
+                }
+            },
+            "end": "(?<=\\})",
+            "patterns": [
+                {
+                    "match": "\\bif\\b",
+                    "name": "keyword.control.flow.cs"
+                },
+                {
+                    "include": "#csharp-parens"
+                },
+                {
+                    "include": "#csharp-block"
+                }
+            ]
+        },
+        "explicit-expression": {
+            "begin": "(?<![\\p{L}\\p{Nd}@])(@)(\\()",
+            "beginCaptures": {
+                "1": {
+                    "name": "keyword.control.cvw.transition"
+                },
+                "2": {
+                    "name": "punctuation.parenthesis.open.cs"
+                }
+            },
+            "end": "\\)",
+            "endCaptures": {
+                "0": {
+                    "name": "punctuation.parenthesis.close.cs"
+                }
+            },
+            "contentName": "meta.embedded.expression.cs",
+            "patterns": [
+                {
+                    "include": "#csharp-parens"
+                },
+                {
+                    "include": "source.cs#expression"
+                }
+            ]
+        },
+        "implicit-expression": {
+            "match": "(?<![\\p{L}\\p{Nd}@])(@)([\\p{L}_][\\p{L}\\p{Nd}_]*(?:\\??\\.[\\p{L}_][\\p{L}\\p{Nd}_]*|\\[[^\\]\\n]*\\]|\\([^)\\n]*\\))*)",
+            "captures": {
+                "1": {
+                    "name": "keyword.control.cvw.transition"
+                },
+                "2": {
+                    "name": "meta.embedded.expression.cs",
+                    "patterns": [
+                        {
+                            "include": "source.cs#expression"
+                        }
+                    ]
+                }
+            }
+        },
+        "entity": {
+            "match": "&(?:[A-Za-z][A-Za-z0-9]*|#[0-9]+|#x[0-9A-Fa-f]+);",
+            "name": "constant.character.entity.cvw"
+        },
+        "attributes": {
+            "patterns": [
+                {
+                    "match": "([A-Za-z_][\\w\\-:.]*)\\s*(=)?",
+                    "captures": {
+                        "1": {
+                            "name": "entity.other.attribute-name.cvw"
+                        },
+                        "2": {
+                            "name": "punctuation.separator.key-value.cvw"
+                        }
+                    }
+                },
+                {
+                    "begin": "\"",
+                    "beginCaptures": {
+                        "0": {
+                            "name": "punctuation.definition.string.begin.cvw"
+                        }
+                    },
+                    "end": "\"",
+                    "endCaptures": {
+                        "0": {
+                            "name": "punctuation.definition.string.end.cvw"
+                        }
+                    },
+                    "name": "string.quoted.double.cvw",
+                    "patterns": [
+                        {
+                            "match": "@@",
+                            "name": "constant.character.escape.cvw"
+                        },
+                        {
+                            "include": "#explicit-expression"
+                        },
+                        {
+                            "include": "#implicit-expression"
+                        },
+                        {
+                            "include": "#entity"
+                        }
+                    ]
+                },
+                {
+                    "begin": "'",
+                    "beginCaptures": {
+                        "0": {
+                            "name": "punctuation.definition.string.begin.cvw"
+                        }
+                    },
+                    "end": "'",
+                    "endCaptures": {
+                        "0": {
+                            "name": "punctuation.definition.string.end.cvw"
+                        }
+                    },
+                    "name": "string.quoted.single.cvw",
+                    "patterns": [
+                        {
+                            "match": "@@",
+                            "name": "constant.character.escape.cvw"
+                        },
+                        {
+                            "include": "#explicit-expression"
+                        },
+                        {
+                            "include": "#implicit-expression"
+                        },
+                        {
+                            "include": "#entity"
+                        }
+                    ]
+                },
+                {
+                    "include": "#implicit-expression"
+                },
+                {
+                    "include": "#explicit-expression"
+                }
+            ]
+        },
+        "content": {
+            "patterns": [
+                {
+                    "include": "#cvw-comment"
+                },
+                {
+                    "include": "#markup-comment"
+                },
+                {
+                    "include": "#elements"
+                },
+                {
+                    "include": "#unknown-tag"
+                },
+                {
+                    "include": "#else-continuation"
+                },
+                {
+                    "include": "#at-constructs"
+                },
+                {
+                    "include": "#entity"
+                }
+            ]
+        },
+        "unknown-tag": {
+            "match": "(</?)([A-Za-z][\\w-]*)",
+            "captures": {
+                "1": {
+                    "name": "punctuation.definition.tag.begin.cvw"
+                },
+                "2": {
+                    "name": "invalid.illegal.unknown-element.cvw"
+                }
+            }
+        },
+        "elements": {
+            "patterns": [
+                {
+                    "include": "#element-text"
+                },
+                {
+                    "include": "#element-box"
+                },
+                {
+                    "include": "#element-separator"
+                },
+                {
+                    "include": "#element-br"
+                },
+                {
+                    "include": "#element-table"
+                },
+                {
+                    "include": "#element-row"
+                },
+                {
+                    "include": "#element-cell"
+                },
+                {
+                    "include": "#element-menu"
+                },
+                {
+                    "include": "#element-option"
+                },
+                {
+                    "include": "#element-input"
+                },
+                {
+                    "include": "#element-select"
+                },
+                {
+                    "include": "#element-radio"
+                },
+                {
+                    "include": "#element-choice"
+                },
+                {
+                    "include": "#element-checkbox"
+                },
+                {
+                    "include": "#element-number"
+                },
+                {
+                    "include": "#element-date"
+                },
+                {
+                    "include": "#element-errors"
+                },
+                {
+                    "include": "#element-breadcrumbs"
+                },
+                {
+                    "include": "#element-shortcuts"
+                },
+                {
+                    "include": "#element-progress"
+                },
+                {
+                    "include": "#element-spinner"
+                },
+                {
+                    "include": "#element-bar-chart"
+                },
+                {
+                    "include": "#element-bar"
+                },
+                {
+                    "include": "#element-sparkline"
+                },
+                {
+                    "include": "#element-scroll"
+                },
+                {
+                    "include": "#element-markdown"
+                },
+                {
+                    "include": "#element-columns"
+                },
+                {
+                    "include": "#element-column"
+                },
+                {
+                    "include": "#element-partial"
+                },
+                {
+                    "include": "#element-body"
+                }
+            ]
+        },
+        "element-text": {
+            "begin": "(<)(text)(?![\\w-])",
+            "beginCaptures": {
+                "1": {
+                    "name": "punctuation.definition.tag.begin.cvw"
+                },
+                "2": {
+                    "name": "entity.name.tag.cvw"
+                }
+            },
+            "end": "(/>)|(</)(text)\\s*(>)",
+            "endCaptures": {
+                "1": {
+                    "name": "punctuation.definition.tag.end.cvw"
+                },
+                "2": {
+                    "name": "punctuation.definition.tag.begin.cvw"
+                },
+                "3": {
+                    "name": "entity.name.tag.cvw"
+                },
+                "4": {
+                    "name": "punctuation.definition.tag.end.cvw"
+                }
+            },
+            "patterns": [
+                {
+                    "include": "#attributes"
+                },
+                {
+                    "begin": ">",
+                    "beginCaptures": {
+                        "0": {
+                            "name": "punctuation.definition.tag.end.cvw"
+                        }
+                    },
+                    "end": "(?=</text\\s*>)",
+                    "contentName": "meta.content.cvw",
+                    "patterns": [
+                        {
+                            "include": "#content"
+                        }
+                    ]
+                }
+            ]
+        },
+        "element-box": {
+            "begin": "(<)(box)(?![\\w-])",
+            "beginCaptures": {
+                "1": {
+                    "name": "punctuation.definition.tag.begin.cvw"
+                },
+                "2": {
+                    "name": "entity.name.tag.cvw"
+                }
+            },
+            "end": "(/>)|(</)(box)\\s*(>)",
+            "endCaptures": {
+                "1": {
+                    "name": "punctuation.definition.tag.end.cvw"
+                },
+                "2": {
+                    "name": "punctuation.definition.tag.begin.cvw"
+                },
+                "3": {
+                    "name": "entity.name.tag.cvw"
+                },
+                "4": {
+                    "name": "punctuation.definition.tag.end.cvw"
+                }
+            },
+            "patterns": [
+                {
+                    "include": "#attributes"
+                },
+                {
+                    "begin": ">",
+                    "beginCaptures": {
+                        "0": {
+                            "name": "punctuation.definition.tag.end.cvw"
+                        }
+                    },
+                    "end": "(?=</box\\s*>)",
+                    "contentName": "meta.content.cvw",
+                    "patterns": [
+                        {
+                            "include": "#content"
+                        }
+                    ]
+                }
+            ]
+        },
+        "element-separator": {
+            "name": "meta.tag.cvw",
+            "begin": "(<)(separator)(?![\\w-])",
+            "beginCaptures": {
+                "1": {
+                    "name": "punctuation.definition.tag.begin.cvw"
+                },
+                "2": {
+                    "name": "entity.name.tag.cvw"
+                }
+            },
+            "end": "(/?>)",
+            "endCaptures": {
+                "1": {
+                    "name": "punctuation.definition.tag.end.cvw"
+                }
+            },
+            "patterns": [
+                {
+                    "include": "#attributes"
+                }
+            ]
+        },
+        "element-br": {
+            "name": "meta.tag.cvw",
+            "begin": "(<)(br)(?![\\w-])",
+            "beginCaptures": {
+                "1": {
+                    "name": "punctuation.definition.tag.begin.cvw"
+                },
+                "2": {
+                    "name": "entity.name.tag.cvw"
+                }
+            },
+            "end": "(/?>)",
+            "endCaptures": {
+                "1": {
+                    "name": "punctuation.definition.tag.end.cvw"
+                }
+            },
+            "patterns": [
+                {
+                    "include": "#attributes"
+                }
+            ]
+        },
+        "element-table": {
+            "begin": "(<)(table)(?![\\w-])",
+            "beginCaptures": {
+                "1": {
+                    "name": "punctuation.definition.tag.begin.cvw"
+                },
+                "2": {
+                    "name": "entity.name.tag.cvw"
+                }
+            },
+            "end": "(/>)|(</)(table)\\s*(>)",
+            "endCaptures": {
+                "1": {
+                    "name": "punctuation.definition.tag.end.cvw"
+                },
+                "2": {
+                    "name": "punctuation.definition.tag.begin.cvw"
+                },
+                "3": {
+                    "name": "entity.name.tag.cvw"
+                },
+                "4": {
+                    "name": "punctuation.definition.tag.end.cvw"
+                }
+            },
+            "patterns": [
+                {
+                    "include": "#attributes"
+                },
+                {
+                    "begin": ">",
+                    "beginCaptures": {
+                        "0": {
+                            "name": "punctuation.definition.tag.end.cvw"
+                        }
+                    },
+                    "end": "(?=</table\\s*>)",
+                    "contentName": "meta.content.cvw",
+                    "patterns": [
+                        {
+                            "include": "#content"
+                        }
+                    ]
+                }
+            ]
+        },
+        "element-row": {
+            "begin": "(<)(row)(?![\\w-])",
+            "beginCaptures": {
+                "1": {
+                    "name": "punctuation.definition.tag.begin.cvw"
+                },
+                "2": {
+                    "name": "entity.name.tag.cvw"
+                }
+            },
+            "end": "(/>)|(</)(row)\\s*(>)",
+            "endCaptures": {
+                "1": {
+                    "name": "punctuation.definition.tag.end.cvw"
+                },
+                "2": {
+                    "name": "punctuation.definition.tag.begin.cvw"
+                },
+                "3": {
+                    "name": "entity.name.tag.cvw"
+                },
+                "4": {
+                    "name": "punctuation.definition.tag.end.cvw"
+                }
+            },
+            "patterns": [
+                {
+                    "include": "#attributes"
+                },
+                {
+                    "begin": ">",
+                    "beginCaptures": {
+                        "0": {
+                            "name": "punctuation.definition.tag.end.cvw"
+                        }
+                    },
+                    "end": "(?=</row\\s*>)",
+                    "contentName": "meta.content.cvw",
+                    "patterns": [
+                        {
+                            "include": "#content"
+                        }
+                    ]
+                }
+            ]
+        },
+        "element-cell": {
+            "begin": "(<)(cell)(?![\\w-])",
+            "beginCaptures": {
+                "1": {
+                    "name": "punctuation.definition.tag.begin.cvw"
+                },
+                "2": {
+                    "name": "entity.name.tag.cvw"
+                }
+            },
+            "end": "(/>)|(</)(cell)\\s*(>)",
+            "endCaptures": {
+                "1": {
+                    "name": "punctuation.definition.tag.end.cvw"
+                },
+                "2": {
+                    "name": "punctuation.definition.tag.begin.cvw"
+                },
+                "3": {
+                    "name": "entity.name.tag.cvw"
+                },
+                "4": {
+                    "name": "punctuation.definition.tag.end.cvw"
+                }
+            },
+            "patterns": [
+                {
+                    "include": "#attributes"
+                },
+                {
+                    "begin": ">",
+                    "beginCaptures": {
+                        "0": {
+                            "name": "punctuation.definition.tag.end.cvw"
+                        }
+                    },
+                    "end": "(?=</cell\\s*>)",
+                    "contentName": "meta.content.cvw",
+                    "patterns": [
+                        {
+                            "include": "#content"
+                        }
+                    ]
+                }
+            ]
+        },
+        "element-menu": {
+            "begin": "(<)(menu)(?![\\w-])",
+            "beginCaptures": {
+                "1": {
+                    "name": "punctuation.definition.tag.begin.cvw"
+                },
+                "2": {
+                    "name": "entity.name.tag.cvw"
+                }
+            },
+            "end": "(/>)|(</)(menu)\\s*(>)",
+            "endCaptures": {
+                "1": {
+                    "name": "punctuation.definition.tag.end.cvw"
+                },
+                "2": {
+                    "name": "punctuation.definition.tag.begin.cvw"
+                },
+                "3": {
+                    "name": "entity.name.tag.cvw"
+                },
+                "4": {
+                    "name": "punctuation.definition.tag.end.cvw"
+                }
+            },
+            "patterns": [
+                {
+                    "include": "#attributes"
+                },
+                {
+                    "begin": ">",
+                    "beginCaptures": {
+                        "0": {
+                            "name": "punctuation.definition.tag.end.cvw"
+                        }
+                    },
+                    "end": "(?=</menu\\s*>)",
+                    "contentName": "meta.content.cvw",
+                    "patterns": [
+                        {
+                            "include": "#content"
+                        }
+                    ]
+                }
+            ]
+        },
+        "element-option": {
+            "begin": "(<)(option)(?![\\w-])",
+            "beginCaptures": {
+                "1": {
+                    "name": "punctuation.definition.tag.begin.cvw"
+                },
+                "2": {
+                    "name": "entity.name.tag.cvw"
+                }
+            },
+            "end": "(/>)|(</)(option)\\s*(>)",
+            "endCaptures": {
+                "1": {
+                    "name": "punctuation.definition.tag.end.cvw"
+                },
+                "2": {
+                    "name": "punctuation.definition.tag.begin.cvw"
+                },
+                "3": {
+                    "name": "entity.name.tag.cvw"
+                },
+                "4": {
+                    "name": "punctuation.definition.tag.end.cvw"
+                }
+            },
+            "patterns": [
+                {
+                    "include": "#attributes"
+                },
+                {
+                    "begin": ">",
+                    "beginCaptures": {
+                        "0": {
+                            "name": "punctuation.definition.tag.end.cvw"
+                        }
+                    },
+                    "end": "(?=</option\\s*>)",
+                    "contentName": "meta.content.cvw",
+                    "patterns": [
+                        {
+                            "include": "#content"
+                        }
+                    ]
+                }
+            ]
+        },
+        "element-input": {
+            "name": "meta.tag.cvw",
+            "begin": "(<)(input)(?![\\w-])",
+            "beginCaptures": {
+                "1": {
+                    "name": "punctuation.definition.tag.begin.cvw"
+                },
+                "2": {
+                    "name": "entity.name.tag.cvw"
+                }
+            },
+            "end": "(/?>)",
+            "endCaptures": {
+                "1": {
+                    "name": "punctuation.definition.tag.end.cvw"
+                }
+            },
+            "patterns": [
+                {
+                    "include": "#attributes"
+                }
+            ]
+        },
+        "element-select": {
+            "begin": "(<)(select)(?![\\w-])",
+            "beginCaptures": {
+                "1": {
+                    "name": "punctuation.definition.tag.begin.cvw"
+                },
+                "2": {
+                    "name": "entity.name.tag.cvw"
+                }
+            },
+            "end": "(/>)|(</)(select)\\s*(>)",
+            "endCaptures": {
+                "1": {
+                    "name": "punctuation.definition.tag.end.cvw"
+                },
+                "2": {
+                    "name": "punctuation.definition.tag.begin.cvw"
+                },
+                "3": {
+                    "name": "entity.name.tag.cvw"
+                },
+                "4": {
+                    "name": "punctuation.definition.tag.end.cvw"
+                }
+            },
+            "patterns": [
+                {
+                    "include": "#attributes"
+                },
+                {
+                    "begin": ">",
+                    "beginCaptures": {
+                        "0": {
+                            "name": "punctuation.definition.tag.end.cvw"
+                        }
+                    },
+                    "end": "(?=</select\\s*>)",
+                    "contentName": "meta.content.cvw",
+                    "patterns": [
+                        {
+                            "include": "#content"
+                        }
+                    ]
+                }
+            ]
+        },
+        "element-radio": {
+            "begin": "(<)(radio)(?![\\w-])",
+            "beginCaptures": {
+                "1": {
+                    "name": "punctuation.definition.tag.begin.cvw"
+                },
+                "2": {
+                    "name": "entity.name.tag.cvw"
+                }
+            },
+            "end": "(/>)|(</)(radio)\\s*(>)",
+            "endCaptures": {
+                "1": {
+                    "name": "punctuation.definition.tag.end.cvw"
+                },
+                "2": {
+                    "name": "punctuation.definition.tag.begin.cvw"
+                },
+                "3": {
+                    "name": "entity.name.tag.cvw"
+                },
+                "4": {
+                    "name": "punctuation.definition.tag.end.cvw"
+                }
+            },
+            "patterns": [
+                {
+                    "include": "#attributes"
+                },
+                {
+                    "begin": ">",
+                    "beginCaptures": {
+                        "0": {
+                            "name": "punctuation.definition.tag.end.cvw"
+                        }
+                    },
+                    "end": "(?=</radio\\s*>)",
+                    "contentName": "meta.content.cvw",
+                    "patterns": [
+                        {
+                            "include": "#content"
+                        }
+                    ]
+                }
+            ]
+        },
+        "element-choice": {
+            "begin": "(<)(choice)(?![\\w-])",
+            "beginCaptures": {
+                "1": {
+                    "name": "punctuation.definition.tag.begin.cvw"
+                },
+                "2": {
+                    "name": "entity.name.tag.cvw"
+                }
+            },
+            "end": "(/>)|(</)(choice)\\s*(>)",
+            "endCaptures": {
+                "1": {
+                    "name": "punctuation.definition.tag.end.cvw"
+                },
+                "2": {
+                    "name": "punctuation.definition.tag.begin.cvw"
+                },
+                "3": {
+                    "name": "entity.name.tag.cvw"
+                },
+                "4": {
+                    "name": "punctuation.definition.tag.end.cvw"
+                }
+            },
+            "patterns": [
+                {
+                    "include": "#attributes"
+                },
+                {
+                    "begin": ">",
+                    "beginCaptures": {
+                        "0": {
+                            "name": "punctuation.definition.tag.end.cvw"
+                        }
+                    },
+                    "end": "(?=</choice\\s*>)",
+                    "contentName": "meta.content.cvw",
+                    "patterns": [
+                        {
+                            "include": "#content"
+                        }
+                    ]
+                }
+            ]
+        },
+        "element-checkbox": {
+            "name": "meta.tag.cvw",
+            "begin": "(<)(checkbox)(?![\\w-])",
+            "beginCaptures": {
+                "1": {
+                    "name": "punctuation.definition.tag.begin.cvw"
+                },
+                "2": {
+                    "name": "entity.name.tag.cvw"
+                }
+            },
+            "end": "(/?>)",
+            "endCaptures": {
+                "1": {
+                    "name": "punctuation.definition.tag.end.cvw"
+                }
+            },
+            "patterns": [
+                {
+                    "include": "#attributes"
+                }
+            ]
+        },
+        "element-number": {
+            "name": "meta.tag.cvw",
+            "begin": "(<)(number)(?![\\w-])",
+            "beginCaptures": {
+                "1": {
+                    "name": "punctuation.definition.tag.begin.cvw"
+                },
+                "2": {
+                    "name": "entity.name.tag.cvw"
+                }
+            },
+            "end": "(/?>)",
+            "endCaptures": {
+                "1": {
+                    "name": "punctuation.definition.tag.end.cvw"
+                }
+            },
+            "patterns": [
+                {
+                    "include": "#attributes"
+                }
+            ]
+        },
+        "element-date": {
+            "name": "meta.tag.cvw",
+            "begin": "(<)(date)(?![\\w-])",
+            "beginCaptures": {
+                "1": {
+                    "name": "punctuation.definition.tag.begin.cvw"
+                },
+                "2": {
+                    "name": "entity.name.tag.cvw"
+                }
+            },
+            "end": "(/?>)",
+            "endCaptures": {
+                "1": {
+                    "name": "punctuation.definition.tag.end.cvw"
+                }
+            },
+            "patterns": [
+                {
+                    "include": "#attributes"
+                }
+            ]
+        },
+        "element-errors": {
+            "name": "meta.tag.cvw",
+            "begin": "(<)(errors)(?![\\w-])",
+            "beginCaptures": {
+                "1": {
+                    "name": "punctuation.definition.tag.begin.cvw"
+                },
+                "2": {
+                    "name": "entity.name.tag.cvw"
+                }
+            },
+            "end": "(/?>)",
+            "endCaptures": {
+                "1": {
+                    "name": "punctuation.definition.tag.end.cvw"
+                }
+            },
+            "patterns": [
+                {
+                    "include": "#attributes"
+                }
+            ]
+        },
+        "element-breadcrumbs": {
+            "name": "meta.tag.cvw",
+            "begin": "(<)(breadcrumbs)(?![\\w-])",
+            "beginCaptures": {
+                "1": {
+                    "name": "punctuation.definition.tag.begin.cvw"
+                },
+                "2": {
+                    "name": "entity.name.tag.cvw"
+                }
+            },
+            "end": "(/?>)",
+            "endCaptures": {
+                "1": {
+                    "name": "punctuation.definition.tag.end.cvw"
+                }
+            },
+            "patterns": [
+                {
+                    "include": "#attributes"
+                }
+            ]
+        },
+        "element-shortcuts": {
+            "name": "meta.tag.cvw",
+            "begin": "(<)(shortcuts)(?![\\w-])",
+            "beginCaptures": {
+                "1": {
+                    "name": "punctuation.definition.tag.begin.cvw"
+                },
+                "2": {
+                    "name": "entity.name.tag.cvw"
+                }
+            },
+            "end": "(/?>)",
+            "endCaptures": {
+                "1": {
+                    "name": "punctuation.definition.tag.end.cvw"
+                }
+            },
+            "patterns": [
+                {
+                    "include": "#attributes"
+                }
+            ]
+        },
+        "element-progress": {
+            "name": "meta.tag.cvw",
+            "begin": "(<)(progress)(?![\\w-])",
+            "beginCaptures": {
+                "1": {
+                    "name": "punctuation.definition.tag.begin.cvw"
+                },
+                "2": {
+                    "name": "entity.name.tag.cvw"
+                }
+            },
+            "end": "(/?>)",
+            "endCaptures": {
+                "1": {
+                    "name": "punctuation.definition.tag.end.cvw"
+                }
+            },
+            "patterns": [
+                {
+                    "include": "#attributes"
+                }
+            ]
+        },
+        "element-spinner": {
+            "name": "meta.tag.cvw",
+            "begin": "(<)(spinner)(?![\\w-])",
+            "beginCaptures": {
+                "1": {
+                    "name": "punctuation.definition.tag.begin.cvw"
+                },
+                "2": {
+                    "name": "entity.name.tag.cvw"
+                }
+            },
+            "end": "(/?>)",
+            "endCaptures": {
+                "1": {
+                    "name": "punctuation.definition.tag.end.cvw"
+                }
+            },
+            "patterns": [
+                {
+                    "include": "#attributes"
+                }
+            ]
+        },
+        "element-bar-chart": {
+            "begin": "(<)(bar-chart)(?![\\w-])",
+            "beginCaptures": {
+                "1": {
+                    "name": "punctuation.definition.tag.begin.cvw"
+                },
+                "2": {
+                    "name": "entity.name.tag.cvw"
+                }
+            },
+            "end": "(/>)|(</)(bar-chart)\\s*(>)",
+            "endCaptures": {
+                "1": {
+                    "name": "punctuation.definition.tag.end.cvw"
+                },
+                "2": {
+                    "name": "punctuation.definition.tag.begin.cvw"
+                },
+                "3": {
+                    "name": "entity.name.tag.cvw"
+                },
+                "4": {
+                    "name": "punctuation.definition.tag.end.cvw"
+                }
+            },
+            "patterns": [
+                {
+                    "include": "#attributes"
+                },
+                {
+                    "begin": ">",
+                    "beginCaptures": {
+                        "0": {
+                            "name": "punctuation.definition.tag.end.cvw"
+                        }
+                    },
+                    "end": "(?=</bar-chart\\s*>)",
+                    "contentName": "meta.content.cvw",
+                    "patterns": [
+                        {
+                            "include": "#content"
+                        }
+                    ]
+                }
+            ]
+        },
+        "element-bar": {
+            "name": "meta.tag.cvw",
+            "begin": "(<)(bar)(?![\\w-])",
+            "beginCaptures": {
+                "1": {
+                    "name": "punctuation.definition.tag.begin.cvw"
+                },
+                "2": {
+                    "name": "entity.name.tag.cvw"
+                }
+            },
+            "end": "(/?>)",
+            "endCaptures": {
+                "1": {
+                    "name": "punctuation.definition.tag.end.cvw"
+                }
+            },
+            "patterns": [
+                {
+                    "include": "#attributes"
+                }
+            ]
+        },
+        "element-sparkline": {
+            "name": "meta.tag.cvw",
+            "begin": "(<)(sparkline)(?![\\w-])",
+            "beginCaptures": {
+                "1": {
+                    "name": "punctuation.definition.tag.begin.cvw"
+                },
+                "2": {
+                    "name": "entity.name.tag.cvw"
+                }
+            },
+            "end": "(/?>)",
+            "endCaptures": {
+                "1": {
+                    "name": "punctuation.definition.tag.end.cvw"
+                }
+            },
+            "patterns": [
+                {
+                    "include": "#attributes"
+                }
+            ]
+        },
+        "element-scroll": {
+            "begin": "(<)(scroll)(?![\\w-])",
+            "beginCaptures": {
+                "1": {
+                    "name": "punctuation.definition.tag.begin.cvw"
+                },
+                "2": {
+                    "name": "entity.name.tag.cvw"
+                }
+            },
+            "end": "(/>)|(</)(scroll)\\s*(>)",
+            "endCaptures": {
+                "1": {
+                    "name": "punctuation.definition.tag.end.cvw"
+                },
+                "2": {
+                    "name": "punctuation.definition.tag.begin.cvw"
+                },
+                "3": {
+                    "name": "entity.name.tag.cvw"
+                },
+                "4": {
+                    "name": "punctuation.definition.tag.end.cvw"
+                }
+            },
+            "patterns": [
+                {
+                    "include": "#attributes"
+                },
+                {
+                    "begin": ">",
+                    "beginCaptures": {
+                        "0": {
+                            "name": "punctuation.definition.tag.end.cvw"
+                        }
+                    },
+                    "end": "(?=</scroll\\s*>)",
+                    "contentName": "meta.content.cvw",
+                    "patterns": [
+                        {
+                            "include": "#content"
+                        }
+                    ]
+                }
+            ]
+        },
+        "element-markdown": {
+            "name": "meta.tag.cvw",
+            "begin": "(<)(markdown)(?![\\w-])",
+            "beginCaptures": {
+                "1": {
+                    "name": "punctuation.definition.tag.begin.cvw"
+                },
+                "2": {
+                    "name": "entity.name.tag.cvw"
+                }
+            },
+            "end": "(/?>)",
+            "endCaptures": {
+                "1": {
+                    "name": "punctuation.definition.tag.end.cvw"
+                }
+            },
+            "patterns": [
+                {
+                    "include": "#attributes"
+                }
+            ]
+        },
+        "element-columns": {
+            "begin": "(<)(columns)(?![\\w-])",
+            "beginCaptures": {
+                "1": {
+                    "name": "punctuation.definition.tag.begin.cvw"
+                },
+                "2": {
+                    "name": "entity.name.tag.cvw"
+                }
+            },
+            "end": "(/>)|(</)(columns)\\s*(>)",
+            "endCaptures": {
+                "1": {
+                    "name": "punctuation.definition.tag.end.cvw"
+                },
+                "2": {
+                    "name": "punctuation.definition.tag.begin.cvw"
+                },
+                "3": {
+                    "name": "entity.name.tag.cvw"
+                },
+                "4": {
+                    "name": "punctuation.definition.tag.end.cvw"
+                }
+            },
+            "patterns": [
+                {
+                    "include": "#attributes"
+                },
+                {
+                    "begin": ">",
+                    "beginCaptures": {
+                        "0": {
+                            "name": "punctuation.definition.tag.end.cvw"
+                        }
+                    },
+                    "end": "(?=</columns\\s*>)",
+                    "contentName": "meta.content.cvw",
+                    "patterns": [
+                        {
+                            "include": "#content"
+                        }
+                    ]
+                }
+            ]
+        },
+        "element-column": {
+            "begin": "(<)(column)(?![\\w-])",
+            "beginCaptures": {
+                "1": {
+                    "name": "punctuation.definition.tag.begin.cvw"
+                },
+                "2": {
+                    "name": "entity.name.tag.cvw"
+                }
+            },
+            "end": "(/>)|(</)(column)\\s*(>)",
+            "endCaptures": {
+                "1": {
+                    "name": "punctuation.definition.tag.end.cvw"
+                },
+                "2": {
+                    "name": "punctuation.definition.tag.begin.cvw"
+                },
+                "3": {
+                    "name": "entity.name.tag.cvw"
+                },
+                "4": {
+                    "name": "punctuation.definition.tag.end.cvw"
+                }
+            },
+            "patterns": [
+                {
+                    "include": "#attributes"
+                },
+                {
+                    "begin": ">",
+                    "beginCaptures": {
+                        "0": {
+                            "name": "punctuation.definition.tag.end.cvw"
+                        }
+                    },
+                    "end": "(?=</column\\s*>)",
+                    "contentName": "meta.content.cvw",
+                    "patterns": [
+                        {
+                            "include": "#content"
+                        }
+                    ]
+                }
+            ]
+        },
+        "element-partial": {
+            "name": "meta.tag.cvw",
+            "begin": "(<)(partial)(?![\\w-])",
+            "beginCaptures": {
+                "1": {
+                    "name": "punctuation.definition.tag.begin.cvw"
+                },
+                "2": {
+                    "name": "entity.name.tag.cvw"
+                }
+            },
+            "end": "(/?>)",
+            "endCaptures": {
+                "1": {
+                    "name": "punctuation.definition.tag.end.cvw"
+                }
+            },
+            "patterns": [
+                {
+                    "include": "#attributes"
+                }
+            ]
+        },
+        "element-body": {
+            "name": "meta.tag.cvw",
+            "begin": "(<)(body)(?![\\w-])",
+            "beginCaptures": {
+                "1": {
+                    "name": "punctuation.definition.tag.begin.cvw"
+                },
+                "2": {
+                    "name": "entity.name.tag.cvw"
+                }
+            },
+            "end": "(/?>)",
+            "endCaptures": {
+                "1": {
+                    "name": "punctuation.definition.tag.end.cvw"
+                }
+            },
+            "patterns": [
+                {
+                    "include": "#attributes"
+                }
+            ]
+        }
+    }
+}

@@ -1,5 +1,7 @@
 package com.github.mateuszpodeszwa.consolemvc.cvwsupport.annotator
 
+import com.github.mateuszpodeszwa.consolemvc.cvwsupport.markup.MarkupParser
+import com.github.mateuszpodeszwa.consolemvc.cvwsupport.markup.MarkupSchema
 import com.github.mateuszpodeszwa.consolemvc.cvwsupport.psi.CvwFile
 import com.intellij.lang.annotation.AnnotationHolder
 import com.intellij.lang.annotation.Annotator
@@ -8,122 +10,53 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
 
 /**
- * Annotator for .cvw files that provides error and warning highlights.
+ * File-level checks of a view that do not need the markup schema:
+ * - a directive without its argument, such as `@model` or `@layout` alone;
+ * - a page view (not in Views/Shared) that neither has a top-level `<menu>` nor returns where to go next, which the
+ *   build rejects ("not all code paths return a value"), with a quick fix that adds `return NavigationResult.Quit();`.
  *
- * Phase 1 checks:
- * - Missing @model directive (file will be silently skipped by the source generator)
- * - Empty code body (no code after directives)
- * - Missing return statement (code must return NavigationResult)
+ * Markup itself is checked by [CvwMarkupAnnotator]. A view without `@model` is valid: its model is `object`.
+ *
+ * Example: a view with only `<text>Hello</text>` gets a warning on its first line.
  */
 class CvwAnnotator : Annotator {
+    private companion object {
+        val DIRECTIVE = Regex("(?m)^[ \\t]*(@(model|using|inject|layout|refresh))[ \\t]*$")
+        val RETURN = Regex("\\breturn\\b")
+    }
+
     override fun annotate(element: PsiElement, holder: AnnotationHolder) {
         // Only annotate at the file level to avoid repeated processing
         if (element !is CvwFile) return
-
         val text = element.text
-        val lines = text.split("\n")
 
-        var hasModelDirective = false
-        var codeStartIndex = -1
-        var modelDirectiveLine = -1
-
-        // Parse the directive section
-        for (i in lines.indices) {
-            val trimmed = lines[i].trim()
-            if (trimmed.isEmpty()) continue
-
-            if (trimmed.startsWith("@model ")) {
-                hasModelDirective = true
-                modelDirectiveLine = i
-                val modelType = trimmed.substring("@model ".length).trim()
-                if (modelType.isEmpty()) {
-                    // @model with no type argument
-                    val lineOffset = getLineOffset(lines, i)
-                    holder.newAnnotation(
-                        HighlightSeverity.ERROR,
-                        "Missing type argument for @model directive"
-                    ).range(TextRange(lineOffset, lineOffset + trimmed.length)).create()
-                }
-                continue
-            }
-            if (trimmed.startsWith("@using ")) {
-                val ns = trimmed.substring("@using ".length).trim()
-                if (ns.isEmpty()) {
-                    val lineOffset = getLineOffset(lines, i)
-                    holder.newAnnotation(
-                        HighlightSeverity.ERROR,
-                        "Missing namespace argument for @using directive"
-                    ).range(TextRange(lineOffset, lineOffset + trimmed.length)).create()
-                }
-                continue
-            }
-
-            // First non-directive, non-blank line = code body start
-            codeStartIndex = i
-            break
-        }
-
-        // Check for missing @model directive
-        if (!hasModelDirective) {
-            // Annotate the first line / beginning of file
-            val endOffset = if (lines.isNotEmpty()) minOf(lines[0].length, text.length) else 0
-            holder.newAnnotation(
-                HighlightSeverity.WARNING,
-                "Missing @model directive. This file will be skipped by the ConsoleMVC source generator."
-            ).range(TextRange(0, maxOf(endOffset, 1)))
-                .withFix(AddModelDirectiveQuickFix())
+        for (match in DIRECTIVE.findAll(text)) {
+            val keyword = match.groups[1]!!
+            holder.newAnnotation(HighlightSeverity.ERROR, "${keyword.value} needs an argument, such as ${example(match.groupValues[2])}.")
+                .range(TextRange(keyword.range.first, keyword.range.last + 1))
                 .create()
         }
 
-        // Check for missing return statement in code body
-        if (hasModelDirective && codeStartIndex >= 0) {
-            val codeBody = lines.drop(codeStartIndex).joinToString("\n")
-            if (!codeBody.contains("return ") && !codeBody.contains("return\n")) {
-                val codeOffset = getLineOffset(lines, codeStartIndex)
-                holder.newAnnotation(
-                    HighlightSeverity.WARNING,
-                    "Code body should return a NavigationResult. Missing 'return' statement."
-                ).range(TextRange(codeOffset, minOf(codeOffset + 1, text.length)))
+        val path = element.virtualFile?.path?.replace('\\', '/') ?: ""
+        val isShared = path.contains("/Views/Shared/")
+        if (!isShared && text.isNotBlank()) {
+            val document = MarkupParser.parse(text, MarkupSchema.bundled)
+            val hasMenu = document.roots.any { it.name == "menu" }
+            if (!hasMenu && !RETURN.containsMatchIn(text)) {
+                holder.newAnnotation(HighlightSeverity.WARNING,
+                    "A view without a <menu> must say where to go next, such as return NavigationResult.Quit();")
+                    .range(TextRange(0, minOf(text.length, text.indexOf('\n').let { if (it < 0) text.length else it }.coerceAtLeast(1))))
                     .withFix(AddReturnStatementQuickFix())
                     .create()
             }
         }
-
-        // Check for empty code body
-        if (hasModelDirective && codeStartIndex < 0) {
-            // All lines are directives/blank — no code body
-            val offset = if (modelDirectiveLine >= 0) getLineOffset(lines, modelDirectiveLine) else 0
-            val endOffset = if (modelDirectiveLine >= 0) offset + lines[modelDirectiveLine].length else 1
-            holder.newAnnotation(
-                HighlightSeverity.WARNING,
-                "Empty code body. The generated Render() method will have no implementation."
-            ).range(TextRange(offset, endOffset)).create()
-        }
-
-        // Check for invalid directives (lines starting with @ but not @model or @using)
-        for (i in lines.indices) {
-            val trimmed = lines[i].trim()
-            if (trimmed.startsWith("@") && !trimmed.startsWith("@model ") && !trimmed.startsWith("@using ")) {
-                // Only flag in the directive section (before code body)
-                if (codeStartIndex < 0 || i < codeStartIndex) {
-                    if (trimmed == "@model" || trimmed == "@using") {
-                        // Missing space — these are incomplete directives
-                        val lineOffset = getLineOffset(lines, i)
-                        holder.newAnnotation(
-                            HighlightSeverity.ERROR,
-                            "Incomplete directive. Expected '@model <type>' or '@using <namespace>'."
-                        ).range(TextRange(lineOffset, lineOffset + trimmed.length)).create()
-                    }
-                }
-            }
-        }
     }
 
-    private fun getLineOffset(lines: List<String>, lineIndex: Int): Int {
-        var offset = 0
-        for (i in 0 until lineIndex) {
-            offset += lines[i].length + 1 // +1 for \n
-        }
-        return offset
+    private fun example(directive: String): String = when (directive) {
+        "model" -> "@model Shop.Models.HomeViewModel"
+        "using" -> "@using System.Globalization"
+        "inject" -> "@inject IClock Clock"
+        "layout" -> "@layout _Layout or @layout none"
+        else -> "@refresh 5s"
     }
 }

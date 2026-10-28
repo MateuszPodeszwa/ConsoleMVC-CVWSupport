@@ -1,0 +1,18 @@
+@* A view in the Admin area: Areas/Admin/Views/Settings/IndexView.cvw. The layout and partials in Views/Shared are shared. *@
+
+<box title="Admin: settings" class="panel" padding="1">
+    <table border="none" padding="1">
+        <row><cell class="muted">Environment</cell><cell>@ViewData["Environment"]</cell></row>
+        <row><cell class="muted">Culture</cell><cell>@ViewData["Culture"]</cell></row>
+        <row><cell class="muted">Folder</cell><cell>@ViewData["Folder"]</cell></row>
+    </table>
+</box>
+<br />
+
+@* Inside the area, nav="Index" stays here; a controller named without an area (nav="Home/Index") is the area's own when
+   it has one, and otherwise the application's *@
+<menu key-color="cyan">
+    <option key="b" back>Back</option>
+    <option key="1" nav="Home/Index">Home</option>
+    <option key="q" quit>Exit</option>
+</menu>

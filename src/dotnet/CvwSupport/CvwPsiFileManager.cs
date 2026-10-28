@@ -26,7 +26,7 @@ public class CvwPsiFileManager
     /// Generates a virtual C# document for the given .cvw source file.
     /// Returns null if the file doesn't have a valid @model directive.
     /// </summary>
-    public CvwGeneratedDocumentFactory.GenerationResult? GetGeneratedDocument(
+    public CvwGeneratedDocumentFactory.GenerationResult GetGeneratedDocument(
         IPsiSourceFile sourceFile,
         string rootNamespace = "ConsoleMVC")
     {

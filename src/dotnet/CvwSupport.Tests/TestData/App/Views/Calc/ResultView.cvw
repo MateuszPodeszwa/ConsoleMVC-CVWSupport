@@ -1,0 +1,12 @@
+@model ConsoleMVC.App.Models.CalcResultModel
+
+<box title="Calculator" border="rounded" color="yellow" padding="2">
+    <text bold>@Model.Expression = @Model.Result</text>
+</box>
+<br />
+
+<menu key-color="yellow">
+    <option key="1" nav="Index">Calculate again</option>
+    <option key="2" nav="Home/Index">Back to Home</option>
+    <option key="q" quit>Exit</option>
+</menu>

@@ -18,7 +18,7 @@ namespace CvwSupport;
 /// <summary>
 /// Integrates .cvw virtual C# document generation into ReSharper's secondary
 /// document analysis pipeline. This enables full C# IntelliSense, error checking,
-/// navigation, and refactoring support within the code body of .cvw files.
+/// navigation, and refactoring support for the C# of .cvw files (code blocks, conditions and @expressions in markup).
 ///
 /// ReSharper treats .cvw files as primary documents and generates a secondary C#
 /// document (via CvwGeneratedDocumentFactory) that gets analyzed by the C# engine.
@@ -63,12 +63,9 @@ public class CvwGeneratedDocumentService : GeneratedDocumentServiceBase
         var factory = new CvwGeneratedDocumentFactory();
         var result = factory.Generate(cvwText, filePath, rootNamespace);
 
-        if (result == null)
-            return EmptyResult();
-
         // Build the range map for offset translation
         var rangeMap = GeneratedRangeMapFactory.CreateGeneratedRangeMap(originalFile);
-        BuildRangeMap(rangeMap, result, cvwText);
+        BuildRangeMap(rangeMap, result);
 
         var rangeTranslator = new RangeTranslatorWithGeneratedRangeMap(rangeMap);
 
@@ -84,93 +81,24 @@ public class CvwGeneratedDocumentService : GeneratedDocumentServiceBase
     }
 
     /// <summary>
-    /// Builds the range map that establishes bidirectional correspondence between
-    /// character positions in the original .cvw file and the generated C# document.
-    /// Maps directive arguments (@model type, @using namespaces) and code body lines.
+    /// Builds the range map between the view and the virtual C# document: every piece of the view copied into the
+    /// document (directive arguments, the C# of the body, the expressions in markup) maps back to its place.
     /// </summary>
-    private static void BuildRangeMap(
-        IGeneratedRangeMap rangeMap,
-        CvwGeneratedDocumentFactory.GenerationResult result,
-        string originalText)
+    private static void BuildRangeMap(IGeneratedRangeMap rangeMap, CvwGeneratedDocumentFactory.GenerationResult result)
     {
-        var parser = result.Parser;
-
-        // Map @model type argument to its occurrences in the generated document
-        // (ConsoleView<ModelType> and Render(ModelType Model))
-        if (parser.ModelTypeLocation != null)
+        foreach (var segment in result.Segments)
         {
-            var modelLoc = parser.ModelTypeLocation;
-            foreach (var genOffset in result.GeneratedModelTypeOffsets)
-            {
-                var originalRange = new TreeTextRange<Original>(
-                    new TreeOffset(modelLoc.Offset),
-                    new TreeOffset(modelLoc.Offset + modelLoc.Length));
-                var generatedRange = new TreeTextRange<Generated>(
-                    new TreeOffset(genOffset),
-                    new TreeOffset(genOffset + modelLoc.Length));
-
-                rangeMap.Add(generatedRange, originalRange);
-            }
-        }
-
-        // Map @using namespace arguments to their generated "using X;" directives
-        for (var u = 0; u < parser.UsingLocations.Count && u < result.GeneratedUsingOffsets.Count; u++)
-        {
-            var usingLoc = parser.UsingLocations[u];
-            var genOffset = result.GeneratedUsingOffsets[u];
-
             var originalRange = new TreeTextRange<Original>(
-                new TreeOffset(usingLoc.Offset),
-                new TreeOffset(usingLoc.Offset + usingLoc.Length));
+                new TreeOffset(segment.OriginalOffset),
+                new TreeOffset(segment.OriginalOffset + segment.Length));
             var generatedRange = new TreeTextRange<Generated>(
-                new TreeOffset(genOffset),
-                new TreeOffset(genOffset + usingLoc.Length));
+                new TreeOffset(segment.GeneratedOffset),
+                new TreeOffset(segment.GeneratedOffset + segment.Length));
 
             rangeMap.Add(generatedRange, originalRange);
         }
-
-        // Map code body lines
-        var codeBody = parser.CodeBody;
-        if (string.IsNullOrEmpty(codeBody))
-            return;
-
-        var originalOffset = result.OriginalCodeBodyOffset;
-        var generatedOffset = result.GeneratedCodeBodyOffset;
-        var codeLines = codeBody.Split('\n');
-
-        for (var i = 0; i < codeLines.Length; i++)
-        {
-            var line = codeLines[i];
-
-            // Skip the 12-char indentation prefix in the generated document
-            var genLineStart = generatedOffset + 12; // "            " prefix
-            var lineLength = line.Length;
-
-            if (lineLength > 0)
-            {
-                var originalRange = new TreeTextRange<Original>(
-                    new TreeOffset(originalOffset),
-                    new TreeOffset(originalOffset + lineLength));
-                var generatedRange = new TreeTextRange<Generated>(
-                    new TreeOffset(genLineStart),
-                    new TreeOffset(genLineStart + lineLength));
-
-                rangeMap.Add(generatedRange, originalRange);
-            }
-
-            // Advance past the line + newline in original
-            originalOffset += lineLength;
-            if (i < codeLines.Length - 1)
-                originalOffset += 1; // \n
-
-            // Advance past indentation + line + \r\n in generated (AppendLine uses Environment.NewLine)
-            generatedOffset += 12 + lineLength + Environment.NewLine.Length;
-        }
     }
 
-    /// <summary>
-    /// Gets the root namespace from the project, falling back to "ConsoleMVC".
-    /// </summary>
     private static string GetRootNamespace(IPsiSourceFile sourceFile)
     {
         var project = sourceFile.GetProject();
