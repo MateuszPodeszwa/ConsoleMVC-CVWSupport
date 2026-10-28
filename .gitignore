@@ -22,6 +22,8 @@ Thumbs.db
 *.class
 *.jar
 *.zip
+# The Gradle wrapper is part of the source, so ./gradlew works after cloning
+!gradle/wrapper/gradle-wrapper.jar
 
 # Kotlin
 *.kotlin_module

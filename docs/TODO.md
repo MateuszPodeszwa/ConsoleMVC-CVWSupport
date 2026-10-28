@@ -49,6 +49,17 @@
 - [x] Cross-file inspections (model type mismatch with controller's View() call): frontend heuristic annotator
 - [ ] End-to-end testing in Rider with a real ConsoleMVC project
 
+## C-View Markup in Rider (0.2.0): COMPLETE
+
+- [x] Markup schema bundled (src/main/resources/schema/cvw-schema.json) with a Kotlin model, parser, completion, checks and documentation
+- [x] Lexer: markup tokens painted over a parse of the view, C# tokens for the rest; colour settings for every token
+- [x] Completion contributor and automatic pop-up after `<`, `</`, `@`, quotes and spaces in tags
+- [x] External annotator: cvw-preview's diagnostics, or schema checks; the old @model and return warnings replaced
+- [x] ConsoleMVC Preview tool window (JCEF, no scripts), action and Settings | Tools | ConsoleMVC
+- [x] Backend: design-time document with markup left out, expressions as statements, @inject properties, the generator's namespace, base class and model
+- [x] Tests: JUnit (Kotlin), the platform's lexer checks and incremental highlighter, comparison with the generator, dotnet tests of the backend against the real generator, Plugin Verifier
+- [ ] Completion, checks and the preview window tried by hand in a running Rider (Rider's editor tests need a .NET solution and backend, which the test fixtures here cannot start)
+
 ## VS Code extension (vscode/) -- COMPLETE (0.1.0)
 
 - [x] Language, file icon and grammar generated from ConsoleMVC's markup schema

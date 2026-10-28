@@ -12,7 +12,17 @@ class CvwColorSettingsPage : ColorSettingsPage {
 
     companion object {
         private val DESCRIPTORS = arrayOf(
-            AttributesDescriptor("Directive keyword (@model, @using)", CvwSyntaxHighlighter.DIRECTIVE_KEYWORD),
+            AttributesDescriptor("Markup//Tag", CvwSyntaxHighlighter.TAG),
+            AttributesDescriptor("Markup//Tag name", CvwSyntaxHighlighter.TAG_NAME),
+            AttributesDescriptor("Markup//Unknown tag name", CvwSyntaxHighlighter.UNKNOWN_TAG_NAME),
+            AttributesDescriptor("Markup//Attribute name", CvwSyntaxHighlighter.ATTRIBUTE_NAME),
+            AttributesDescriptor("Markup//Attribute value", CvwSyntaxHighlighter.ATTRIBUTE_VALUE),
+            AttributesDescriptor("Markup//Text", CvwSyntaxHighlighter.MARKUP_TEXT),
+            AttributesDescriptor("Markup//@ before C#", CvwSyntaxHighlighter.TRANSITION),
+            AttributesDescriptor("Markup//@@ escape", CvwSyntaxHighlighter.ESCAPE),
+            AttributesDescriptor("Markup//Entity (&lt;)", CvwSyntaxHighlighter.ENTITY),
+            AttributesDescriptor("Markup//Comment (@* *@)", CvwSyntaxHighlighter.MARKUP_COMMENT),
+            AttributesDescriptor("Directive keyword (@model, @using, @inject, @layout, @refresh)", CvwSyntaxHighlighter.DIRECTIVE_KEYWORD),
             AttributesDescriptor("Directive argument (type/namespace)", CvwSyntaxHighlighter.DIRECTIVE_ARGUMENT),
             AttributesDescriptor("C# keyword", CvwSyntaxHighlighter.CS_KEYWORD),
             AttributesDescriptor("C# string literal", CvwSyntaxHighlighter.CS_STRING),
@@ -40,26 +50,24 @@ class CvwColorSettingsPage : ColorSettingsPage {
 }
 
 private val DEMO_TEXT = """
-@model ConsoleMVC.App.Models.HomeViewModel
-@using System.Globalization
+@model Shop.Models.OrdersViewModel
+@inject IStringLocalizer<SharedResource> L
+@* A comment: removed from the view *@
 
-// Display the main menu
-Console.WriteLine(${'$'}"=== {Model.Title} ===");
-Console.WriteLine();
-Console.WriteLine(Model.Message);
+<box title="@L["Orders"]" border="rounded" padding="1">
+    <text bold>@Model.Count orders &amp; @@mentions</text>
+</box>
 
-/* Multi-line
-   block comment */
-for (var i = 0; i < Model.MenuOptions.Count; i++)
-    Console.WriteLine(${'$'}"  [{i + 1}] {Model.MenuOptions[i]}");
+<table border="single">
+    <row header><cell>Customer</cell><cell align="right">Total</cell></row>
+    @foreach (var order in Model.Orders)
+    {
+        <row><cell>@order.Customer</cell><cell>@order.Total.ToString("C")</cell></row>
+    }
+</table>
 
-Console.Write("Select: ");
-var input = Console.ReadLine()?.Trim();
-
-return input switch
-{
-    "1" => NavigationResult.To("Home", "About"),
-    "2" => NavigationResult.Quit(),
-    _ => NavigationResult.To("Home", "Index")
-};
+<menu>
+    <option key="1" nav="Orders/Details?id=@Model.First">First order</option>
+    <option key="q" quit>Exit</option>
+</menu>
 """.trimStart()

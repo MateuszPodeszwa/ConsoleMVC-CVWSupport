@@ -1,3 +1,5 @@
+import org.jetbrains.intellij.platform.gradle.IntelliJPlatformType
+import org.jetbrains.intellij.platform.gradle.TestFrameworkType
 import org.jetbrains.intellij.platform.gradle.tasks.PrepareSandboxTask
 
 plugins {
@@ -24,7 +26,11 @@ repositories {
 dependencies {
     intellijPlatform {
         rider(providers.gradleProperty("platformVersion"))
+        testFramework(TestFrameworkType.Platform)
     }
+
+    testImplementation("junit:junit:4.13.2")
+    testImplementation("org.opentest4j:opentest4j:1.3.0")
 }
 
 intellijPlatform {
@@ -33,35 +39,33 @@ intellijPlatform {
         version = providers.gradleProperty("pluginVersion")
 
         description = """
-            <p>Provides first-class IDE support for <a href="https://github.com/MateuszPodeszwa/ConsoleMVC">ConsoleMVC</a> <code>.cvw</code> (Console View) files in JetBrains Rider.</p>
+            <p>Support for <a href="https://github.com/MateuszPodeszwa/ConsoleMVC">ConsoleMVC</a> <code>.cvw</code> views in JetBrains Rider: C-View Markup and the C# around it.</p>
 
             <h3>Features</h3>
             <ul>
-                <li><b>Syntax highlighting</b> — directives (<code>@model</code>, <code>@using</code>) and full C# code body highlighting</li>
-                <li><b>Code completion</b> — directives, <code>NavigationResult</code> methods, <code>Console.*</code>, <code>Model</code>, <code>ViewData</code></li>
-                <li><b>Error highlighting</b> — missing <code>@model</code>, empty arguments, missing return statement, model type mismatches</li>
-                <li><b>Navigation</b> — gutter icons linking views to controllers, Go to Related, <code>NavigationResult.To()</code> target navigation</li>
-                <li><b>Refactoring</b> — rename/move model classes propagates to <code>.cvw</code> files via ReSharper backend</li>
-                <li><b>Live templates</b> — <code>cvw</code>, <code>navto</code>, <code>navaction</code>, <code>navquit</code> snippets</li>
-                <li><b>File templates</b> — "New ConsoleMVC View" in the New menu</li>
-                <li><b>Structure view</b> — shows <code>@model</code> type, imports, and navigation targets</li>
-                <li><b>Code folding</b>, <b>brace matching</b>, <b>comment toggling</b>, <b>quick documentation</b></li>
-                <li><b>Quick-fixes</b> — add missing <code>@model</code> directive, add return statement</li>
-                <li><b>ReSharper backend</b> — full semantic C# analysis via generated document service</li>
+                <li><b>Highlighting</b>: tags, attributes, values, text, <code>@</code> expressions, code blocks, directives and comments</li>
+                <li><b>Completion</b> from ConsoleMVC's markup schema: the elements allowed where you type, attributes, values, closing tags and directives</li>
+                <li><b>Quick documentation</b> for every element, attribute and directive</li>
+                <li><b>Checks while typing</b>: the build's own diagnostics through <code>cvw-preview</code>, or checks against the schema</li>
+                <li><b>Live preview</b>: the ConsoleMVC Preview tool window draws the view with ConsoleMVC's rendering engine (<code>dotnet tool install -g ConsoleMVC.Preview</code>)</li>
+                <li><b>Navigation</b> between views and controllers, model type mismatch checks</li>
+                <li><b>ReSharper backend</b>: the view's C# is analysed, completed and navigated through a design-time document</li>
+                <li><b>Live and file templates</b> for views, forms and tables</li>
             </ul>
         """.trimIndent()
 
         changeNotes = """
+            <h3>0.2.0</h3>
+            <ul>
+                <li>C-View Markup: highlighting, completion, quick documentation and checks, from ConsoleMVC's markup schema</li>
+                <li>Checks with the build's own diagnostics when the cvw-preview tool is installed</li>
+                <li>The ConsoleMVC Preview tool window, and Settings | Tools | ConsoleMVC</li>
+                <li>The backend's design-time document leaves markup out and checks the expressions in it, with the generator's namespace, base class and model</li>
+                <li>Comments use @* *@; templates write markup views; a view without @model is no longer flagged</li>
+            </ul>
             <h3>0.1.0</h3>
             <ul>
-                <li>Initial release</li>
-                <li>Full syntax highlighting for directives and C# code body</li>
-                <li>Code completion for directives and framework types</li>
-                <li>Error annotations and quick-fixes</li>
-                <li>Bidirectional view/controller navigation</li>
-                <li>Live templates and file templates</li>
-                <li>Structure view, code folding, and color settings</li>
-                <li>ReSharper backend with generated document service for semantic C# analysis</li>
+                <li>Initial release for ConsoleMVC 1.x views (directives and C#)</li>
             </ul>
         """.trimIndent()
 
@@ -74,9 +78,10 @@ intellijPlatform {
         token = providers.gradleProperty("intellijPlatformPublishingToken")
     }
 
+    // The Plugin Verifier checks every IDE API the plugin uses against the Rider it targets
     pluginVerification {
         ides {
-            recommended()
+            create(IntelliJPlatformType.Rider, providers.gradleProperty("platformVersion"))
         }
     }
 }

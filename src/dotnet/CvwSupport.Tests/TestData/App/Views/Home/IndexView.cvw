@@ -1,0 +1,13 @@
+@model ConsoleMVC.App.Models.HomeViewModel
+
+@* C-View Markup: <partial> renders the shared header (Views/Shared/PageHeader.cvw), and <menu> shows the
+   options, reads the choice and navigates — no Console.ReadLine() or switch statement needed. *@
+<partial name="PageHeader" model="@Model" />
+
+<menu key-color="cyan">
+    <option key="1" nav="Home/About">About</option>
+    <option key="2" nav="Greet/Index">Greeting form</option>
+    <option key="3" nav="Calc/Index">Calculator</option>
+    <option key="4" nav="Home/Features">Feature tour (tables)</option>
+    <option key="q" quit>Exit</option>
+</menu>

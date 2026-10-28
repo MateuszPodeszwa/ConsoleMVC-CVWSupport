@@ -1,0 +1,13 @@
+@model ConsoleMVC.App.Models.HomeViewModel
+
+<partial name="PageHeader" model="@Model" />
+
+@* <markdown> draws headings, lists, **bold**, *italic*, `code` and links, wrapped to the terminal *@
+<markdown text="@Model.Details" code-colour="cyan" />
+<br />
+
+<menu key-color="cyan">
+    <option key="b" back>Back</option>
+    <option key="1" nav="Index">Home</option>
+    <option key="q" quit>Exit</option>
+</menu>

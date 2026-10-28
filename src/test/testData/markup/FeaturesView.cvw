@@ -1,0 +1,46 @@
+@model ConsoleMVC.App.Models.FeaturesViewModel
+
+@* class="…" applies a named style from the theme (builder.Theme); "panel" is a rounded cyan box *@
+<box title="C-View Markup elements" class="panel" padding="1">
+    <text>Tables size their columns to the content and wrap when the terminal is narrow.</text>
+</box>
+<br />
+
+@* <scroll> shows long content a page at a time (12 lines here; without height, a window full): arrow keys, Page Up/Down, Enter *@
+<scroll height="12">
+<table border="rounded" color="darkgrey" max-width="100">
+    <row header>
+        <cell>Element</cell>
+        <cell>Purpose</cell>
+    </row>
+    @foreach (var feature in Model.Features)
+    {
+        <row>
+            <cell class="title">@feature.Element</cell>
+            <cell>@feature.Purpose</cell>
+        </row>
+    }
+</table>
+</scroll>
+<br />
+
+@* <columns> places content side by side, and stacks it when the terminal is narrower than stack-below *@
+<columns gap="4" stack-below="60">
+    <column width="50%">
+        <text class="success">Side by side</text>
+        <text class="muted">Columns share the width; auto columns use what their content needs.</text>
+    </column>
+    <column>
+        <text class="warning">Responsive</text>
+        <text class="muted">Make the terminal narrower than 60 columns and they stack.</text>
+    </column>
+</columns>
+<br />
+
+<menu key-color="cyan">
+    <option key="b" back>Back</option>
+    <option key="1" nav="Index">Home</option>
+    <option key="2" nav="Check">Live status (progress, spinner, refresh)</option>
+    <option key="3" nav="Admin/Settings/Index">Settings (a page in the Admin area)</option>
+    <option key="q" quit>Exit</option>
+</menu>

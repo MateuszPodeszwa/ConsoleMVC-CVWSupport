@@ -128,7 +128,40 @@ All extensions are registered under `com.intellij.` namespace:
 
 Action: `ConsoleMVC.NewCvwFile` in `NewGroup`
 
-## Phase 2: Backend (In Progress)
+## C-View Markup (0.2.0)
+
+ConsoleMVC views are C-View Markup with C# around and inside it. The plugin reads ConsoleMVC's markup schema
+(`src/main/resources/schema/cvw-schema.json`), so it knows exactly the elements, attributes and values of the
+framework version it was built with.
+
+```mermaid
+flowchart LR
+    S[(cvw-schema.json)] --> MS[MarkupSchema]
+    MS --> P[MarkupParser]
+    P --> T[MarkupTokenizer] --> L[CvwLexer] --> H[CvwSyntaxHighlighter]
+    P --> C[MarkupCompletion] --> CC[CvwMarkupCompletionProvider]
+    P --> V[MarkupValidator] --> A[CvwMarkupAnnotator]
+    R[PreviewRunner: cvw-preview] --> A
+    R --> W[CvwPreviewPanel: tool window]
+    MS --> D[MarkupDocumentation] --> DP[CvwDocumentationProvider]
+```
+
+- **Parsing** (`markup/MarkupParser`): the generator's rules. At the top level and in `@{ }` the text is C#; `<tag`
+  starts markup only where a statement may begin and the tag is known; inside an element every tag is markup and `@`
+  starts an expression or a block of code. It never throws: views are usually half-typed.
+- **Lexing** (`lexer/MarkupTokenizer`, `lexer/CvwLexer`): whether `<text` is markup depends on what came before, so
+  the whole view is tokenised at once. The parse paints each character's kind (tag, attribute, value, text, `@`,
+  escape, entity, comment, directive), parents first; the rest is split by `CSharpTokenizer`. Only the first token
+  has the initial state, so the editor re-lexes from the start after an edit; the platform's restart check and the
+  incremental highlighter test confirm the result.
+- **Checks** (`annotator/CvwMarkupAnnotator`): an external annotator, off the UI thread. With `cvw-preview` and a
+  trusted project it shows the generator's own diagnostics; otherwise `markup/MarkupValidator`, whose value rules
+  mirror the generator's and are compared with it in `GeneratorComparisonTest`.
+- **Preview** (`preview/`): `PreviewToolService` finds and runs the tool (no shell, standard input, 10 s timeout,
+  8 MB limit), `PreviewPage` builds a page with a Content Security Policy that blocks scripts and keeps only the
+  tool's screen, and `CvwPreviewPanel` shows it in JCEF, updated 300 ms after typing stops.
+
+## Phase 2: Backend
 
 ### Backend File Structure
 
@@ -149,7 +182,29 @@ src/dotnet/
     CvwGeneratedDocumentService.cs         # Wires into ReSharper's secondary document pipeline
 ```
 
-### Virtual Document Generation
+### Virtual Document Generation (0.2.0)
+
+`CvwMarkupMask` classifies every character of a view (C#, markup, the `@` and C# of an expression, the `@` of a code
+block) with the same rules as the frontend parser. `CvwGeneratedDocumentFactory` then writes the design-time
+document:
+
+```text
+usings (the generator's defaults, then @using, mapped)
+namespace {Root}[.Areas.{Area}].Views.{Folder}.DesignTime     the generator's namespace, plus .DesignTime
+class {View} : ConsoleView<T> | ConsolePartialView<T> | ConsoleLayoutView
+    @inject Type Name                → public Type Name { get; set; }   (mapped)
+    Render(T Model) / RenderHeader()
+        C#                           → copied, mapped
+        markup, comments, directives → spaces (newlines kept)
+        @expression                  → _ = expression;                   (expression mapped)
+        return default!;             (pages without a return of their own: a <menu> returns, and is markup here)
+```
+
+`CvwSupport.Tests` compiles every template view's document against the ConsoleMVC.Framework package, runs
+ConsoleMVC's real source generator on the same views and checks the namespace, base class and model agree and that
+both compile together.
+
+### Virtual Document Generation (0.1.0)
 
 The key insight: ReSharper analyzes C# code. A `.cvw` file is NOT C#, but its
 code body IS C# that will be placed inside a method body. So we create an

@@ -1,0 +1,26 @@
+@model ConsoleMVC.App.Models.StatusViewModel
+@* @refresh draws the page again every second (the action runs again) until you start typing *@
+@refresh 1s
+
+<box title="Status" class="panel" padding="1">
+    <spinner label="Refreshing every second until you type" frame="@Model.Time.Second" class="success" />
+    <text>Time: @Model.Time.ToString("HH:mm:ss")</text>
+    <text>Session: @Model.Session</text>
+    <progress label="Services up " value="@Model.Healthy" max="@Model.Total" bar-width="20" class="success" />
+    <sparkline label="Load        " values="@Model.Load" min="0" max="100" show-last class="info" />
+</box>
+<br />
+
+<text class="title">Response times (ms)</text>
+<bar-chart class="info">
+    @foreach (var timing in Model.Timings)
+    {
+        <bar label="@timing.Name" value="@timing.Milliseconds" />
+    }
+</bar-chart>
+<br />
+
+<menu key-color="cyan">
+    <option key="b" back>Back</option>
+    <option key="q" quit>Exit</option>
+</menu>

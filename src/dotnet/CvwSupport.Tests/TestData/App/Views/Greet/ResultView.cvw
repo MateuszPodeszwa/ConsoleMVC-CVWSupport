@@ -1,0 +1,14 @@
+@model ConsoleMVC.App.Models.GreetResultModel
+@inject ConsoleMVC.App.Services.IGreetingService Greetings
+
+<box title="Greeting" border="rounded" color="green" padding="2">
+    <text bold>@Model.Greeting</text>
+</box>
+<text dim>Greetings sent so far: @Greetings.Count</text>
+<br />
+
+<menu key-color="green">
+    <option key="1" nav="Index">Submit another greeting</option>
+    <option key="2" nav="Home/Index">Back to Home</option>
+    <option key="q" quit>Exit</option>
+</menu>

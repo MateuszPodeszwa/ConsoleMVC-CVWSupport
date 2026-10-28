@@ -6,223 +6,250 @@ using System.Text;
 namespace CvwSupport;
 
 /// <summary>
-/// Generates a synthetic C# document from a .cvw file, mirroring the exact
-/// transformation performed by the ConsoleMVC source generator.
-///
-/// The generated document wraps the .cvw code body in:
-///   using ConsoleMVC.Mvc;
-///   using {each @using};
-///   namespace {RootNamespace}.Views.{Controller} {
-///     public class {FileName} : ConsoleView&lt;{@model type}&gt; {
-///       public override NavigationResult Render({@model type} Model) {
-///         {code body}
-///       }
-///     }
-///   }
-///
-/// A range map is produced that maps character offsets between the original .cvw
-/// and the generated C# document, enabling accurate error placement, completion,
-/// and navigation.
+/// Builds the virtual C# document of a .cvw view, which ReSharper analyses for completion, navigation, errors and
+/// refactoring in the view's C#. The C# of the view is copied as it is, each piece mapped back to its place in the
+/// view; markup, comments and directive lines are left out (as spaces, so lines keep their place); each
+/// <c>@expression</c> in markup is written as the statement <c>_ = expression;</c> so it is checked too.
 /// </summary>
+/// <example>
+/// <code>
+/// var result = new CvwGeneratedDocumentFactory().Generate(text, "/shop/Views/Home/IndexView.cvw", "Shop");
+/// foreach (var segment in result.Segments) rangeMap.Add(segment.GeneratedRange, segment.OriginalRange);
+/// </code>
+/// </example>
 public class CvwGeneratedDocumentFactory
 {
+    /// <summary>The namespaces every view imports, as in ConsoleMVC's generator.</summary>
+    private static readonly string[] DefaultUsings = { "System", "System.Collections.Generic", "System.Linq", "ConsoleMVC.Mvc" };
+
     /// <summary>
-    /// Result of generating a virtual C# document from a .cvw file.
+    /// A piece of the view copied unchanged into the virtual document: <see cref="Length"/> characters at
+    /// <see cref="OriginalOffset"/> in the view are at <see cref="GeneratedOffset"/> in the document.
     /// </summary>
-    public class GenerationResult
+    public readonly struct MappedSegment
     {
-        /// <summary>The full generated C# source text.</summary>
-        public string GeneratedText { get; init; } = "";
+        /// <summary>Creates a segment.</summary>
+        public MappedSegment(int originalOffset, int generatedOffset, int length)
+        {
+            OriginalOffset = originalOffset;
+            GeneratedOffset = generatedOffset;
+            Length = length;
+        }
 
-        /// <summary>
-        /// Offset in the generated text where the code body begins.
-        /// This corresponds to the first character of the code body
-        /// inside the Render() method.
-        /// </summary>
-        public int GeneratedCodeBodyOffset { get; init; }
+        /// <summary>The offset in the view.</summary>
+        public int OriginalOffset { get; }
 
-        /// <summary>
-        /// Offset in the original .cvw text where the code body begins.
-        /// </summary>
-        public int OriginalCodeBodyOffset { get; init; }
+        /// <summary>The offset in the virtual document.</summary>
+        public int GeneratedOffset { get; }
 
-        /// <summary>The parsed file data.</summary>
-        public CvwFileParser Parser { get; init; } = new();
-
-        /// <summary>
-        /// Offsets in the generated text where the @model type appears.
-        /// The model type appears in two places: ConsoleView&lt;T&gt; and the Render parameter.
-        /// </summary>
-        public List<int> GeneratedModelTypeOffsets { get; init; } = new();
-
-        /// <summary>
-        /// Offsets in the generated text where each @using namespace appears
-        /// (in the "using X;" directives). Parallel to Parser.UsingLocations.
-        /// </summary>
-        public List<int> GeneratedUsingOffsets { get; init; } = new();
+        /// <summary>The number of characters.</summary>
+        public int Length { get; }
     }
 
-    /// <summary>
-    /// Generates a virtual C# document from a .cvw file.
-    /// </summary>
-    /// <param name="cvwContent">The raw text content of the .cvw file.</param>
-    /// <param name="filePath">The file path, used to extract controller and action names.</param>
-    /// <param name="rootNamespace">The project's root namespace (defaults to "ConsoleMVC").</param>
-    /// <returns>The generation result, or null if the file has no @model directive.</returns>
-    public GenerationResult? Generate(string cvwContent, string filePath, string rootNamespace = "ConsoleMVC")
+    /// <summary>The virtual document and how its pieces map back to the view.</summary>
+    public class GenerationResult
+    {
+        /// <summary>The C# text.</summary>
+        public string GeneratedText { get; init; } = "";
+
+        /// <summary>The pieces copied from the view: directive arguments and the C# of the body.</summary>
+        public List<MappedSegment> Segments { get; init; } = new();
+
+        /// <summary>The parsed directives and the classification of the view.</summary>
+        public CvwFileParser Parser { get; init; } = new();
+    }
+
+    /// <summary>Generates the virtual document of a view.</summary>
+    /// <param name="cvwContent">The view's text.</param>
+    /// <param name="filePath">The view's path, which gives its folder (controller, area) and class name.</param>
+    /// <param name="rootNamespace">The project's root namespace.</param>
+    /// <returns>The document; never null.</returns>
+    public GenerationResult Generate(string cvwContent, string filePath, string rootNamespace = "ConsoleMVC")
     {
         var parser = new CvwFileParser();
         parser.Parse(cvwContent);
 
-        if (parser.ModelType == null)
-            return null;
+        var (viewNamespace, isShared) = ViewNamespace(filePath, rootNamespace);
+        var className = SafeIdentifier(Path.GetFileNameWithoutExtension(filePath));
+        var builder = new DocumentBuilder();
 
-        // Extract controller name and file name from path
-        var normalizedPath = filePath.Replace('\\', '/');
-        var pathParts = normalizedPath.Split('/');
-
-        string? controllerName = null;
-        for (var i = 0; i < pathParts.Length - 1; i++)
+        builder.Line("// <auto-generated>Design-time document of " + Path.GetFileName(filePath) + " for the IDE</auto-generated>");
+        foreach (var name in DefaultUsings)
+            builder.Line($"using {name};");
+        foreach (var location in parser.UsingLocations)
         {
-            if (string.Equals(pathParts[i], "Views", StringComparison.OrdinalIgnoreCase)
-                && i + 1 < pathParts.Length - 1)
+            builder.Append("using ");
+            builder.Mapped(cvwContent, location.Offset, location.Length);
+            builder.Line(";");
+        }
+
+        builder.Line("");
+        // A namespace of its own, so this class never clashes with the one the source generator writes; type names
+        // still resolve through the view's namespace and the project's
+        builder.Line($"namespace {viewNamespace}.DesignTime");
+        builder.Line("{");
+
+        var isLayout = isShared && parser.HasBodyPlaceholder;
+        builder.Append($"    public class {className} : ");
+        if (isLayout)
+        {
+            builder.Line("ConsoleLayoutView");
+        }
+        else
+        {
+            builder.Append(isShared ? "ConsolePartialView<" : "ConsoleView<");
+            AppendModelType(builder, cvwContent, parser);
+            builder.Line(">");
+        }
+
+        builder.Line("    {");
+
+        foreach (var inject in parser.Injects)
+        {
+            builder.Append("        public ");
+            builder.Mapped(cvwContent, inject.Type.Offset, inject.Type.Length);
+            builder.Append(" ");
+            builder.Mapped(cvwContent, inject.Name.Offset, inject.Name.Length);
+            builder.Line(" { get; set; } = default!;");
+        }
+
+        if (isLayout)
+        {
+            builder.Line("        public override void RenderFooter() { }");
+            builder.Line("        public override void RenderHeader()");
+        }
+        else
+        {
+            builder.Append(isShared ? "        public override void Render(" : "        public override NavigationResult Render(");
+            AppendModelType(builder, cvwContent, parser);
+            builder.Line(" Model)");
+        }
+
+        builder.Line("        {");
+        var hasReturn = AppendBody(builder, cvwContent, parser.Kinds);
+        builder.Line("");
+        if (!isShared && !hasReturn)
+            builder.Line("            return default!;"); // a <menu> returns where to go next; it is markup here
+        builder.Line("        }");
+        builder.Line("    }");
+        builder.Line("}");
+
+        return new GenerationResult { GeneratedText = builder.Text, Segments = builder.Segments, Parser = parser };
+    }
+
+    /// <summary>
+    /// Writes the body: C# copied and mapped, markup as spaces (newlines kept), expressions as <c>_ = expression;</c>.
+    /// </summary>
+    /// <returns>Whether the C# has a <c>return</c>.</returns>
+    private static bool AppendBody(DocumentBuilder builder, string text, CvwCharKind[] kinds)
+    {
+        var hasReturn = false;
+        var index = 0;
+        while (index < text.Length)
+        {
+            var kind = kinds[index];
+            var end = index + 1;
+            while (end < text.Length && kinds[end] == kind)
+                end++;
+
+            switch (kind)
             {
-                controllerName = pathParts[i + 1];
+                case CvwCharKind.Code:
+                    builder.Mapped(text, index, end - index);
+                    hasReturn |= ContainsWord(text, index, end, "return");
+                    break;
+
+                case CvwCharKind.Expression:
+                    builder.Append("_ = ");
+                    builder.Mapped(text, index, end - index);
+                    builder.Append(";");
+                    break;
+
+                default:
+                    // Markup and transitions: spaces, keeping each newline so later lines stay where they are
+                    for (var i = index; i < end; i++)
+                        builder.Append(text[i] == '\n' || text[i] == '\r' ? text[i].ToString() : " ");
+                    break;
+            }
+
+            index = end;
+        }
+
+        return hasReturn;
+    }
+
+    private static void AppendModelType(DocumentBuilder builder, string text, CvwFileParser parser)
+    {
+        if (parser.ModelTypeLocation is { } model)
+            builder.Mapped(text, model.Offset, model.Length);
+        else
+            builder.Append("object");
+    }
+
+    /// <summary>The view's namespace, as the generator names it, and whether the view is shared (a partial or layout).</summary>
+    /// <example><c>ViewNamespace("/shop/Areas/Admin/Views/Users/IndexView.cvw", "Shop")</c> is <c>("Shop.Areas.Admin.Views.Users", false)</c>.</example>
+    public static (string Namespace, bool IsShared) ViewNamespace(string filePath, string rootNamespace)
+    {
+        var parts = filePath.Replace('\\', '/').Split('/');
+        for (var i = parts.Length - 2; i >= 0; i--)
+        {
+            if (!string.Equals(parts[i], "Views", StringComparison.OrdinalIgnoreCase) || i + 1 > parts.Length - 2)
+                continue;
+
+            var folder = SafeIdentifier(parts[i + 1]);
+            var area = i >= 2 && string.Equals(parts[i - 2], "Areas", StringComparison.OrdinalIgnoreCase) ? SafeIdentifier(parts[i - 1]) : null;
+            var name = rootNamespace + (area is null ? "" : ".Areas." + area) + ".Views." + folder;
+            return (name, string.Equals(folder, "Shared", StringComparison.OrdinalIgnoreCase));
+        }
+
+        return (rootNamespace + ".Views", false);
+    }
+
+    private static string SafeIdentifier(string name)
+    {
+        var builder = new StringBuilder();
+        foreach (var c in name)
+            builder.Append(char.IsLetterOrDigit(c) || c == '_' ? c : '_');
+        if (builder.Length == 0 || char.IsDigit(builder[0]))
+            builder.Insert(0, '_');
+        return builder.ToString();
+    }
+
+    private static bool ContainsWord(string text, int start, int end, string word)
+    {
+        for (var i = text.IndexOf(word, start, end - start, StringComparison.Ordinal); i >= 0 && i + word.Length <= end;
+             i = text.IndexOf(word, i + 1, end - i - 1, StringComparison.Ordinal))
+        {
+            var before = i > 0 ? text[i - 1] : ' ';
+            var after = i + word.Length < text.Length ? text[i + word.Length] : ' ';
+            if (!char.IsLetterOrDigit(before) && before != '_' && !char.IsLetterOrDigit(after) && after != '_')
+                return true;
+            if (i + 1 >= end)
                 break;
-            }
         }
 
-        controllerName ??= "Unknown";
-        var fileName = Path.GetFileNameWithoutExtension(filePath);
-
-        // Build the generated document
-        var sb = new StringBuilder();
-
-        // Header
-        sb.AppendLine("// <auto-generated>");
-        sb.AppendLine($"// Virtual document for {controllerName}/{fileName}.cvw");
-        sb.AppendLine("// </auto-generated>");
-
-        // Using directives
-        sb.AppendLine("using ConsoleMVC.Mvc;");
-        var generatedUsingOffsets = new List<int>();
-        foreach (var u in parser.Usings)
-        {
-            var usingOffset = sb.Length + "using ".Length;
-            generatedUsingOffsets.Add(usingOffset);
-            sb.AppendLine($"using {u};");
-        }
-        sb.AppendLine();
-
-        // Namespace and class
-        var generatedModelTypeOffsets = new List<int>();
-        sb.AppendLine($"namespace {rootNamespace}.Views.{controllerName}");
-        sb.AppendLine("{");
-
-        // Track @model type in "ConsoleView<ModelType>"
-        var classLinePrefix = $"    public class {fileName} : ConsoleView<";
-        var modelOffset1 = sb.Length + classLinePrefix.Length;
-        generatedModelTypeOffsets.Add(modelOffset1);
-        sb.AppendLine($"{classLinePrefix}{parser.ModelType}>");
-
-        sb.AppendLine("    {");
-
-        // Track @model type in "Render(ModelType Model)"
-        var renderPrefix = "        public override NavigationResult Render(";
-        var modelOffset2 = sb.Length + renderPrefix.Length;
-        generatedModelTypeOffsets.Add(modelOffset2);
-        sb.AppendLine($"{renderPrefix}{parser.ModelType} Model)");
-
-        sb.AppendLine("        {");
-
-        // Record where the code body starts in the generated document
-        var generatedCodeBodyOffset = sb.Length;
-
-        // Indent each code body line with 12 spaces (3 levels of 4-space indent)
-        var codeLines = parser.CodeBody.Split('\n');
-        foreach (var line in codeLines)
-        {
-            sb.Append("            ");
-            sb.AppendLine(line);
-        }
-
-        sb.AppendLine("        }");
-        sb.AppendLine("    }");
-        sb.AppendLine("}");
-
-        return new GenerationResult
-        {
-            GeneratedText = sb.ToString(),
-            GeneratedCodeBodyOffset = generatedCodeBodyOffset,
-            OriginalCodeBodyOffset = parser.CodeBodyOffset,
-            Parser = parser,
-            GeneratedModelTypeOffsets = generatedModelTypeOffsets,
-            GeneratedUsingOffsets = generatedUsingOffsets
-        };
+        return false;
     }
 
-    /// <summary>
-    /// Maps an offset in the original .cvw code body to the corresponding offset
-    /// in the generated C# document.
-    /// </summary>
-    public static int MapOriginalToGenerated(GenerationResult result, int originalOffset)
+    /// <summary>Writes the document and records the pieces copied from the view.</summary>
+    private sealed class DocumentBuilder
     {
-        if (originalOffset < result.OriginalCodeBodyOffset)
-            return -1; // In the directive section, no direct mapping
+        private readonly StringBuilder _text = new();
 
-        var relativeOffset = originalOffset - result.OriginalCodeBodyOffset;
+        public List<MappedSegment> Segments { get; } = new();
 
-        // Account for the 12-space indentation added to each line
-        var codeBody = result.Parser.CodeBody;
-        var lineCount = 0;
-        for (var i = 0; i < relativeOffset && i < codeBody.Length; i++)
+        public string Text => _text.ToString();
+
+        public void Append(string text) => _text.Append(text);
+
+        public void Line(string text) => _text.Append(text).Append('\n');
+
+        public void Mapped(string source, int offset, int length)
         {
-            if (codeBody[i] == '\n') lineCount++;
+            if (length <= 0)
+                return;
+            Segments.Add(new MappedSegment(offset, _text.Length, length));
+            _text.Append(source, offset, length);
         }
-
-        // Each line in the generated doc has 12 extra chars of indentation
-        // plus we need to account for \r\n vs \n differences in AppendLine
-        return result.GeneratedCodeBodyOffset + relativeOffset + (lineCount * 12);
-    }
-
-    /// <summary>
-    /// Maps an offset in the generated C# document back to the original .cvw file.
-    /// </summary>
-    public static int MapGeneratedToOriginal(GenerationResult result, int generatedOffset)
-    {
-        if (generatedOffset < result.GeneratedCodeBodyOffset)
-            return -1; // In the generated header, no mapping back
-
-        var relativeOffset = generatedOffset - result.GeneratedCodeBodyOffset;
-
-        // Reverse the indentation mapping
-        var generatedCode = result.GeneratedText.Substring(result.GeneratedCodeBodyOffset);
-        var actualOffset = 0;
-        var lineStart = true;
-        var indentCharsSkipped = 0;
-
-        for (var i = 0; i < relativeOffset && i < generatedCode.Length; i++)
-        {
-            if (lineStart && generatedCode[i] == ' ' && indentCharsSkipped < 12)
-            {
-                indentCharsSkipped++;
-                if (indentCharsSkipped == 12) lineStart = false;
-                continue; // Skip indentation chars
-            }
-
-            if (generatedCode[i] == '\n')
-            {
-                lineStart = true;
-                indentCharsSkipped = 0;
-            }
-            else
-            {
-                lineStart = false;
-            }
-
-            actualOffset++;
-        }
-
-        return result.OriginalCodeBodyOffset + actualOffset;
     }
 }

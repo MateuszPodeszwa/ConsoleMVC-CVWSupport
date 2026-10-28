@@ -14,6 +14,22 @@ object CvwTokenTypes {
     @JvmField val USING_KEYWORD = CvwTokenType("USING_KEYWORD")       // @using
     @JvmField val DIRECTIVE_ARGUMENT = CvwTokenType("DIRECTIVE_ARGUMENT") // type/namespace after directive
 
+    @JvmField val DIRECTIVE_KEYWORD = CvwTokenType("DIRECTIVE_KEYWORD") // @inject, @layout, @refresh
+
+    // C-View Markup tokens
+    @JvmField val TAG_DELIMITER = CvwTokenType("TAG_DELIMITER")         // < </ > />
+    @JvmField val TAG_NAME = CvwTokenType("TAG_NAME")                   // box, text, …
+    @JvmField val UNKNOWN_TAG_NAME = CvwTokenType("UNKNOWN_TAG_NAME")   // a tag the schema does not have
+    @JvmField val TAG_SPACE = CvwTokenType("TAG_SPACE")                 // whitespace and stray characters in a tag
+    @JvmField val ATTRIBUTE_NAME = CvwTokenType("ATTRIBUTE_NAME")       // border
+    @JvmField val ATTRIBUTE_EQ = CvwTokenType("ATTRIBUTE_EQ")           // =
+    @JvmField val ATTRIBUTE_VALUE = CvwTokenType("ATTRIBUTE_VALUE")     // "double", with its quotes
+    @JvmField val MARKUP_TEXT = CvwTokenType("MARKUP_TEXT")             // text inside an element
+    @JvmField val TRANSITION = CvwTokenType("TRANSITION")               // the @ of @Model.Name, @(…), @{…}, @if
+    @JvmField val ESCAPE = CvwTokenType("ESCAPE")                       // @@
+    @JvmField val ENTITY = CvwTokenType("ENTITY")                       // &lt;
+    @JvmField val MARKUP_COMMENT = CvwTokenType("MARKUP_COMMENT")       // @* … *@ and <!-- … -->
+
     // Code body tokens
     @JvmField val CODE_BODY = CvwTokenType("CODE_BODY")               // C# code lines
 
@@ -40,7 +56,8 @@ object CvwTokenTypes {
     @JvmField val CS_DOT = CvwTokenType("CS_DOT")
 
     // Token sets for the parser
-    @JvmField val COMMENTS = TokenSet.create(CS_LINE_COMMENT, CS_BLOCK_COMMENT)
+    @JvmField val COMMENTS = TokenSet.create(CS_LINE_COMMENT, CS_BLOCK_COMMENT, MARKUP_COMMENT)
     @JvmField val WHITESPACE = TokenSet.create(WHITE_SPACE, NEWLINE)
-    @JvmField val DIRECTIVES = TokenSet.create(MODEL_KEYWORD, USING_KEYWORD)
+    @JvmField val DIRECTIVES = TokenSet.create(MODEL_KEYWORD, USING_KEYWORD, DIRECTIVE_KEYWORD)
+    @JvmField val MARKUP_STRINGS = TokenSet.create(ATTRIBUTE_VALUE)
 }
