@@ -1,0 +1,2591 @@
+{
+  "formatVersion": 1,
+  "description": "The elements, attributes, directives and diagnostics of ConsoleMVC C-View Markup (.cvw), for editors.",
+  "directives": [
+    {
+      "name": "@model",
+      "syntax": "@model Namespace.Type",
+      "description": "The type of the view's Model, passed by the action's View(model)."
+    },
+    {
+      "name": "@using",
+      "syntax": "@using Namespace",
+      "description": "Imports a namespace for the view's code."
+    },
+    {
+      "name": "@inject",
+      "syntax": "@inject IService Name",
+      "description": "Declares a property filled from the application's services before the view is drawn."
+    },
+    {
+      "name": "@layout",
+      "syntax": "@layout Name",
+      "description": "Draws the view inside a layout from Views/Shared; @layout none opts out of the default layout."
+    },
+    {
+      "name": "@refresh",
+      "syntax": "@refresh 5s",
+      "description": "Draws the view again every interval (ms, s or m) until the user starts typing."
+    }
+  ],
+  "constructs": [
+    {
+      "syntax": "@Model.Name",
+      "description": "An expression, written into the markup as text."
+    },
+    {
+      "syntax": "@(a + b)",
+      "description": "An explicit expression, for anything more than a name and member accesses."
+    },
+    {
+      "syntax": "@{ ... }",
+      "description": "A C# code block."
+    },
+    {
+      "syntax": "@if (...) { ... } else { ... }",
+      "description": "Conditional markup."
+    },
+    {
+      "syntax": "@foreach (var item in items) { ... }",
+      "description": "Repeated markup; also @for, @while, @do and @switch."
+    },
+    {
+      "syntax": "@* ... *@",
+      "description": "A comment, left out of the generated code."
+    },
+    {
+      "syntax": "@@",
+      "description": "A literal @."
+    },
+    {
+      "syntax": "&lt;",
+      "description": "A literal <; also &gt; and &amp;."
+    }
+  ],
+  "elements": [
+    {
+      "name": "text",
+      "description": "Styled text that wraps to the available width. May contain @expressions and <br />.",
+      "content": "inline",
+      "topLevelOnly": false,
+      "parents": null,
+      "children": null,
+      "attributes": [
+        {
+          "name": "class",
+          "description": "Named styles from the theme, separated by spaces, such as \"title\" or \"panel muted\".",
+          "required": false,
+          "kind": "text",
+          "accepts": "text",
+          "flag": false,
+          "interpolation": true
+        },
+        {
+          "name": "color",
+          "description": "The text colour.",
+          "required": false,
+          "kind": "colour",
+          "accepts": "a colour name such as 'cyan' or 'darkgrey', or a hex value such as '#ff8800'",
+          "flag": false,
+          "interpolation": false,
+          "values": ["default", "black", "blue", "cyan", "darkblue", "darkcyan", "darkgray", "darkgreen", "darkgrey", "darkmagenta", "darkred", "darkyellow", "gray", "green", "grey", "magenta", "red", "white", "yellow"]
+        },
+        {
+          "name": "colour",
+          "description": "The text colour.",
+          "required": false,
+          "kind": "colour",
+          "accepts": "a colour name such as 'cyan' or 'darkgrey', or a hex value such as '#ff8800'",
+          "flag": false,
+          "interpolation": false,
+          "values": ["default", "black", "blue", "cyan", "darkblue", "darkcyan", "darkgray", "darkgreen", "darkgrey", "darkmagenta", "darkred", "darkyellow", "gray", "green", "grey", "magenta", "red", "white", "yellow"]
+        },
+        {
+          "name": "background",
+          "description": "The background colour.",
+          "required": false,
+          "kind": "colour",
+          "accepts": "a colour name such as 'cyan' or 'darkgrey', or a hex value such as '#ff8800'",
+          "flag": false,
+          "interpolation": false,
+          "values": ["default", "black", "blue", "cyan", "darkblue", "darkcyan", "darkgray", "darkgreen", "darkgrey", "darkmagenta", "darkred", "darkyellow", "gray", "green", "grey", "magenta", "red", "white", "yellow"]
+        },
+        {
+          "name": "bold",
+          "description": "Bold text.",
+          "required": false,
+          "kind": "boolean",
+          "accepts": "true or false",
+          "flag": true,
+          "interpolation": false,
+          "values": ["true", "false"]
+        },
+        {
+          "name": "dim",
+          "description": "Dim (faint) text.",
+          "required": false,
+          "kind": "boolean",
+          "accepts": "true or false",
+          "flag": true,
+          "interpolation": false,
+          "values": ["true", "false"]
+        },
+        {
+          "name": "italic",
+          "description": "Italic text.",
+          "required": false,
+          "kind": "boolean",
+          "accepts": "true or false",
+          "flag": true,
+          "interpolation": false,
+          "values": ["true", "false"]
+        },
+        {
+          "name": "underline",
+          "description": "Underlined text.",
+          "required": false,
+          "kind": "boolean",
+          "accepts": "true or false",
+          "flag": true,
+          "interpolation": false,
+          "values": ["true", "false"]
+        },
+        {
+          "name": "align",
+          "description": "Horizontal alignment: left, centre or right.",
+          "required": false,
+          "kind": "choice",
+          "accepts": "one of 'left', 'centre', 'center', 'right'",
+          "flag": false,
+          "interpolation": false,
+          "values": ["left", "centre", "center", "right"]
+        },
+        {
+          "name": "wrap",
+          "description": "Whether long text wraps onto more lines (the default) or is cut off.",
+          "required": false,
+          "kind": "boolean",
+          "accepts": "true or false",
+          "flag": true,
+          "interpolation": false,
+          "values": ["true", "false"]
+        }
+      ]
+    },
+    {
+      "name": "box",
+      "description": "A bordered panel with an optional title. Holds other elements; plain text inside becomes a <text>.",
+      "content": "block",
+      "topLevelOnly": false,
+      "parents": null,
+      "children": null,
+      "attributes": [
+        {
+          "name": "class",
+          "description": "Named styles from the theme, separated by spaces, such as \"title\" or \"panel muted\".",
+          "required": false,
+          "kind": "text",
+          "accepts": "text",
+          "flag": false,
+          "interpolation": true
+        },
+        {
+          "name": "title",
+          "description": "The title shown in the top border.",
+          "required": false,
+          "kind": "text",
+          "accepts": "text",
+          "flag": false,
+          "interpolation": true
+        },
+        {
+          "name": "width",
+          "description": "The width: auto, a number of columns, a percentage such as 50%, or * for the rest.",
+          "required": false,
+          "kind": "length",
+          "accepts": "'auto', a column count such as '40', a percentage such as '50%', or '*' for the remaining width",
+          "flag": false,
+          "interpolation": false,
+          "values": ["auto", "*"]
+        },
+        {
+          "name": "min-width",
+          "description": "The narrowest the element may be, in columns.",
+          "required": false,
+          "kind": "integer",
+          "accepts": "a whole number from 0 to 1000",
+          "flag": false,
+          "interpolation": false,
+          "minimum": 0,
+          "maximum": 1000
+        },
+        {
+          "name": "max-width",
+          "description": "The widest the element may be, in columns.",
+          "required": false,
+          "kind": "integer",
+          "accepts": "a whole number from 0 to 1000",
+          "flag": false,
+          "interpolation": false,
+          "minimum": 0,
+          "maximum": 1000
+        },
+        {
+          "name": "border",
+          "description": "The border style.",
+          "required": false,
+          "kind": "choice",
+          "accepts": "one of 'single', 'double', 'rounded', 'heavy', 'ascii', 'none'",
+          "flag": false,
+          "interpolation": false,
+          "values": ["single", "double", "rounded", "heavy", "ascii", "none"]
+        },
+        {
+          "name": "padding",
+          "description": "Blank columns between the border and the content.",
+          "required": false,
+          "kind": "integer",
+          "accepts": "a whole number from 0 to 20",
+          "flag": false,
+          "interpolation": false,
+          "minimum": 0,
+          "maximum": 20
+        },
+        {
+          "name": "color",
+          "description": "The border colour.",
+          "required": false,
+          "kind": "colour",
+          "accepts": "a colour name such as 'cyan' or 'darkgrey', or a hex value such as '#ff8800'",
+          "flag": false,
+          "interpolation": false,
+          "values": ["default", "black", "blue", "cyan", "darkblue", "darkcyan", "darkgray", "darkgreen", "darkgrey", "darkmagenta", "darkred", "darkyellow", "gray", "green", "grey", "magenta", "red", "white", "yellow"]
+        },
+        {
+          "name": "colour",
+          "description": "The border colour.",
+          "required": false,
+          "kind": "colour",
+          "accepts": "a colour name such as 'cyan' or 'darkgrey', or a hex value such as '#ff8800'",
+          "flag": false,
+          "interpolation": false,
+          "values": ["default", "black", "blue", "cyan", "darkblue", "darkcyan", "darkgray", "darkgreen", "darkgrey", "darkmagenta", "darkred", "darkyellow", "gray", "green", "grey", "magenta", "red", "white", "yellow"]
+        },
+        {
+          "name": "title-color",
+          "description": "The title colour.",
+          "required": false,
+          "kind": "colour",
+          "accepts": "a colour name such as 'cyan' or 'darkgrey', or a hex value such as '#ff8800'",
+          "flag": false,
+          "interpolation": false,
+          "values": ["default", "black", "blue", "cyan", "darkblue", "darkcyan", "darkgray", "darkgreen", "darkgrey", "darkmagenta", "darkred", "darkyellow", "gray", "green", "grey", "magenta", "red", "white", "yellow"]
+        },
+        {
+          "name": "title-colour",
+          "description": "The title colour.",
+          "required": false,
+          "kind": "colour",
+          "accepts": "a colour name such as 'cyan' or 'darkgrey', or a hex value such as '#ff8800'",
+          "flag": false,
+          "interpolation": false,
+          "values": ["default", "black", "blue", "cyan", "darkblue", "darkcyan", "darkgray", "darkgreen", "darkgrey", "darkmagenta", "darkred", "darkyellow", "gray", "green", "grey", "magenta", "red", "white", "yellow"]
+        }
+      ]
+    },
+    {
+      "name": "separator",
+      "description": "A horizontal rule across the available width.",
+      "content": "void",
+      "topLevelOnly": false,
+      "parents": null,
+      "children": null,
+      "attributes": [
+        {
+          "name": "class",
+          "description": "Named styles from the theme, separated by spaces, such as \"title\" or \"panel muted\".",
+          "required": false,
+          "kind": "text",
+          "accepts": "text",
+          "flag": false,
+          "interpolation": true
+        },
+        {
+          "name": "style",
+          "description": "The line style.",
+          "required": false,
+          "kind": "choice",
+          "accepts": "one of 'single', 'double', 'heavy', 'dashed', 'ascii'",
+          "flag": false,
+          "interpolation": false,
+          "values": ["single", "double", "heavy", "dashed", "ascii"]
+        },
+        {
+          "name": "color",
+          "description": "The colour.",
+          "required": false,
+          "kind": "colour",
+          "accepts": "a colour name such as 'cyan' or 'darkgrey', or a hex value such as '#ff8800'",
+          "flag": false,
+          "interpolation": false,
+          "values": ["default", "black", "blue", "cyan", "darkblue", "darkcyan", "darkgray", "darkgreen", "darkgrey", "darkmagenta", "darkred", "darkyellow", "gray", "green", "grey", "magenta", "red", "white", "yellow"]
+        },
+        {
+          "name": "colour",
+          "description": "The colour.",
+          "required": false,
+          "kind": "colour",
+          "accepts": "a colour name such as 'cyan' or 'darkgrey', or a hex value such as '#ff8800'",
+          "flag": false,
+          "interpolation": false,
+          "values": ["default", "black", "blue", "cyan", "darkblue", "darkcyan", "darkgray", "darkgreen", "darkgrey", "darkmagenta", "darkred", "darkyellow", "gray", "green", "grey", "magenta", "red", "white", "yellow"]
+        },
+        {
+          "name": "width",
+          "description": "The width of the rule: auto (the full width), a number of columns or a percentage.",
+          "required": false,
+          "kind": "length",
+          "accepts": "'auto', a column count such as '40', a percentage such as '50%', or '*' for the remaining width",
+          "flag": false,
+          "interpolation": false,
+          "values": ["auto", "*"]
+        }
+      ]
+    },
+    {
+      "name": "br",
+      "description": "A line break; inside text it ends the line, elsewhere it leaves blank lines.",
+      "content": "void",
+      "topLevelOnly": false,
+      "parents": null,
+      "children": null,
+      "attributes": [
+        {
+          "name": "count",
+          "description": "How many line breaks.",
+          "required": false,
+          "kind": "integer",
+          "accepts": "a whole number from 0 to 100",
+          "flag": false,
+          "interpolation": false,
+          "minimum": 0,
+          "maximum": 100
+        }
+      ]
+    },
+    {
+      "name": "table",
+      "description": "A table whose columns size themselves to the content. Holds <row> elements, usually from @foreach.",
+      "content": "elements",
+      "topLevelOnly": false,
+      "parents": null,
+      "children": ["row"],
+      "attributes": [
+        {
+          "name": "class",
+          "description": "Named styles from the theme, separated by spaces, such as \"title\" or \"panel muted\".",
+          "required": false,
+          "kind": "text",
+          "accepts": "text",
+          "flag": false,
+          "interpolation": true
+        },
+        {
+          "name": "border",
+          "description": "The border style.",
+          "required": false,
+          "kind": "choice",
+          "accepts": "one of 'single', 'double', 'rounded', 'heavy', 'ascii', 'none'",
+          "flag": false,
+          "interpolation": false,
+          "values": ["single", "double", "rounded", "heavy", "ascii", "none"]
+        },
+        {
+          "name": "padding",
+          "description": "Blank columns between the border and the content.",
+          "required": false,
+          "kind": "integer",
+          "accepts": "a whole number from 0 to 20",
+          "flag": false,
+          "interpolation": false,
+          "minimum": 0,
+          "maximum": 20
+        },
+        {
+          "name": "width",
+          "description": "The width: auto, a number of columns, a percentage such as 50%, or * for the rest.",
+          "required": false,
+          "kind": "length",
+          "accepts": "'auto', a column count such as '40', a percentage such as '50%', or '*' for the remaining width",
+          "flag": false,
+          "interpolation": false,
+          "values": ["auto", "*"]
+        },
+        {
+          "name": "min-width",
+          "description": "The narrowest the element may be, in columns.",
+          "required": false,
+          "kind": "integer",
+          "accepts": "a whole number from 0 to 1000",
+          "flag": false,
+          "interpolation": false,
+          "minimum": 0,
+          "maximum": 1000
+        },
+        {
+          "name": "max-width",
+          "description": "The widest the element may be, in columns.",
+          "required": false,
+          "kind": "integer",
+          "accepts": "a whole number from 0 to 1000",
+          "flag": false,
+          "interpolation": false,
+          "minimum": 0,
+          "maximum": 1000
+        },
+        {
+          "name": "color",
+          "description": "The border colour.",
+          "required": false,
+          "kind": "colour",
+          "accepts": "a colour name such as 'cyan' or 'darkgrey', or a hex value such as '#ff8800'",
+          "flag": false,
+          "interpolation": false,
+          "values": ["default", "black", "blue", "cyan", "darkblue", "darkcyan", "darkgray", "darkgreen", "darkgrey", "darkmagenta", "darkred", "darkyellow", "gray", "green", "grey", "magenta", "red", "white", "yellow"]
+        },
+        {
+          "name": "colour",
+          "description": "The border colour.",
+          "required": false,
+          "kind": "colour",
+          "accepts": "a colour name such as 'cyan' or 'darkgrey', or a hex value such as '#ff8800'",
+          "flag": false,
+          "interpolation": false,
+          "values": ["default", "black", "blue", "cyan", "darkblue", "darkcyan", "darkgray", "darkgreen", "darkgrey", "darkmagenta", "darkred", "darkyellow", "gray", "green", "grey", "magenta", "red", "white", "yellow"]
+        }
+      ]
+    },
+    {
+      "name": "row",
+      "description": "One row of a <table>; 'header' makes it the header row.",
+      "content": "elements",
+      "topLevelOnly": false,
+      "parents": ["table"],
+      "children": ["cell"],
+      "attributes": [
+        {
+          "name": "header",
+          "description": "Makes this the header row, drawn bold and separated from the rows below.",
+          "required": false,
+          "kind": "boolean",
+          "accepts": "true or false",
+          "flag": true,
+          "interpolation": false,
+          "values": ["true", "false"]
+        }
+      ]
+    },
+    {
+      "name": "cell",
+      "description": "One cell of a <row>, with styled text.",
+      "content": "inline",
+      "topLevelOnly": false,
+      "parents": ["row"],
+      "children": null,
+      "attributes": [
+        {
+          "name": "class",
+          "description": "Named styles from the theme, separated by spaces, such as \"title\" or \"panel muted\".",
+          "required": false,
+          "kind": "text",
+          "accepts": "text",
+          "flag": false,
+          "interpolation": true
+        },
+        {
+          "name": "color",
+          "description": "The text colour.",
+          "required": false,
+          "kind": "colour",
+          "accepts": "a colour name such as 'cyan' or 'darkgrey', or a hex value such as '#ff8800'",
+          "flag": false,
+          "interpolation": false,
+          "values": ["default", "black", "blue", "cyan", "darkblue", "darkcyan", "darkgray", "darkgreen", "darkgrey", "darkmagenta", "darkred", "darkyellow", "gray", "green", "grey", "magenta", "red", "white", "yellow"]
+        },
+        {
+          "name": "colour",
+          "description": "The text colour.",
+          "required": false,
+          "kind": "colour",
+          "accepts": "a colour name such as 'cyan' or 'darkgrey', or a hex value such as '#ff8800'",
+          "flag": false,
+          "interpolation": false,
+          "values": ["default", "black", "blue", "cyan", "darkblue", "darkcyan", "darkgray", "darkgreen", "darkgrey", "darkmagenta", "darkred", "darkyellow", "gray", "green", "grey", "magenta", "red", "white", "yellow"]
+        },
+        {
+          "name": "background",
+          "description": "The background colour.",
+          "required": false,
+          "kind": "colour",
+          "accepts": "a colour name such as 'cyan' or 'darkgrey', or a hex value such as '#ff8800'",
+          "flag": false,
+          "interpolation": false,
+          "values": ["default", "black", "blue", "cyan", "darkblue", "darkcyan", "darkgray", "darkgreen", "darkgrey", "darkmagenta", "darkred", "darkyellow", "gray", "green", "grey", "magenta", "red", "white", "yellow"]
+        },
+        {
+          "name": "bold",
+          "description": "Bold text.",
+          "required": false,
+          "kind": "boolean",
+          "accepts": "true or false",
+          "flag": true,
+          "interpolation": false,
+          "values": ["true", "false"]
+        },
+        {
+          "name": "dim",
+          "description": "Dim (faint) text.",
+          "required": false,
+          "kind": "boolean",
+          "accepts": "true or false",
+          "flag": true,
+          "interpolation": false,
+          "values": ["true", "false"]
+        },
+        {
+          "name": "italic",
+          "description": "Italic text.",
+          "required": false,
+          "kind": "boolean",
+          "accepts": "true or false",
+          "flag": true,
+          "interpolation": false,
+          "values": ["true", "false"]
+        },
+        {
+          "name": "underline",
+          "description": "Underlined text.",
+          "required": false,
+          "kind": "boolean",
+          "accepts": "true or false",
+          "flag": true,
+          "interpolation": false,
+          "values": ["true", "false"]
+        },
+        {
+          "name": "align",
+          "description": "Horizontal alignment: left, centre or right.",
+          "required": false,
+          "kind": "choice",
+          "accepts": "one of 'left', 'centre', 'center', 'right'",
+          "flag": false,
+          "interpolation": false,
+          "values": ["left", "centre", "center", "right"]
+        },
+        {
+          "name": "wrap",
+          "description": "Whether long text wraps onto more lines (the default) or is cut off.",
+          "required": false,
+          "kind": "boolean",
+          "accepts": "true or false",
+          "flag": true,
+          "interpolation": false,
+          "values": ["true", "false"]
+        }
+      ]
+    },
+    {
+      "name": "menu",
+      "description": "Shows keyed options, waits for the user's choice and navigates. The view returns its result, so it comes last.",
+      "content": "elements",
+      "topLevelOnly": true,
+      "parents": null,
+      "children": ["option"],
+      "attributes": [
+        {
+          "name": "prompt",
+          "description": "The prompt written before the user types a choice.",
+          "required": false,
+          "kind": "text",
+          "accepts": "text",
+          "flag": false,
+          "interpolation": true
+        },
+        {
+          "name": "error",
+          "description": "The message shown when the user types a key that no option has.",
+          "required": false,
+          "kind": "text",
+          "accepts": "text",
+          "flag": false,
+          "interpolation": true
+        },
+        {
+          "name": "key-color",
+          "description": "The colour of the keys, such as [1].",
+          "required": false,
+          "kind": "colour",
+          "accepts": "a colour name such as 'cyan' or 'darkgrey', or a hex value such as '#ff8800'",
+          "flag": false,
+          "interpolation": false,
+          "values": ["default", "black", "blue", "cyan", "darkblue", "darkcyan", "darkgray", "darkgreen", "darkgrey", "darkmagenta", "darkred", "darkyellow", "gray", "green", "grey", "magenta", "red", "white", "yellow"]
+        },
+        {
+          "name": "key-colour",
+          "description": "The colour of the keys, such as [1].",
+          "required": false,
+          "kind": "colour",
+          "accepts": "a colour name such as 'cyan' or 'darkgrey', or a hex value such as '#ff8800'",
+          "flag": false,
+          "interpolation": false,
+          "values": ["default", "black", "blue", "cyan", "darkblue", "darkcyan", "darkgray", "darkgreen", "darkgrey", "darkmagenta", "darkred", "darkyellow", "gray", "green", "grey", "magenta", "red", "white", "yellow"]
+        }
+      ]
+    },
+    {
+      "name": "option",
+      "description": "One menu option: typing its key chooses it. Needs exactly one of 'nav', 'quit' or 'back'.",
+      "content": "inline",
+      "topLevelOnly": false,
+      "parents": ["menu"],
+      "children": null,
+      "attributes": [
+        {
+          "name": "class",
+          "description": "Named styles from the theme, separated by spaces, such as \"title\" or \"panel muted\".",
+          "required": false,
+          "kind": "text",
+          "accepts": "text",
+          "flag": false,
+          "interpolation": true
+        },
+        {
+          "name": "color",
+          "description": "The text colour.",
+          "required": false,
+          "kind": "colour",
+          "accepts": "a colour name such as 'cyan' or 'darkgrey', or a hex value such as '#ff8800'",
+          "flag": false,
+          "interpolation": false,
+          "values": ["default", "black", "blue", "cyan", "darkblue", "darkcyan", "darkgray", "darkgreen", "darkgrey", "darkmagenta", "darkred", "darkyellow", "gray", "green", "grey", "magenta", "red", "white", "yellow"]
+        },
+        {
+          "name": "colour",
+          "description": "The text colour.",
+          "required": false,
+          "kind": "colour",
+          "accepts": "a colour name such as 'cyan' or 'darkgrey', or a hex value such as '#ff8800'",
+          "flag": false,
+          "interpolation": false,
+          "values": ["default", "black", "blue", "cyan", "darkblue", "darkcyan", "darkgray", "darkgreen", "darkgrey", "darkmagenta", "darkred", "darkyellow", "gray", "green", "grey", "magenta", "red", "white", "yellow"]
+        },
+        {
+          "name": "background",
+          "description": "The background colour.",
+          "required": false,
+          "kind": "colour",
+          "accepts": "a colour name such as 'cyan' or 'darkgrey', or a hex value such as '#ff8800'",
+          "flag": false,
+          "interpolation": false,
+          "values": ["default", "black", "blue", "cyan", "darkblue", "darkcyan", "darkgray", "darkgreen", "darkgrey", "darkmagenta", "darkred", "darkyellow", "gray", "green", "grey", "magenta", "red", "white", "yellow"]
+        },
+        {
+          "name": "bold",
+          "description": "Bold text.",
+          "required": false,
+          "kind": "boolean",
+          "accepts": "true or false",
+          "flag": true,
+          "interpolation": false,
+          "values": ["true", "false"]
+        },
+        {
+          "name": "dim",
+          "description": "Dim (faint) text.",
+          "required": false,
+          "kind": "boolean",
+          "accepts": "true or false",
+          "flag": true,
+          "interpolation": false,
+          "values": ["true", "false"]
+        },
+        {
+          "name": "italic",
+          "description": "Italic text.",
+          "required": false,
+          "kind": "boolean",
+          "accepts": "true or false",
+          "flag": true,
+          "interpolation": false,
+          "values": ["true", "false"]
+        },
+        {
+          "name": "underline",
+          "description": "Underlined text.",
+          "required": false,
+          "kind": "boolean",
+          "accepts": "true or false",
+          "flag": true,
+          "interpolation": false,
+          "values": ["true", "false"]
+        },
+        {
+          "name": "align",
+          "description": "Horizontal alignment: left, centre or right.",
+          "required": false,
+          "kind": "choice",
+          "accepts": "one of 'left', 'centre', 'center', 'right'",
+          "flag": false,
+          "interpolation": false,
+          "values": ["left", "centre", "center", "right"]
+        },
+        {
+          "name": "wrap",
+          "description": "Whether long text wraps onto more lines (the default) or is cut off.",
+          "required": false,
+          "kind": "boolean",
+          "accepts": "true or false",
+          "flag": true,
+          "interpolation": false,
+          "values": ["true", "false"]
+        },
+        {
+          "name": "key",
+          "description": "What the user types to choose this option, such as 1 or q.",
+          "required": true,
+          "kind": "text",
+          "accepts": "text",
+          "flag": false,
+          "interpolation": true
+        },
+        {
+          "name": "nav",
+          "description": "Where the option goes: Controller/Action or Action, optionally with ?key=value route values.",
+          "required": false,
+          "kind": "route",
+          "accepts": "a route such as 'Home/Index', 'Index', 'Admin/Users/Index' or 'Orders/Details?id=42'",
+          "flag": false,
+          "interpolation": true
+        },
+        {
+          "name": "quit",
+          "description": "Ends the application.",
+          "required": false,
+          "kind": "boolean",
+          "accepts": "true or false",
+          "flag": true,
+          "interpolation": false,
+          "values": ["true", "false"]
+        },
+        {
+          "name": "back",
+          "description": "Goes back to the previous screen.",
+          "required": false,
+          "kind": "boolean",
+          "accepts": "true or false",
+          "flag": true,
+          "interpolation": false,
+          "values": ["true", "false"]
+        },
+        {
+          "name": "post",
+          "description": "Posts the values the view collected (its Form) to the target action.",
+          "required": false,
+          "kind": "boolean",
+          "accepts": "true or false",
+          "flag": true,
+          "interpolation": false,
+          "values": ["true", "false"]
+        }
+      ]
+    },
+    {
+      "name": "input",
+      "description": "Reads a line of text into the view's Form, under 'name'.",
+      "content": "void",
+      "topLevelOnly": true,
+      "parents": null,
+      "children": null,
+      "attributes": [
+        {
+          "name": "name",
+          "description": "The name the value is posted under: an action parameter or model property.",
+          "required": true,
+          "kind": "text",
+          "accepts": "text",
+          "flag": false,
+          "interpolation": true
+        },
+        {
+          "name": "label",
+          "description": "The label shown before the field.",
+          "required": false,
+          "kind": "text",
+          "accepts": "text",
+          "flag": false,
+          "interpolation": true
+        },
+        {
+          "name": "default",
+          "description": "The value used when the user enters nothing.",
+          "required": false,
+          "kind": "text",
+          "accepts": "text",
+          "flag": false,
+          "interpolation": true
+        },
+        {
+          "name": "required",
+          "description": "Asks again until the user gives a value.",
+          "required": false,
+          "kind": "boolean",
+          "accepts": "true or false",
+          "flag": true,
+          "interpolation": false,
+          "values": ["true", "false"]
+        },
+        {
+          "name": "masked",
+          "description": "Hides what is typed, as for a password.",
+          "required": false,
+          "kind": "boolean",
+          "accepts": "true or false",
+          "flag": true,
+          "interpolation": false,
+          "values": ["true", "false"]
+        },
+        {
+          "name": "color",
+          "description": "The label colour.",
+          "required": false,
+          "kind": "colour",
+          "accepts": "a colour name such as 'cyan' or 'darkgrey', or a hex value such as '#ff8800'",
+          "flag": false,
+          "interpolation": false,
+          "values": ["default", "black", "blue", "cyan", "darkblue", "darkcyan", "darkgray", "darkgreen", "darkgrey", "darkmagenta", "darkred", "darkyellow", "gray", "green", "grey", "magenta", "red", "white", "yellow"]
+        },
+        {
+          "name": "colour",
+          "description": "The label colour.",
+          "required": false,
+          "kind": "colour",
+          "accepts": "a colour name such as 'cyan' or 'darkgrey', or a hex value such as '#ff8800'",
+          "flag": false,
+          "interpolation": false,
+          "values": ["default", "black", "blue", "cyan", "darkblue", "darkcyan", "darkgray", "darkgreen", "darkgrey", "darkmagenta", "darkred", "darkyellow", "gray", "green", "grey", "magenta", "red", "white", "yellow"]
+        }
+      ]
+    },
+    {
+      "name": "select",
+      "description": "A list of <choice> elements answered with the arrow keys (or typed); 'multiple' allows several answers.",
+      "content": "elements",
+      "topLevelOnly": true,
+      "parents": null,
+      "children": ["choice"],
+      "attributes": [
+        {
+          "name": "name",
+          "description": "The name the value is posted under: an action parameter or model property.",
+          "required": true,
+          "kind": "text",
+          "accepts": "text",
+          "flag": false,
+          "interpolation": true
+        },
+        {
+          "name": "label",
+          "description": "The label shown before the field.",
+          "required": false,
+          "kind": "text",
+          "accepts": "text",
+          "flag": false,
+          "interpolation": true
+        },
+        {
+          "name": "default",
+          "description": "The value used when the user enters nothing.",
+          "required": false,
+          "kind": "text",
+          "accepts": "text",
+          "flag": false,
+          "interpolation": true
+        },
+        {
+          "name": "required",
+          "description": "Asks again until the user gives a value.",
+          "required": false,
+          "kind": "boolean",
+          "accepts": "true or false",
+          "flag": true,
+          "interpolation": false,
+          "values": ["true", "false"]
+        },
+        {
+          "name": "color",
+          "description": "The label colour.",
+          "required": false,
+          "kind": "colour",
+          "accepts": "a colour name such as 'cyan' or 'darkgrey', or a hex value such as '#ff8800'",
+          "flag": false,
+          "interpolation": false,
+          "values": ["default", "black", "blue", "cyan", "darkblue", "darkcyan", "darkgray", "darkgreen", "darkgrey", "darkmagenta", "darkred", "darkyellow", "gray", "green", "grey", "magenta", "red", "white", "yellow"]
+        },
+        {
+          "name": "colour",
+          "description": "The label colour.",
+          "required": false,
+          "kind": "colour",
+          "accepts": "a colour name such as 'cyan' or 'darkgrey', or a hex value such as '#ff8800'",
+          "flag": false,
+          "interpolation": false,
+          "values": ["default", "black", "blue", "cyan", "darkblue", "darkcyan", "darkgray", "darkgreen", "darkgrey", "darkmagenta", "darkred", "darkyellow", "gray", "green", "grey", "magenta", "red", "white", "yellow"]
+        },
+        {
+          "name": "highlight-color",
+          "description": "The colour of the highlighted choice.",
+          "required": false,
+          "kind": "colour",
+          "accepts": "a colour name such as 'cyan' or 'darkgrey', or a hex value such as '#ff8800'",
+          "flag": false,
+          "interpolation": false,
+          "values": ["default", "black", "blue", "cyan", "darkblue", "darkcyan", "darkgray", "darkgreen", "darkgrey", "darkmagenta", "darkred", "darkyellow", "gray", "green", "grey", "magenta", "red", "white", "yellow"]
+        },
+        {
+          "name": "highlight-colour",
+          "description": "The colour of the highlighted choice.",
+          "required": false,
+          "kind": "colour",
+          "accepts": "a colour name such as 'cyan' or 'darkgrey', or a hex value such as '#ff8800'",
+          "flag": false,
+          "interpolation": false,
+          "values": ["default", "black", "blue", "cyan", "darkblue", "darkcyan", "darkgray", "darkgreen", "darkgrey", "darkmagenta", "darkred", "darkyellow", "gray", "green", "grey", "magenta", "red", "white", "yellow"]
+        },
+        {
+          "name": "multiple",
+          "description": "Allows several choices; Space selects and Enter confirms.",
+          "required": false,
+          "kind": "boolean",
+          "accepts": "true or false",
+          "flag": true,
+          "interpolation": false,
+          "values": ["true", "false"]
+        },
+        {
+          "name": "filter",
+          "description": "Lets the user type to narrow the list.",
+          "required": false,
+          "kind": "boolean",
+          "accepts": "true or false",
+          "flag": true,
+          "interpolation": false,
+          "values": ["true", "false"]
+        },
+        {
+          "name": "size",
+          "description": "How many choices are shown at once; the list scrolls through the rest.",
+          "required": false,
+          "kind": "integer",
+          "accepts": "a whole number from 0 to 1000",
+          "flag": false,
+          "interpolation": false,
+          "minimum": 0,
+          "maximum": 1000
+        }
+      ]
+    },
+    {
+      "name": "radio",
+      "description": "One answer from a small set of <choice> elements.",
+      "content": "elements",
+      "topLevelOnly": true,
+      "parents": null,
+      "children": ["choice"],
+      "attributes": [
+        {
+          "name": "name",
+          "description": "The name the value is posted under: an action parameter or model property.",
+          "required": true,
+          "kind": "text",
+          "accepts": "text",
+          "flag": false,
+          "interpolation": true
+        },
+        {
+          "name": "label",
+          "description": "The label shown before the field.",
+          "required": false,
+          "kind": "text",
+          "accepts": "text",
+          "flag": false,
+          "interpolation": true
+        },
+        {
+          "name": "default",
+          "description": "The value used when the user enters nothing.",
+          "required": false,
+          "kind": "text",
+          "accepts": "text",
+          "flag": false,
+          "interpolation": true
+        },
+        {
+          "name": "required",
+          "description": "Asks again until the user gives a value.",
+          "required": false,
+          "kind": "boolean",
+          "accepts": "true or false",
+          "flag": true,
+          "interpolation": false,
+          "values": ["true", "false"]
+        },
+        {
+          "name": "color",
+          "description": "The label colour.",
+          "required": false,
+          "kind": "colour",
+          "accepts": "a colour name such as 'cyan' or 'darkgrey', or a hex value such as '#ff8800'",
+          "flag": false,
+          "interpolation": false,
+          "values": ["default", "black", "blue", "cyan", "darkblue", "darkcyan", "darkgray", "darkgreen", "darkgrey", "darkmagenta", "darkred", "darkyellow", "gray", "green", "grey", "magenta", "red", "white", "yellow"]
+        },
+        {
+          "name": "colour",
+          "description": "The label colour.",
+          "required": false,
+          "kind": "colour",
+          "accepts": "a colour name such as 'cyan' or 'darkgrey', or a hex value such as '#ff8800'",
+          "flag": false,
+          "interpolation": false,
+          "values": ["default", "black", "blue", "cyan", "darkblue", "darkcyan", "darkgray", "darkgreen", "darkgrey", "darkmagenta", "darkred", "darkyellow", "gray", "green", "grey", "magenta", "red", "white", "yellow"]
+        },
+        {
+          "name": "highlight-color",
+          "description": "The colour of the highlighted choice.",
+          "required": false,
+          "kind": "colour",
+          "accepts": "a colour name such as 'cyan' or 'darkgrey', or a hex value such as '#ff8800'",
+          "flag": false,
+          "interpolation": false,
+          "values": ["default", "black", "blue", "cyan", "darkblue", "darkcyan", "darkgray", "darkgreen", "darkgrey", "darkmagenta", "darkred", "darkyellow", "gray", "green", "grey", "magenta", "red", "white", "yellow"]
+        },
+        {
+          "name": "highlight-colour",
+          "description": "The colour of the highlighted choice.",
+          "required": false,
+          "kind": "colour",
+          "accepts": "a colour name such as 'cyan' or 'darkgrey', or a hex value such as '#ff8800'",
+          "flag": false,
+          "interpolation": false,
+          "values": ["default", "black", "blue", "cyan", "darkblue", "darkcyan", "darkgray", "darkgreen", "darkgrey", "darkmagenta", "darkred", "darkyellow", "gray", "green", "grey", "magenta", "red", "white", "yellow"]
+        }
+      ]
+    },
+    {
+      "name": "choice",
+      "description": "One choice of a <select> or <radio>: its text is shown and its 'value' (or text) is posted.",
+      "content": "inline",
+      "topLevelOnly": false,
+      "parents": ["select", "radio"],
+      "children": null,
+      "attributes": [
+        {
+          "name": "class",
+          "description": "Named styles from the theme, separated by spaces, such as \"title\" or \"panel muted\".",
+          "required": false,
+          "kind": "text",
+          "accepts": "text",
+          "flag": false,
+          "interpolation": true
+        },
+        {
+          "name": "color",
+          "description": "The text colour.",
+          "required": false,
+          "kind": "colour",
+          "accepts": "a colour name such as 'cyan' or 'darkgrey', or a hex value such as '#ff8800'",
+          "flag": false,
+          "interpolation": false,
+          "values": ["default", "black", "blue", "cyan", "darkblue", "darkcyan", "darkgray", "darkgreen", "darkgrey", "darkmagenta", "darkred", "darkyellow", "gray", "green", "grey", "magenta", "red", "white", "yellow"]
+        },
+        {
+          "name": "colour",
+          "description": "The text colour.",
+          "required": false,
+          "kind": "colour",
+          "accepts": "a colour name such as 'cyan' or 'darkgrey', or a hex value such as '#ff8800'",
+          "flag": false,
+          "interpolation": false,
+          "values": ["default", "black", "blue", "cyan", "darkblue", "darkcyan", "darkgray", "darkgreen", "darkgrey", "darkmagenta", "darkred", "darkyellow", "gray", "green", "grey", "magenta", "red", "white", "yellow"]
+        },
+        {
+          "name": "background",
+          "description": "The background colour.",
+          "required": false,
+          "kind": "colour",
+          "accepts": "a colour name such as 'cyan' or 'darkgrey', or a hex value such as '#ff8800'",
+          "flag": false,
+          "interpolation": false,
+          "values": ["default", "black", "blue", "cyan", "darkblue", "darkcyan", "darkgray", "darkgreen", "darkgrey", "darkmagenta", "darkred", "darkyellow", "gray", "green", "grey", "magenta", "red", "white", "yellow"]
+        },
+        {
+          "name": "bold",
+          "description": "Bold text.",
+          "required": false,
+          "kind": "boolean",
+          "accepts": "true or false",
+          "flag": true,
+          "interpolation": false,
+          "values": ["true", "false"]
+        },
+        {
+          "name": "dim",
+          "description": "Dim (faint) text.",
+          "required": false,
+          "kind": "boolean",
+          "accepts": "true or false",
+          "flag": true,
+          "interpolation": false,
+          "values": ["true", "false"]
+        },
+        {
+          "name": "italic",
+          "description": "Italic text.",
+          "required": false,
+          "kind": "boolean",
+          "accepts": "true or false",
+          "flag": true,
+          "interpolation": false,
+          "values": ["true", "false"]
+        },
+        {
+          "name": "underline",
+          "description": "Underlined text.",
+          "required": false,
+          "kind": "boolean",
+          "accepts": "true or false",
+          "flag": true,
+          "interpolation": false,
+          "values": ["true", "false"]
+        },
+        {
+          "name": "align",
+          "description": "Horizontal alignment: left, centre or right.",
+          "required": false,
+          "kind": "choice",
+          "accepts": "one of 'left', 'centre', 'center', 'right'",
+          "flag": false,
+          "interpolation": false,
+          "values": ["left", "centre", "center", "right"]
+        },
+        {
+          "name": "wrap",
+          "description": "Whether long text wraps onto more lines (the default) or is cut off.",
+          "required": false,
+          "kind": "boolean",
+          "accepts": "true or false",
+          "flag": true,
+          "interpolation": false,
+          "values": ["true", "false"]
+        },
+        {
+          "name": "value",
+          "description": "The value posted when this is chosen; the choice's text when left out.",
+          "required": false,
+          "kind": "text",
+          "accepts": "text",
+          "flag": false,
+          "interpolation": true
+        }
+      ]
+    },
+    {
+      "name": "checkbox",
+      "description": "A yes or no field, posted as true or false.",
+      "content": "void",
+      "topLevelOnly": true,
+      "parents": null,
+      "children": null,
+      "attributes": [
+        {
+          "name": "name",
+          "description": "The name the value is posted under: an action parameter or model property.",
+          "required": true,
+          "kind": "text",
+          "accepts": "text",
+          "flag": false,
+          "interpolation": true
+        },
+        {
+          "name": "label",
+          "description": "The label shown before the field.",
+          "required": false,
+          "kind": "text",
+          "accepts": "text",
+          "flag": false,
+          "interpolation": true
+        },
+        {
+          "name": "checked",
+          "description": "Starts ticked.",
+          "required": false,
+          "kind": "boolean",
+          "accepts": "true or false",
+          "flag": true,
+          "interpolation": false,
+          "values": ["true", "false"]
+        },
+        {
+          "name": "required",
+          "description": "Asks again until the user gives a value.",
+          "required": false,
+          "kind": "boolean",
+          "accepts": "true or false",
+          "flag": true,
+          "interpolation": false,
+          "values": ["true", "false"]
+        },
+        {
+          "name": "color",
+          "description": "The label colour.",
+          "required": false,
+          "kind": "colour",
+          "accepts": "a colour name such as 'cyan' or 'darkgrey', or a hex value such as '#ff8800'",
+          "flag": false,
+          "interpolation": false,
+          "values": ["default", "black", "blue", "cyan", "darkblue", "darkcyan", "darkgray", "darkgreen", "darkgrey", "darkmagenta", "darkred", "darkyellow", "gray", "green", "grey", "magenta", "red", "white", "yellow"]
+        },
+        {
+          "name": "colour",
+          "description": "The label colour.",
+          "required": false,
+          "kind": "colour",
+          "accepts": "a colour name such as 'cyan' or 'darkgrey', or a hex value such as '#ff8800'",
+          "flag": false,
+          "interpolation": false,
+          "values": ["default", "black", "blue", "cyan", "darkblue", "darkcyan", "darkgray", "darkgreen", "darkgrey", "darkmagenta", "darkred", "darkyellow", "gray", "green", "grey", "magenta", "red", "white", "yellow"]
+        }
+      ]
+    },
+    {
+      "name": "number",
+      "description": "A number field, checked against 'min', 'max', 'step' and 'decimals'.",
+      "content": "void",
+      "topLevelOnly": true,
+      "parents": null,
+      "children": null,
+      "attributes": [
+        {
+          "name": "name",
+          "description": "The name the value is posted under: an action parameter or model property.",
+          "required": true,
+          "kind": "text",
+          "accepts": "text",
+          "flag": false,
+          "interpolation": true
+        },
+        {
+          "name": "label",
+          "description": "The label shown before the field.",
+          "required": false,
+          "kind": "text",
+          "accepts": "text",
+          "flag": false,
+          "interpolation": true
+        },
+        {
+          "name": "default",
+          "description": "The value used when the user enters nothing.",
+          "required": false,
+          "kind": "text",
+          "accepts": "text",
+          "flag": false,
+          "interpolation": true
+        },
+        {
+          "name": "required",
+          "description": "Asks again until the user gives a value.",
+          "required": false,
+          "kind": "boolean",
+          "accepts": "true or false",
+          "flag": true,
+          "interpolation": false,
+          "values": ["true", "false"]
+        },
+        {
+          "name": "color",
+          "description": "The label colour.",
+          "required": false,
+          "kind": "colour",
+          "accepts": "a colour name such as 'cyan' or 'darkgrey', or a hex value such as '#ff8800'",
+          "flag": false,
+          "interpolation": false,
+          "values": ["default", "black", "blue", "cyan", "darkblue", "darkcyan", "darkgray", "darkgreen", "darkgrey", "darkmagenta", "darkred", "darkyellow", "gray", "green", "grey", "magenta", "red", "white", "yellow"]
+        },
+        {
+          "name": "colour",
+          "description": "The label colour.",
+          "required": false,
+          "kind": "colour",
+          "accepts": "a colour name such as 'cyan' or 'darkgrey', or a hex value such as '#ff8800'",
+          "flag": false,
+          "interpolation": false,
+          "values": ["default", "black", "blue", "cyan", "darkblue", "darkcyan", "darkgray", "darkgreen", "darkgrey", "darkmagenta", "darkred", "darkyellow", "gray", "green", "grey", "magenta", "red", "white", "yellow"]
+        },
+        {
+          "name": "highlight-color",
+          "description": "The colour of the highlighted choice.",
+          "required": false,
+          "kind": "colour",
+          "accepts": "a colour name such as 'cyan' or 'darkgrey', or a hex value such as '#ff8800'",
+          "flag": false,
+          "interpolation": false,
+          "values": ["default", "black", "blue", "cyan", "darkblue", "darkcyan", "darkgray", "darkgreen", "darkgrey", "darkmagenta", "darkred", "darkyellow", "gray", "green", "grey", "magenta", "red", "white", "yellow"]
+        },
+        {
+          "name": "highlight-colour",
+          "description": "The colour of the highlighted choice.",
+          "required": false,
+          "kind": "colour",
+          "accepts": "a colour name such as 'cyan' or 'darkgrey', or a hex value such as '#ff8800'",
+          "flag": false,
+          "interpolation": false,
+          "values": ["default", "black", "blue", "cyan", "darkblue", "darkcyan", "darkgray", "darkgreen", "darkgrey", "darkmagenta", "darkred", "darkyellow", "gray", "green", "grey", "magenta", "red", "white", "yellow"]
+        },
+        {
+          "name": "min",
+          "description": "The smallest value accepted.",
+          "required": false,
+          "kind": "number",
+          "accepts": "a number such as 0, -5 or 2.5",
+          "flag": false,
+          "interpolation": false
+        },
+        {
+          "name": "max",
+          "description": "The largest value accepted.",
+          "required": false,
+          "kind": "number",
+          "accepts": "a number such as 0, -5 or 2.5",
+          "flag": false,
+          "interpolation": false
+        },
+        {
+          "name": "step",
+          "description": "The amount the arrow keys add or take away.",
+          "required": false,
+          "kind": "number",
+          "accepts": "a number such as 0, -5 or 2.5",
+          "flag": false,
+          "interpolation": false
+        },
+        {
+          "name": "decimals",
+          "description": "How many decimal places are accepted.",
+          "required": false,
+          "kind": "integer",
+          "accepts": "a whole number from 0 to 28",
+          "flag": false,
+          "interpolation": false,
+          "minimum": 0,
+          "maximum": 28
+        }
+      ]
+    },
+    {
+      "name": "date",
+      "description": "A date field; 'min', 'max' and 'default' accept yyyy-MM-dd, today, today+N or today-N.",
+      "content": "void",
+      "topLevelOnly": true,
+      "parents": null,
+      "children": null,
+      "attributes": [
+        {
+          "name": "name",
+          "description": "The name the value is posted under: an action parameter or model property.",
+          "required": true,
+          "kind": "text",
+          "accepts": "text",
+          "flag": false,
+          "interpolation": true
+        },
+        {
+          "name": "label",
+          "description": "The label shown before the field.",
+          "required": false,
+          "kind": "text",
+          "accepts": "text",
+          "flag": false,
+          "interpolation": true
+        },
+        {
+          "name": "default",
+          "description": "The value used when the user enters nothing.",
+          "required": false,
+          "kind": "date",
+          "accepts": "a date such as 2026-10-27, today, today+7 or today-30",
+          "flag": false,
+          "interpolation": true,
+          "values": ["today"]
+        },
+        {
+          "name": "required",
+          "description": "Asks again until the user gives a value.",
+          "required": false,
+          "kind": "boolean",
+          "accepts": "true or false",
+          "flag": true,
+          "interpolation": false,
+          "values": ["true", "false"]
+        },
+        {
+          "name": "color",
+          "description": "The label colour.",
+          "required": false,
+          "kind": "colour",
+          "accepts": "a colour name such as 'cyan' or 'darkgrey', or a hex value such as '#ff8800'",
+          "flag": false,
+          "interpolation": false,
+          "values": ["default", "black", "blue", "cyan", "darkblue", "darkcyan", "darkgray", "darkgreen", "darkgrey", "darkmagenta", "darkred", "darkyellow", "gray", "green", "grey", "magenta", "red", "white", "yellow"]
+        },
+        {
+          "name": "colour",
+          "description": "The label colour.",
+          "required": false,
+          "kind": "colour",
+          "accepts": "a colour name such as 'cyan' or 'darkgrey', or a hex value such as '#ff8800'",
+          "flag": false,
+          "interpolation": false,
+          "values": ["default", "black", "blue", "cyan", "darkblue", "darkcyan", "darkgray", "darkgreen", "darkgrey", "darkmagenta", "darkred", "darkyellow", "gray", "green", "grey", "magenta", "red", "white", "yellow"]
+        },
+        {
+          "name": "highlight-color",
+          "description": "The colour of the highlighted choice.",
+          "required": false,
+          "kind": "colour",
+          "accepts": "a colour name such as 'cyan' or 'darkgrey', or a hex value such as '#ff8800'",
+          "flag": false,
+          "interpolation": false,
+          "values": ["default", "black", "blue", "cyan", "darkblue", "darkcyan", "darkgray", "darkgreen", "darkgrey", "darkmagenta", "darkred", "darkyellow", "gray", "green", "grey", "magenta", "red", "white", "yellow"]
+        },
+        {
+          "name": "highlight-colour",
+          "description": "The colour of the highlighted choice.",
+          "required": false,
+          "kind": "colour",
+          "accepts": "a colour name such as 'cyan' or 'darkgrey', or a hex value such as '#ff8800'",
+          "flag": false,
+          "interpolation": false,
+          "values": ["default", "black", "blue", "cyan", "darkblue", "darkcyan", "darkgray", "darkgreen", "darkgrey", "darkmagenta", "darkred", "darkyellow", "gray", "green", "grey", "magenta", "red", "white", "yellow"]
+        },
+        {
+          "name": "min",
+          "description": "The smallest value accepted.",
+          "required": false,
+          "kind": "date",
+          "accepts": "a date such as 2026-10-27, today, today+7 or today-30",
+          "flag": false,
+          "interpolation": true,
+          "values": ["today"]
+        },
+        {
+          "name": "max",
+          "description": "The largest value accepted.",
+          "required": false,
+          "kind": "date",
+          "accepts": "a date such as 2026-10-27, today, today+7 or today-30",
+          "flag": false,
+          "interpolation": true,
+          "values": ["today"]
+        }
+      ]
+    },
+    {
+      "name": "errors",
+      "description": "The validation messages of the view's ModelState: every field's, or one field's with 'for'.",
+      "content": "void",
+      "topLevelOnly": false,
+      "parents": null,
+      "children": null,
+      "attributes": [
+        {
+          "name": "class",
+          "description": "Named styles from the theme, separated by spaces, such as \"title\" or \"panel muted\".",
+          "required": false,
+          "kind": "text",
+          "accepts": "text",
+          "flag": false,
+          "interpolation": true
+        },
+        {
+          "name": "for",
+          "description": "Shows only this field's messages (case-insensitive).",
+          "required": false,
+          "kind": "text",
+          "accepts": "text",
+          "flag": false,
+          "interpolation": true
+        },
+        {
+          "name": "color",
+          "description": "The colour.",
+          "required": false,
+          "kind": "colour",
+          "accepts": "a colour name such as 'cyan' or 'darkgrey', or a hex value such as '#ff8800'",
+          "flag": false,
+          "interpolation": false,
+          "values": ["default", "black", "blue", "cyan", "darkblue", "darkcyan", "darkgray", "darkgreen", "darkgrey", "darkmagenta", "darkred", "darkyellow", "gray", "green", "grey", "magenta", "red", "white", "yellow"]
+        },
+        {
+          "name": "colour",
+          "description": "The colour.",
+          "required": false,
+          "kind": "colour",
+          "accepts": "a colour name such as 'cyan' or 'darkgrey', or a hex value such as '#ff8800'",
+          "flag": false,
+          "interpolation": false,
+          "values": ["default", "black", "blue", "cyan", "darkblue", "darkcyan", "darkgray", "darkgreen", "darkgrey", "darkmagenta", "darkred", "darkyellow", "gray", "green", "grey", "magenta", "red", "white", "yellow"]
+        }
+      ]
+    },
+    {
+      "name": "breadcrumbs",
+      "description": "The navigation history as a trail, such as Home › Orders › Details.",
+      "content": "void",
+      "topLevelOnly": false,
+      "parents": null,
+      "children": null,
+      "attributes": [
+        {
+          "name": "class",
+          "description": "Named styles from the theme, separated by spaces, such as \"title\" or \"panel muted\".",
+          "required": false,
+          "kind": "text",
+          "accepts": "text",
+          "flag": false,
+          "interpolation": true
+        },
+        {
+          "name": "separator",
+          "description": "The text between screens; › by default.",
+          "required": false,
+          "kind": "text",
+          "accepts": "text",
+          "flag": false,
+          "interpolation": true
+        },
+        {
+          "name": "color",
+          "description": "The colour.",
+          "required": false,
+          "kind": "colour",
+          "accepts": "a colour name such as 'cyan' or 'darkgrey', or a hex value such as '#ff8800'",
+          "flag": false,
+          "interpolation": false,
+          "values": ["default", "black", "blue", "cyan", "darkblue", "darkcyan", "darkgray", "darkgreen", "darkgrey", "darkmagenta", "darkred", "darkyellow", "gray", "green", "grey", "magenta", "red", "white", "yellow"]
+        },
+        {
+          "name": "colour",
+          "description": "The colour.",
+          "required": false,
+          "kind": "colour",
+          "accepts": "a colour name such as 'cyan' or 'darkgrey', or a hex value such as '#ff8800'",
+          "flag": false,
+          "interpolation": false,
+          "values": ["default", "black", "blue", "cyan", "darkblue", "darkcyan", "darkgray", "darkgreen", "darkgrey", "darkmagenta", "darkred", "darkyellow", "gray", "green", "grey", "magenta", "red", "white", "yellow"]
+        }
+      ]
+    },
+    {
+      "name": "shortcuts",
+      "description": "The application's keyboard shortcuts with their descriptions, such as 'Esc Back  Ctrl+X Quit'.",
+      "content": "void",
+      "topLevelOnly": false,
+      "parents": null,
+      "children": null,
+      "attributes": [
+        {
+          "name": "class",
+          "description": "Named styles from the theme, separated by spaces, such as \"title\" or \"panel muted\".",
+          "required": false,
+          "kind": "text",
+          "accepts": "text",
+          "flag": false,
+          "interpolation": true
+        },
+        {
+          "name": "separator",
+          "description": "The text between shortcuts; two spaces by default.",
+          "required": false,
+          "kind": "text",
+          "accepts": "text",
+          "flag": false,
+          "interpolation": true
+        },
+        {
+          "name": "color",
+          "description": "The colour.",
+          "required": false,
+          "kind": "colour",
+          "accepts": "a colour name such as 'cyan' or 'darkgrey', or a hex value such as '#ff8800'",
+          "flag": false,
+          "interpolation": false,
+          "values": ["default", "black", "blue", "cyan", "darkblue", "darkcyan", "darkgray", "darkgreen", "darkgrey", "darkmagenta", "darkred", "darkyellow", "gray", "green", "grey", "magenta", "red", "white", "yellow"]
+        },
+        {
+          "name": "colour",
+          "description": "The colour.",
+          "required": false,
+          "kind": "colour",
+          "accepts": "a colour name such as 'cyan' or 'darkgrey', or a hex value such as '#ff8800'",
+          "flag": false,
+          "interpolation": false,
+          "values": ["default", "black", "blue", "cyan", "darkblue", "darkcyan", "darkgray", "darkgreen", "darkgrey", "darkmagenta", "darkred", "darkyellow", "gray", "green", "grey", "magenta", "red", "white", "yellow"]
+        },
+        {
+          "name": "key-color",
+          "description": "The colour of the keys, such as [1].",
+          "required": false,
+          "kind": "colour",
+          "accepts": "a colour name such as 'cyan' or 'darkgrey', or a hex value such as '#ff8800'",
+          "flag": false,
+          "interpolation": false,
+          "values": ["default", "black", "blue", "cyan", "darkblue", "darkcyan", "darkgray", "darkgreen", "darkgrey", "darkmagenta", "darkred", "darkyellow", "gray", "green", "grey", "magenta", "red", "white", "yellow"]
+        },
+        {
+          "name": "key-colour",
+          "description": "The colour of the keys, such as [1].",
+          "required": false,
+          "kind": "colour",
+          "accepts": "a colour name such as 'cyan' or 'darkgrey', or a hex value such as '#ff8800'",
+          "flag": false,
+          "interpolation": false,
+          "values": ["default", "black", "blue", "cyan", "darkblue", "darkcyan", "darkgray", "darkgreen", "darkgrey", "darkmagenta", "darkred", "darkyellow", "gray", "green", "grey", "magenta", "red", "white", "yellow"]
+        }
+      ]
+    },
+    {
+      "name": "progress",
+      "description": "A progress bar of 'value' out of 'max'; redrawn in place while an action works (ILiveDisplay).",
+      "content": "void",
+      "topLevelOnly": false,
+      "parents": null,
+      "children": null,
+      "attributes": [
+        {
+          "name": "class",
+          "description": "Named styles from the theme, separated by spaces, such as \"title\" or \"panel muted\".",
+          "required": false,
+          "kind": "text",
+          "accepts": "text",
+          "flag": false,
+          "interpolation": true
+        },
+        {
+          "name": "value",
+          "description": "How much is done, out of 'max'.",
+          "required": false,
+          "kind": "number",
+          "accepts": "a number such as 0, -5 or 2.5",
+          "flag": false,
+          "interpolation": false
+        },
+        {
+          "name": "max",
+          "description": "The value of a full bar; 100 when left out.",
+          "required": false,
+          "kind": "number",
+          "accepts": "a number such as 0, -5 or 2.5",
+          "flag": false,
+          "interpolation": false
+        },
+        {
+          "name": "label",
+          "description": "The text before the bar.",
+          "required": false,
+          "kind": "text",
+          "accepts": "text",
+          "flag": false,
+          "interpolation": true
+        },
+        {
+          "name": "bar-width",
+          "description": "The width of the bar, in columns.",
+          "required": false,
+          "kind": "integer",
+          "accepts": "a whole number from 1 to 1000",
+          "flag": false,
+          "interpolation": false,
+          "minimum": 1,
+          "maximum": 1000
+        },
+        {
+          "name": "percent",
+          "description": "Shows the percentage after the bar.",
+          "required": false,
+          "kind": "boolean",
+          "accepts": "true or false",
+          "flag": true,
+          "interpolation": false,
+          "values": ["true", "false"]
+        },
+        {
+          "name": "style",
+          "description": "The bar style.",
+          "required": false,
+          "kind": "choice",
+          "accepts": "one of 'block', 'line', 'ascii'",
+          "flag": false,
+          "interpolation": false,
+          "values": ["block", "line", "ascii"]
+        },
+        {
+          "name": "color",
+          "description": "The colour.",
+          "required": false,
+          "kind": "colour",
+          "accepts": "a colour name such as 'cyan' or 'darkgrey', or a hex value such as '#ff8800'",
+          "flag": false,
+          "interpolation": false,
+          "values": ["default", "black", "blue", "cyan", "darkblue", "darkcyan", "darkgray", "darkgreen", "darkgrey", "darkmagenta", "darkred", "darkyellow", "gray", "green", "grey", "magenta", "red", "white", "yellow"]
+        },
+        {
+          "name": "colour",
+          "description": "The colour.",
+          "required": false,
+          "kind": "colour",
+          "accepts": "a colour name such as 'cyan' or 'darkgrey', or a hex value such as '#ff8800'",
+          "flag": false,
+          "interpolation": false,
+          "values": ["default", "black", "blue", "cyan", "darkblue", "darkcyan", "darkgray", "darkgreen", "darkgrey", "darkmagenta", "darkred", "darkyellow", "gray", "green", "grey", "magenta", "red", "white", "yellow"]
+        },
+        {
+          "name": "empty-color",
+          "description": "The colour of the unfilled part.",
+          "required": false,
+          "kind": "colour",
+          "accepts": "a colour name such as 'cyan' or 'darkgrey', or a hex value such as '#ff8800'",
+          "flag": false,
+          "interpolation": false,
+          "values": ["default", "black", "blue", "cyan", "darkblue", "darkcyan", "darkgray", "darkgreen", "darkgrey", "darkmagenta", "darkred", "darkyellow", "gray", "green", "grey", "magenta", "red", "white", "yellow"]
+        },
+        {
+          "name": "empty-colour",
+          "description": "The colour of the unfilled part.",
+          "required": false,
+          "kind": "colour",
+          "accepts": "a colour name such as 'cyan' or 'darkgrey', or a hex value such as '#ff8800'",
+          "flag": false,
+          "interpolation": false,
+          "values": ["default", "black", "blue", "cyan", "darkblue", "darkcyan", "darkgray", "darkgreen", "darkgrey", "darkmagenta", "darkred", "darkyellow", "gray", "green", "grey", "magenta", "red", "white", "yellow"]
+        },
+        {
+          "name": "label-color",
+          "description": "The label colour.",
+          "required": false,
+          "kind": "colour",
+          "accepts": "a colour name such as 'cyan' or 'darkgrey', or a hex value such as '#ff8800'",
+          "flag": false,
+          "interpolation": false,
+          "values": ["default", "black", "blue", "cyan", "darkblue", "darkcyan", "darkgray", "darkgreen", "darkgrey", "darkmagenta", "darkred", "darkyellow", "gray", "green", "grey", "magenta", "red", "white", "yellow"]
+        },
+        {
+          "name": "label-colour",
+          "description": "The label colour.",
+          "required": false,
+          "kind": "colour",
+          "accepts": "a colour name such as 'cyan' or 'darkgrey', or a hex value such as '#ff8800'",
+          "flag": false,
+          "interpolation": false,
+          "values": ["default", "black", "blue", "cyan", "darkblue", "darkcyan", "darkgray", "darkgreen", "darkgrey", "darkmagenta", "darkred", "darkyellow", "gray", "green", "grey", "magenta", "red", "white", "yellow"]
+        }
+      ]
+    },
+    {
+      "name": "spinner",
+      "description": "A spinner that turns while an action works, then shows a tick when it is 'done'.",
+      "content": "void",
+      "topLevelOnly": false,
+      "parents": null,
+      "children": null,
+      "attributes": [
+        {
+          "name": "class",
+          "description": "Named styles from the theme, separated by spaces, such as \"title\" or \"panel muted\".",
+          "required": false,
+          "kind": "text",
+          "accepts": "text",
+          "flag": false,
+          "interpolation": true
+        },
+        {
+          "name": "label",
+          "description": "The text after the spinner.",
+          "required": false,
+          "kind": "text",
+          "accepts": "text",
+          "flag": false,
+          "interpolation": true
+        },
+        {
+          "name": "style",
+          "description": "The animation.",
+          "required": false,
+          "kind": "choice",
+          "accepts": "one of 'dots', 'line', 'circle'",
+          "flag": false,
+          "interpolation": false,
+          "values": ["dots", "line", "circle"]
+        },
+        {
+          "name": "frame",
+          "description": "The frame to draw, for a spinner animated by @refresh.",
+          "required": false,
+          "kind": "integer",
+          "accepts": "a whole number from 0 to 2147483647",
+          "flag": false,
+          "interpolation": false,
+          "minimum": 0,
+          "maximum": 2147483647
+        },
+        {
+          "name": "done",
+          "description": "Shows the finished symbol instead of turning.",
+          "required": false,
+          "kind": "boolean",
+          "accepts": "true or false",
+          "flag": true,
+          "interpolation": false,
+          "values": ["true", "false"]
+        },
+        {
+          "name": "done-symbol",
+          "description": "The symbol shown when done; ✓ by default.",
+          "required": false,
+          "kind": "text",
+          "accepts": "text",
+          "flag": false,
+          "interpolation": true
+        },
+        {
+          "name": "color",
+          "description": "The colour.",
+          "required": false,
+          "kind": "colour",
+          "accepts": "a colour name such as 'cyan' or 'darkgrey', or a hex value such as '#ff8800'",
+          "flag": false,
+          "interpolation": false,
+          "values": ["default", "black", "blue", "cyan", "darkblue", "darkcyan", "darkgray", "darkgreen", "darkgrey", "darkmagenta", "darkred", "darkyellow", "gray", "green", "grey", "magenta", "red", "white", "yellow"]
+        },
+        {
+          "name": "colour",
+          "description": "The colour.",
+          "required": false,
+          "kind": "colour",
+          "accepts": "a colour name such as 'cyan' or 'darkgrey', or a hex value such as '#ff8800'",
+          "flag": false,
+          "interpolation": false,
+          "values": ["default", "black", "blue", "cyan", "darkblue", "darkcyan", "darkgray", "darkgreen", "darkgrey", "darkmagenta", "darkred", "darkyellow", "gray", "green", "grey", "magenta", "red", "white", "yellow"]
+        },
+        {
+          "name": "label-color",
+          "description": "The label colour.",
+          "required": false,
+          "kind": "colour",
+          "accepts": "a colour name such as 'cyan' or 'darkgrey', or a hex value such as '#ff8800'",
+          "flag": false,
+          "interpolation": false,
+          "values": ["default", "black", "blue", "cyan", "darkblue", "darkcyan", "darkgray", "darkgreen", "darkgrey", "darkmagenta", "darkred", "darkyellow", "gray", "green", "grey", "magenta", "red", "white", "yellow"]
+        },
+        {
+          "name": "label-colour",
+          "description": "The label colour.",
+          "required": false,
+          "kind": "colour",
+          "accepts": "a colour name such as 'cyan' or 'darkgrey', or a hex value such as '#ff8800'",
+          "flag": false,
+          "interpolation": false,
+          "values": ["default", "black", "blue", "cyan", "darkblue", "darkcyan", "darkgray", "darkgreen", "darkgrey", "darkmagenta", "darkred", "darkyellow", "gray", "green", "grey", "magenta", "red", "white", "yellow"]
+        }
+      ]
+    },
+    {
+      "name": "bar-chart",
+      "description": "Horizontal bars that compare values. Holds <bar> elements.",
+      "content": "elements",
+      "topLevelOnly": false,
+      "parents": null,
+      "children": ["bar"],
+      "attributes": [
+        {
+          "name": "class",
+          "description": "Named styles from the theme, separated by spaces, such as \"title\" or \"panel muted\".",
+          "required": false,
+          "kind": "text",
+          "accepts": "text",
+          "flag": false,
+          "interpolation": true
+        },
+        {
+          "name": "max",
+          "description": "The value of a full-width bar; the largest value when left out.",
+          "required": false,
+          "kind": "number",
+          "accepts": "a number such as 0, -5 or 2.5",
+          "flag": false,
+          "interpolation": false
+        },
+        {
+          "name": "values",
+          "description": "Shows each bar's value after it.",
+          "required": false,
+          "kind": "boolean",
+          "accepts": "true or false",
+          "flag": true,
+          "interpolation": false,
+          "values": ["true", "false"]
+        },
+        {
+          "name": "format",
+          "description": "A .NET format string for the values, such as N0 or 0.0.",
+          "required": false,
+          "kind": "text",
+          "accepts": "text",
+          "flag": false,
+          "interpolation": true
+        },
+        {
+          "name": "style",
+          "description": "The bar style.",
+          "required": false,
+          "kind": "choice",
+          "accepts": "one of 'block', 'shade', 'ascii'",
+          "flag": false,
+          "interpolation": false,
+          "values": ["block", "shade", "ascii"]
+        },
+        {
+          "name": "color",
+          "description": "The colour.",
+          "required": false,
+          "kind": "colour",
+          "accepts": "a colour name such as 'cyan' or 'darkgrey', or a hex value such as '#ff8800'",
+          "flag": false,
+          "interpolation": false,
+          "values": ["default", "black", "blue", "cyan", "darkblue", "darkcyan", "darkgray", "darkgreen", "darkgrey", "darkmagenta", "darkred", "darkyellow", "gray", "green", "grey", "magenta", "red", "white", "yellow"]
+        },
+        {
+          "name": "colour",
+          "description": "The colour.",
+          "required": false,
+          "kind": "colour",
+          "accepts": "a colour name such as 'cyan' or 'darkgrey', or a hex value such as '#ff8800'",
+          "flag": false,
+          "interpolation": false,
+          "values": ["default", "black", "blue", "cyan", "darkblue", "darkcyan", "darkgray", "darkgreen", "darkgrey", "darkmagenta", "darkred", "darkyellow", "gray", "green", "grey", "magenta", "red", "white", "yellow"]
+        },
+        {
+          "name": "label-color",
+          "description": "The label colour.",
+          "required": false,
+          "kind": "colour",
+          "accepts": "a colour name such as 'cyan' or 'darkgrey', or a hex value such as '#ff8800'",
+          "flag": false,
+          "interpolation": false,
+          "values": ["default", "black", "blue", "cyan", "darkblue", "darkcyan", "darkgray", "darkgreen", "darkgrey", "darkmagenta", "darkred", "darkyellow", "gray", "green", "grey", "magenta", "red", "white", "yellow"]
+        },
+        {
+          "name": "label-colour",
+          "description": "The label colour.",
+          "required": false,
+          "kind": "colour",
+          "accepts": "a colour name such as 'cyan' or 'darkgrey', or a hex value such as '#ff8800'",
+          "flag": false,
+          "interpolation": false,
+          "values": ["default", "black", "blue", "cyan", "darkblue", "darkcyan", "darkgray", "darkgreen", "darkgrey", "darkmagenta", "darkred", "darkyellow", "gray", "green", "grey", "magenta", "red", "white", "yellow"]
+        }
+      ]
+    },
+    {
+      "name": "bar",
+      "description": "One bar of a <bar-chart>.",
+      "content": "void",
+      "topLevelOnly": false,
+      "parents": ["bar-chart"],
+      "children": null,
+      "attributes": [
+        {
+          "name": "label",
+          "description": "The label before the bar.",
+          "required": false,
+          "kind": "text",
+          "accepts": "text",
+          "flag": false,
+          "interpolation": true
+        },
+        {
+          "name": "value",
+          "description": "The bar's value.",
+          "required": true,
+          "kind": "number",
+          "accepts": "a number such as 0, -5 or 2.5",
+          "flag": false,
+          "interpolation": false
+        },
+        {
+          "name": "color",
+          "description": "The colour.",
+          "required": false,
+          "kind": "colour",
+          "accepts": "a colour name such as 'cyan' or 'darkgrey', or a hex value such as '#ff8800'",
+          "flag": false,
+          "interpolation": false,
+          "values": ["default", "black", "blue", "cyan", "darkblue", "darkcyan", "darkgray", "darkgreen", "darkgrey", "darkmagenta", "darkred", "darkyellow", "gray", "green", "grey", "magenta", "red", "white", "yellow"]
+        },
+        {
+          "name": "colour",
+          "description": "The colour.",
+          "required": false,
+          "kind": "colour",
+          "accepts": "a colour name such as 'cyan' or 'darkgrey', or a hex value such as '#ff8800'",
+          "flag": false,
+          "interpolation": false,
+          "values": ["default", "black", "blue", "cyan", "darkblue", "darkcyan", "darkgray", "darkgreen", "darkgrey", "darkmagenta", "darkred", "darkyellow", "gray", "green", "grey", "magenta", "red", "white", "yellow"]
+        }
+      ]
+    },
+    {
+      "name": "sparkline",
+      "description": "A series of values drawn on one line, such as ▁▂▅▇▅▃.",
+      "content": "void",
+      "topLevelOnly": false,
+      "parents": null,
+      "children": null,
+      "attributes": [
+        {
+          "name": "class",
+          "description": "Named styles from the theme, separated by spaces, such as \"title\" or \"panel muted\".",
+          "required": false,
+          "kind": "text",
+          "accepts": "text",
+          "flag": false,
+          "interpolation": true
+        },
+        {
+          "name": "values",
+          "description": "The values: numbers separated by commas or spaces, or an expression such as @Model.Load.",
+          "required": true,
+          "kind": "number-list",
+          "accepts": "numbers separated by commas or spaces, e.g. '3, 5, 2', or an expression such as @Model.Values",
+          "flag": false,
+          "interpolation": false
+        },
+        {
+          "name": "min",
+          "description": "The value drawn as the lowest block; the smallest value when left out.",
+          "required": false,
+          "kind": "number",
+          "accepts": "a number such as 0, -5 or 2.5",
+          "flag": false,
+          "interpolation": false
+        },
+        {
+          "name": "max",
+          "description": "The value drawn as the highest block; the largest value when left out.",
+          "required": false,
+          "kind": "number",
+          "accepts": "a number such as 0, -5 or 2.5",
+          "flag": false,
+          "interpolation": false
+        },
+        {
+          "name": "label",
+          "description": "The text before the line.",
+          "required": false,
+          "kind": "text",
+          "accepts": "text",
+          "flag": false,
+          "interpolation": true
+        },
+        {
+          "name": "show-last",
+          "description": "Shows the last value after the line.",
+          "required": false,
+          "kind": "boolean",
+          "accepts": "true or false",
+          "flag": true,
+          "interpolation": false,
+          "values": ["true", "false"]
+        },
+        {
+          "name": "format",
+          "description": "A .NET format string for the values, such as N0 or 0.0.",
+          "required": false,
+          "kind": "text",
+          "accepts": "text",
+          "flag": false,
+          "interpolation": true
+        },
+        {
+          "name": "color",
+          "description": "The colour.",
+          "required": false,
+          "kind": "colour",
+          "accepts": "a colour name such as 'cyan' or 'darkgrey', or a hex value such as '#ff8800'",
+          "flag": false,
+          "interpolation": false,
+          "values": ["default", "black", "blue", "cyan", "darkblue", "darkcyan", "darkgray", "darkgreen", "darkgrey", "darkmagenta", "darkred", "darkyellow", "gray", "green", "grey", "magenta", "red", "white", "yellow"]
+        },
+        {
+          "name": "colour",
+          "description": "The colour.",
+          "required": false,
+          "kind": "colour",
+          "accepts": "a colour name such as 'cyan' or 'darkgrey', or a hex value such as '#ff8800'",
+          "flag": false,
+          "interpolation": false,
+          "values": ["default", "black", "blue", "cyan", "darkblue", "darkcyan", "darkgray", "darkgreen", "darkgrey", "darkmagenta", "darkred", "darkyellow", "gray", "green", "grey", "magenta", "red", "white", "yellow"]
+        },
+        {
+          "name": "label-color",
+          "description": "The label colour.",
+          "required": false,
+          "kind": "colour",
+          "accepts": "a colour name such as 'cyan' or 'darkgrey', or a hex value such as '#ff8800'",
+          "flag": false,
+          "interpolation": false,
+          "values": ["default", "black", "blue", "cyan", "darkblue", "darkcyan", "darkgray", "darkgreen", "darkgrey", "darkmagenta", "darkred", "darkyellow", "gray", "green", "grey", "magenta", "red", "white", "yellow"]
+        },
+        {
+          "name": "label-colour",
+          "description": "The label colour.",
+          "required": false,
+          "kind": "colour",
+          "accepts": "a colour name such as 'cyan' or 'darkgrey', or a hex value such as '#ff8800'",
+          "flag": false,
+          "interpolation": false,
+          "values": ["default", "black", "blue", "cyan", "darkblue", "darkcyan", "darkgray", "darkgreen", "darkgrey", "darkmagenta", "darkred", "darkyellow", "gray", "green", "grey", "magenta", "red", "white", "yellow"]
+        }
+      ]
+    },
+    {
+      "name": "scroll",
+      "description": "Shows long content a page at a time; the user scrolls with the arrow keys and continues with Enter.",
+      "content": "block",
+      "topLevelOnly": true,
+      "parents": null,
+      "children": null,
+      "attributes": [
+        {
+          "name": "class",
+          "description": "Named styles from the theme, separated by spaces, such as \"title\" or \"panel muted\".",
+          "required": false,
+          "kind": "text",
+          "accepts": "text",
+          "flag": false,
+          "interpolation": true
+        },
+        {
+          "name": "height",
+          "description": "How many lines a page shows; the terminal's height when left out.",
+          "required": false,
+          "kind": "integer",
+          "accepts": "a whole number from 1 to 1000",
+          "flag": false,
+          "interpolation": false,
+          "minimum": 1,
+          "maximum": 1000
+        },
+        {
+          "name": "color",
+          "description": "The colour of the status line (Lines 1-12 of 40).",
+          "required": false,
+          "kind": "colour",
+          "accepts": "a colour name such as 'cyan' or 'darkgrey', or a hex value such as '#ff8800'",
+          "flag": false,
+          "interpolation": false,
+          "values": ["default", "black", "blue", "cyan", "darkblue", "darkcyan", "darkgray", "darkgreen", "darkgrey", "darkmagenta", "darkred", "darkyellow", "gray", "green", "grey", "magenta", "red", "white", "yellow"]
+        },
+        {
+          "name": "colour",
+          "description": "The colour of the status line (Lines 1-12 of 40).",
+          "required": false,
+          "kind": "colour",
+          "accepts": "a colour name such as 'cyan' or 'darkgrey', or a hex value such as '#ff8800'",
+          "flag": false,
+          "interpolation": false,
+          "values": ["default", "black", "blue", "cyan", "darkblue", "darkcyan", "darkgray", "darkgreen", "darkgrey", "darkmagenta", "darkred", "darkyellow", "gray", "green", "grey", "magenta", "red", "white", "yellow"]
+        }
+      ]
+    },
+    {
+      "name": "markdown",
+      "description": "Draws Markdown: headings, lists, emphasis, code, quotes and links.",
+      "content": "void",
+      "topLevelOnly": false,
+      "parents": null,
+      "children": null,
+      "attributes": [
+        {
+          "name": "class",
+          "description": "Named styles from the theme, separated by spaces, such as \"title\" or \"panel muted\".",
+          "required": false,
+          "kind": "text",
+          "accepts": "text",
+          "flag": false,
+          "interpolation": true
+        },
+        {
+          "name": "text",
+          "description": "The Markdown text, usually an expression such as @Model.Notes.",
+          "required": true,
+          "kind": "text",
+          "accepts": "text",
+          "flag": false,
+          "interpolation": true
+        },
+        {
+          "name": "links",
+          "description": "Shows each link's address after its text.",
+          "required": false,
+          "kind": "boolean",
+          "accepts": "true or false",
+          "flag": true,
+          "interpolation": false,
+          "values": ["true", "false"]
+        },
+        {
+          "name": "heading-color",
+          "description": "The colour of headings.",
+          "required": false,
+          "kind": "colour",
+          "accepts": "a colour name such as 'cyan' or 'darkgrey', or a hex value such as '#ff8800'",
+          "flag": false,
+          "interpolation": false,
+          "values": ["default", "black", "blue", "cyan", "darkblue", "darkcyan", "darkgray", "darkgreen", "darkgrey", "darkmagenta", "darkred", "darkyellow", "gray", "green", "grey", "magenta", "red", "white", "yellow"]
+        },
+        {
+          "name": "heading-colour",
+          "description": "The colour of headings.",
+          "required": false,
+          "kind": "colour",
+          "accepts": "a colour name such as 'cyan' or 'darkgrey', or a hex value such as '#ff8800'",
+          "flag": false,
+          "interpolation": false,
+          "values": ["default", "black", "blue", "cyan", "darkblue", "darkcyan", "darkgray", "darkgreen", "darkgrey", "darkmagenta", "darkred", "darkyellow", "gray", "green", "grey", "magenta", "red", "white", "yellow"]
+        },
+        {
+          "name": "code-color",
+          "description": "The colour of code.",
+          "required": false,
+          "kind": "colour",
+          "accepts": "a colour name such as 'cyan' or 'darkgrey', or a hex value such as '#ff8800'",
+          "flag": false,
+          "interpolation": false,
+          "values": ["default", "black", "blue", "cyan", "darkblue", "darkcyan", "darkgray", "darkgreen", "darkgrey", "darkmagenta", "darkred", "darkyellow", "gray", "green", "grey", "magenta", "red", "white", "yellow"]
+        },
+        {
+          "name": "code-colour",
+          "description": "The colour of code.",
+          "required": false,
+          "kind": "colour",
+          "accepts": "a colour name such as 'cyan' or 'darkgrey', or a hex value such as '#ff8800'",
+          "flag": false,
+          "interpolation": false,
+          "values": ["default", "black", "blue", "cyan", "darkblue", "darkcyan", "darkgray", "darkgreen", "darkgrey", "darkmagenta", "darkred", "darkyellow", "gray", "green", "grey", "magenta", "red", "white", "yellow"]
+        },
+        {
+          "name": "link-color",
+          "description": "The colour of links.",
+          "required": false,
+          "kind": "colour",
+          "accepts": "a colour name such as 'cyan' or 'darkgrey', or a hex value such as '#ff8800'",
+          "flag": false,
+          "interpolation": false,
+          "values": ["default", "black", "blue", "cyan", "darkblue", "darkcyan", "darkgray", "darkgreen", "darkgrey", "darkmagenta", "darkred", "darkyellow", "gray", "green", "grey", "magenta", "red", "white", "yellow"]
+        },
+        {
+          "name": "link-colour",
+          "description": "The colour of links.",
+          "required": false,
+          "kind": "colour",
+          "accepts": "a colour name such as 'cyan' or 'darkgrey', or a hex value such as '#ff8800'",
+          "flag": false,
+          "interpolation": false,
+          "values": ["default", "black", "blue", "cyan", "darkblue", "darkcyan", "darkgray", "darkgreen", "darkgrey", "darkmagenta", "darkred", "darkyellow", "gray", "green", "grey", "magenta", "red", "white", "yellow"]
+        },
+        {
+          "name": "quote-color",
+          "description": "The colour of quotes.",
+          "required": false,
+          "kind": "colour",
+          "accepts": "a colour name such as 'cyan' or 'darkgrey', or a hex value such as '#ff8800'",
+          "flag": false,
+          "interpolation": false,
+          "values": ["default", "black", "blue", "cyan", "darkblue", "darkcyan", "darkgray", "darkgreen", "darkgrey", "darkmagenta", "darkred", "darkyellow", "gray", "green", "grey", "magenta", "red", "white", "yellow"]
+        },
+        {
+          "name": "quote-colour",
+          "description": "The colour of quotes.",
+          "required": false,
+          "kind": "colour",
+          "accepts": "a colour name such as 'cyan' or 'darkgrey', or a hex value such as '#ff8800'",
+          "flag": false,
+          "interpolation": false,
+          "values": ["default", "black", "blue", "cyan", "darkblue", "darkcyan", "darkgray", "darkgreen", "darkgrey", "darkmagenta", "darkred", "darkyellow", "gray", "green", "grey", "magenta", "red", "white", "yellow"]
+        }
+      ]
+    },
+    {
+      "name": "columns",
+      "description": "Places <column> elements side by side, and stacks them when the terminal is narrow.",
+      "content": "elements",
+      "topLevelOnly": false,
+      "parents": null,
+      "children": ["column"],
+      "attributes": [
+        {
+          "name": "gap",
+          "description": "Blank columns between the columns.",
+          "required": false,
+          "kind": "integer",
+          "accepts": "a whole number from 0 to 20",
+          "flag": false,
+          "interpolation": false,
+          "minimum": 0,
+          "maximum": 20
+        },
+        {
+          "name": "stack-below",
+          "description": "Stacks the columns when the terminal is narrower than this many columns.",
+          "required": false,
+          "kind": "integer",
+          "accepts": "a whole number from 0 to 1000",
+          "flag": false,
+          "interpolation": false,
+          "minimum": 0,
+          "maximum": 1000
+        }
+      ]
+    },
+    {
+      "name": "column",
+      "description": "One column of <columns>; 'width' sets its share.",
+      "content": "block",
+      "topLevelOnly": false,
+      "parents": ["columns"],
+      "children": null,
+      "attributes": [
+        {
+          "name": "width",
+          "description": "The column's width: auto, a number of columns, a percentage or * for the rest.",
+          "required": false,
+          "kind": "length",
+          "accepts": "'auto', a column count such as '40', a percentage such as '50%', or '*' for the remaining width",
+          "flag": false,
+          "interpolation": false,
+          "values": ["auto", "*"]
+        }
+      ]
+    },
+    {
+      "name": "partial",
+      "description": "Renders a partial view from Views/Shared, optionally with a model.",
+      "content": "void",
+      "topLevelOnly": true,
+      "parents": null,
+      "children": null,
+      "attributes": [
+        {
+          "name": "name",
+          "description": "The partial view's name: Views/Shared/{name}.cvw.",
+          "required": true,
+          "kind": "text",
+          "accepts": "text",
+          "flag": false,
+          "interpolation": true
+        },
+        {
+          "name": "model",
+          "description": "The model passed to the partial view, such as @Model.User.",
+          "required": false,
+          "kind": "model",
+          "accepts": "a model expression",
+          "flag": false,
+          "interpolation": false
+        }
+      ]
+    },
+    {
+      "name": "body",
+      "description": "In a layout view (Views/Shared), where each page's own content is drawn.",
+      "content": "void",
+      "topLevelOnly": true,
+      "parents": null,
+      "children": null,
+      "attributes": []
+    }
+  ],
+  "diagnostics": [
+    {
+      "id": "CVW001",
+      "severity": "warning",
+      "title": "View file is not in a controller folder"
+    },
+    {
+      "id": "CVW002",
+      "severity": "error",
+      "title": "Invalid view or controller name"
+    },
+    {
+      "id": "CVW003",
+      "severity": "warning",
+      "title": "View name should end with 'View'"
+    },
+    {
+      "id": "CVW004",
+      "severity": "error",
+      "title": "Duplicate view"
+    },
+    {
+      "id": "CVW005",
+      "severity": "error",
+      "title": "Invalid root namespace"
+    },
+    {
+      "id": "CVW006",
+      "severity": "warning",
+      "title": "Duplicate @model directive"
+    },
+    {
+      "id": "CVW007",
+      "severity": "error",
+      "title": "Invalid @inject directive"
+    },
+    {
+      "id": "CVW008",
+      "severity": "error",
+      "title": "Duplicate @inject property"
+    },
+    {
+      "id": "CVW009",
+      "severity": "error",
+      "title": "Reserved partial view name"
+    },
+    {
+      "id": "CVW010",
+      "severity": "error",
+      "title": "Invalid @refresh directive"
+    },
+    {
+      "id": "CVW100",
+      "severity": "error",
+      "title": "Unknown attribute"
+    },
+    {
+      "id": "CVW101",
+      "severity": "error",
+      "title": "Invalid attribute value"
+    },
+    {
+      "id": "CVW102",
+      "severity": "error",
+      "title": "Element is not closed correctly"
+    },
+    {
+      "id": "CVW103",
+      "severity": "error",
+      "title": "Element not allowed here"
+    },
+    {
+      "id": "CVW104",
+      "severity": "error",
+      "title": "Unterminated construct"
+    },
+    {
+      "id": "CVW105",
+      "severity": "error",
+      "title": "Unknown element"
+    },
+    {
+      "id": "CVW106",
+      "severity": "error",
+      "title": "Code not allowed inside text"
+    },
+    {
+      "id": "CVW107",
+      "severity": "error",
+      "title": "Duplicate attribute"
+    },
+    {
+      "id": "CVW108",
+      "severity": "error",
+      "title": "Malformed tag"
+    },
+    {
+      "id": "CVW109",
+      "severity": "error",
+      "title": "Invalid element"
+    },
+    {
+      "id": "CVW110",
+      "severity": "error",
+      "title": "Text not allowed here"
+    },
+    {
+      "id": "CVW111",
+      "severity": "error",
+      "title": "Required attribute missing"
+    },
+    {
+      "id": "CVW112",
+      "severity": "error",
+      "title": "Empty expression"
+    },
+    {
+      "id": "CVW113",
+      "severity": "error",
+      "title": "Markup nested too deeply"
+    },
+    {
+      "id": "CVW114",
+      "severity": "error",
+      "title": "Unknown partial view"
+    },
+    {
+      "id": "CVW115",
+      "severity": "error",
+      "title": "Partial view needs a model"
+    },
+    {
+      "id": "CVW116",
+      "severity": "error",
+      "title": "Partial view includes itself"
+    },
+    {
+      "id": "CVW117",
+      "severity": "error",
+      "title": "Invalid layout"
+    },
+    {
+      "id": "CVW118",
+      "severity": "error",
+      "title": "Unknown layout"
+    },
+    {
+      "id": "CVW119",
+      "severity": "warning",
+      "title": "Unknown navigation target"
+    },
+    {
+      "id": "CVW120",
+      "severity": "warning",
+      "title": "Unknown navigation target in C#"
+    },
+    {
+      "id": "CVW121",
+      "severity": "warning",
+      "title": "View not found"
+    }
+  ]
+}

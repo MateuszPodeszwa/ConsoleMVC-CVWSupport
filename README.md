@@ -1,10 +1,31 @@
 # ConsoleMVC CvwSupport
 
-A JetBrains Rider plugin that provides first-class IDE support for `.cvw` (Console View) files used by the [ConsoleMVC](https://github.com/MateuszPodeszwa/ConsoleMVC) .NET framework.
+Editor support for the `.cvw` (Console View) files of the [ConsoleMVC](https://github.com/MateuszPodeszwa/ConsoleMVC) .NET framework:
+
+- a **JetBrains Rider plugin** (this folder's Gradle project, described below), and
+- a **VS Code extension** in [`vscode/`](vscode): highlighting, completion, hover documentation and checks for C-View Markup, and a live preview drawn by ConsoleMVC's rendering engine. See its [README](vscode/README.md) and [design](docs/VSCODE_EXTENSION.md).
+
+Both read the markup's schema from ConsoleMVC (`schema/cvw-schema.json`), and draw previews with ConsoleMVC's `cvw-preview` tool (`dotnet tool install -g ConsoleMVC.Preview`).
+
+## VS Code extension
+
+```bash
+cd vscode
+npm ci
+npm test                         # unit, grammar and controller tests
+xvfb-run -a npm run test:integration   # in a real VS Code (xvfb-run only on Linux without a display)
+npx vsce package --no-dependencies     # consolemvc-cvw-<version>.vsix
+```
+
+Install the `.vsix` with **Extensions → … → Install from VSIX**. After a new ConsoleMVC release, run
+`npm run sync-schema -- <ConsoleMVC checkout>` to copy its schema and rebuild the grammar, then
+`node scripts/compare-with-generator.js` to check the extension's checks against the generator. The
+[VS Code extension workflow](.github/workflows/vscode.yml) tests and packages it on every change, and releases it for a
+`vscode-vX.Y.Z` tag.
 
 ## What is ConsoleMVC?
 
-[ConsoleMVC](https://www.nuget.org/packages/ConsoleMVC.Framework) is a .NET 10.0 framework that brings ASP.NET Core MVC patterns to console applications. It uses `.cvw` view files — plain C# with a small directive preamble — that get compiled into `ConsoleView<TModel>` subclasses by a bundled Roslyn source generator.
+[ConsoleMVC](https://www.nuget.org/packages/ConsoleMVC.Framework) is a .NET 10.0 framework that brings ASP.NET Core MVC patterns to console applications. It uses `.cvw` view files, plain C# with a small directive preamble, that get compiled into `ConsoleView<TModel>` subclasses by a bundled Roslyn source generator.
 
 ```
 @model MyApp.Models.HomeViewModel
@@ -58,7 +79,7 @@ This plugin makes editing `.cvw` files feel as natural as editing `.cs` files in
 | `navquit` | `NavigationResult.Quit()` |
 
 ### File Templates
-- **New > ConsoleMVC View** — creates a `.cvw` file with `@model` scaffold
+- **New > ConsoleMVC View**: creates a `.cvw` file with `@model` scaffold
 
 ### Structure View
 - Shows `@model` type, `@using` imports, and `NavigationResult` navigation targets
@@ -98,8 +119,8 @@ This plugin makes editing `.cvw` files feel as natural as editing `.cs` files in
 
 The plugin follows the standard Rider plugin dual architecture:
 
-- **Frontend (Kotlin/IntelliJ)** — UI, file type registration, syntax highlighting, completion, navigation, editor features
-- **Backend (C#/ReSharper)** — Deep C# analysis via `GeneratedDocumentServiceBase`, type resolution, refactoring support
+- **Frontend (Kotlin/IntelliJ)**: UI, file type registration, syntax highlighting, completion, navigation, editor features
+- **Backend (C#/ReSharper)**: Deep C# analysis via `GeneratedDocumentServiceBase`, type resolution, refactoring support
 
 ```
 src/
@@ -108,6 +129,11 @@ src/
     resources/  # plugin.xml, icons, templates
   dotnet/
     CvwSupport/ # ReSharper backend (net472)
+vscode/         # The VS Code extension (plain JavaScript)
+  src/          #   schema, markup parser, language services, preview, grammar builder
+  schema/       #   cvw-schema.json, copied from ConsoleMVC
+  syntaxes/     #   cvw.tmLanguage.json, generated from the schema
+  test/         #   node:test suites and the VS Code integration tests
 ```
 
 ## Building from Source
@@ -126,8 +152,9 @@ src/
 
 ## Related
 
-- [ConsoleMVC](https://github.com/MateuszPodeszwa/ConsoleMVC) — The .NET framework this plugin supports
-- [ConsoleMVC.Framework on NuGet](https://www.nuget.org/packages/ConsoleMVC.Framework) — NuGet package
+- [ConsoleMVC](https://github.com/MateuszPodeszwa/ConsoleMVC): the .NET framework these plugins support
+- [ConsoleMVC.Framework on NuGet](https://www.nuget.org/packages/ConsoleMVC.Framework): the NuGet package
+- [ConsoleMVC.Preview on NuGet](https://www.nuget.org/packages/ConsoleMVC.Preview): the `cvw-preview` tool
 
 ## License
 

@@ -1,0 +1,104 @@
+{
+    "comments": {
+        "blockComment": [
+            "@*",
+            "*@"
+        ]
+    },
+    "brackets": [
+        [
+            "{",
+            "}"
+        ],
+        [
+            "[",
+            "]"
+        ],
+        [
+            "(",
+            ")"
+        ]
+    ],
+    "autoClosingPairs": [
+        {
+            "open": "{",
+            "close": "}"
+        },
+        {
+            "open": "[",
+            "close": "]"
+        },
+        {
+            "open": "(",
+            "close": ")"
+        },
+        {
+            "open": "\"",
+            "close": "\"",
+            "notIn": [
+                "string",
+                "comment"
+            ]
+        },
+        {
+            "open": "@*",
+            "close": " *@",
+            "notIn": [
+                "string",
+                "comment"
+            ]
+        }
+    ],
+    "surroundingPairs": [
+        [
+            "{",
+            "}"
+        ],
+        [
+            "[",
+            "]"
+        ],
+        [
+            "(",
+            ")"
+        ],
+        [
+            "\"",
+            "\""
+        ],
+        [
+            "'",
+            "'"
+        ],
+        [
+            "<",
+            ">"
+        ]
+    ],
+    "wordPattern": "(-?\\d*\\.\\d\\w*)|([^\\`\\~\\!\\%\\^\\&\\*\\(\\)\\=\\+\\[\\{\\]\\}\\\\\\|;\\:\\'\\\"\\,\\.\\<\\>\\/\\?\\s]+)",
+    "onEnterRules": [
+        {
+            "beforeText": "<(?!/)(?!(?:separator|br|input|checkbox|number|date|errors|breadcrumbs|shortcuts|progress|spinner|bar|sparkline|markdown|partial|body)(?![\\w-]))[\\w-]+(?:[^/>\"]|\"[^\"]*\")*>\\s*$",
+            "afterText": "^\\s*</[\\w-]+\\s*>",
+            "action": {
+                "indent": "indentOutdent"
+            }
+        },
+        {
+            "beforeText": "<(?!/)(?!(?:separator|br|input|checkbox|number|date|errors|breadcrumbs|shortcuts|progress|spinner|bar|sparkline|markdown|partial|body)(?![\\w-]))[\\w-]+(?:[^/>\"]|\"[^\"]*\")*>\\s*$",
+            "action": {
+                "indent": "indent"
+            }
+        }
+    ],
+    "indentationRules": {
+        "increaseIndentPattern": "(\\{[^}\"']*$)|(<(?!/)(?!(?:separator|br|input|checkbox|number|date|errors|breadcrumbs|shortcuts|progress|spinner|bar|sparkline|markdown|partial|body)(?![\\w-]))[\\w-]+(?:[^/>\"]|\"[^\"]*\")*>\\s*$)",
+        "decreaseIndentPattern": "^\\s*(\\}|</[\\w-]+\\s*>)"
+    },
+    "folding": {
+        "markers": {
+            "start": "^\\s*(<(?!/)(?!(?:separator|br|input|checkbox|number|date|errors|breadcrumbs|shortcuts|progress|spinner|bar|sparkline|markdown|partial|body)(?![\\w-]))[\\w-]+(?:[^/>\"]|\"[^\"]*\")*>\\s*$|@\\{|@\\*)",
+            "end": "^\\s*(</[\\w-]+\\s*>|\\}|\\*@)"
+        }
+    }
+}

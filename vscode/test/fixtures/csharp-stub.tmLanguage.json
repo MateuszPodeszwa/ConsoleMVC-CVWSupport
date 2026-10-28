@@ -1,0 +1,19 @@
+{
+    "comment": "A small stand-in for VS Code's C# grammar in tests, with the repository rules the C-View Markup grammar includes. Set CSHARP_GRAMMAR to the path of the real csharp.tmLanguage.json to test with it instead.",
+    "scopeName": "source.cs",
+    "patterns": [{ "include": "#expression" }],
+    "repository": {
+        "comment": { "patterns": [{ "match": "//.*$", "name": "comment.line.double-slash.cs" }] },
+        "preprocessor": { "patterns": [{ "match": "^\\s*#.*$", "name": "meta.preprocessor.cs" }] },
+        "punctuation-semicolon": { "match": ";", "name": "punctuation.terminator.statement.cs" },
+        "expression": {
+            "patterns": [
+                { "match": "\"(?:[^\"\\\\]|\\\\.)*\"", "name": "string.quoted.double.cs" },
+                { "match": "\\b\\d+(?:\\.\\d+)?\\b", "name": "constant.numeric.decimal.cs" },
+                { "match": "\\b(new|await|null|true|false)\\b", "name": "keyword.other.cs" },
+                { "match": "[A-Za-z_][A-Za-z0-9_]*", "name": "variable.other.cs" },
+                { "match": "[.,=+\\-*/<>!?]", "name": "keyword.operator.cs" }
+            ]
+        }
+    }
+}

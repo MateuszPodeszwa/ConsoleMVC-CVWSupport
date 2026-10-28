@@ -1,0 +1,82 @@
+name: VS Code extension
+
+# Tests and packages the VS Code extension in vscode/. A tag vscode-vX.Y.Z also attaches the .vsix to a GitHub release,
+# and publishes it to the Visual Studio Marketplace when the repository has a VSCE_PAT secret.
+
+on:
+  push:
+    branches: [main]
+    paths: [vscode/**, .github/workflows/vscode.yml]
+    tags: ['vscode-v*']
+  pull_request:
+    paths: [vscode/**, .github/workflows/vscode.yml]
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    working-directory: vscode
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: vscode/package-lock.json
+
+      - name: Install
+        run: npm ci
+
+      - name: Check that the grammar matches the schema
+        run: node scripts/build-grammar.js --check
+
+      - name: Unit tests
+        run: npm test
+
+      - name: Grammar tests with VS Code's C# grammar
+        run: |
+          curl -sSfL -o "$RUNNER_TEMP/csharp.tmLanguage.json" \
+            https://raw.githubusercontent.com/microsoft/vscode/1.95.0/extensions/csharp/syntaxes/csharp.tmLanguage.json
+          CSHARP_GRAMMAR="$RUNNER_TEMP/csharp.tmLanguage.json" node --test test/Grammar.test.js
+
+      - name: Integration tests in VS Code
+        run: xvfb-run -a npm run test:integration
+
+      - name: Package
+        run: npx vsce package --no-dependencies --out consolemvc-cvw.vsix
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: consolemvc-cvw-vsix
+          path: vscode/consolemvc-cvw.vsix
+
+  release:
+    needs: test
+    if: startsWith(github.ref, 'refs/tags/vscode-v')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: consolemvc-cvw-vsix
+          path: vscode
+
+      - name: Attach to a GitHub release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release create "$GITHUB_REF_NAME" consolemvc-cvw.vsix --title "VS Code extension ${GITHUB_REF_NAME#vscode-v}" --notes-file CHANGELOG.md
+
+      - name: Publish to the Visual Studio Marketplace
+        env:
+          VSCE_PAT: ${{ secrets.VSCE_PAT }}
+        if: env.VSCE_PAT != ''
+        run: npx --yes @vscode/vsce@4.0.0 publish --packagePath consolemvc-cvw.vsix

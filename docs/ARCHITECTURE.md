@@ -1,4 +1,4 @@
-# Architecture — ConsoleMVC .cvw Plugin
+# Architecture: ConsoleMVC .cvw Plugin
 
 ## Overview
 
@@ -14,64 +14,64 @@ It follows the standard Rider plugin dual architecture:
 
 ```
 src/main/kotlin/com/github/mateuszpodeszwa/consolemvc/cvwsupport/
-  CvwLanguage.kt                — Language singleton ("CVW")
-  CvwFileType.kt                — FileType with .cvw extension and icon
-  CvwIcons.kt                   — Icon loader (/icons/cvw.svg)
-  CvwBraceMatcher.kt            — Paired brace matching ({}, (), [])
-  CvwCommenter.kt               — // and /* */ comment toggling
-  CvwEditorTabTitleProvider.kt   — Shows "Controller/ActionView" in tabs
-  CvwLiveTemplateContext.kt      — Template context for .cvw files
-  CvwCreateFileAction.kt         — "New ConsoleMVC View" action in New menu
+  CvwLanguage.kt                # Language singleton ("CVW")
+  CvwFileType.kt                # FileType with .cvw extension and icon
+  CvwIcons.kt                   # Icon loader (/icons/cvw.svg)
+  CvwBraceMatcher.kt            # Paired brace matching ({}, (), [])
+  CvwCommenter.kt               # // and /* */ comment toggling
+  CvwEditorTabTitleProvider.kt   # Shows "Controller/ActionView" in tabs
+  CvwLiveTemplateContext.kt      # Template context for .cvw files
+  CvwCreateFileAction.kt         # "New ConsoleMVC View" action in New menu
 
   lexer/
-    CvwTokenTypes.kt             — All token type definitions
-    CvwLexer.kt                  — Hand-written two-mode lexer
+    CvwTokenTypes.kt             # All token type definitions
+    CvwLexer.kt                  # Hand-written two-mode lexer
 
   parser/
-    CvwParser.kt                 — Splits file into directives + code body
-    CvwParserDefinition.kt       — Registers lexer, parser, file creation
+    CvwParser.kt                 # Splits file into directives + code body
+    CvwParserDefinition.kt       # Registers lexer, parser, file creation
 
   psi/
-    CvwElementTypes.kt           — PSI element types (FILE, MODEL_DIRECTIVE, etc.)
-    CvwFile.kt                   — PsiFile implementation
+    CvwElementTypes.kt           # PSI element types (FILE, MODEL_DIRECTIVE, etc.)
+    CvwFile.kt                   # PsiFile implementation
 
   highlighting/
-    CvwSyntaxHighlighter.kt      — Token-to-color mapping
-    CvwSyntaxHighlighterFactory.kt — Factory registration
-    CvwColorSettingsPage.kt      — Settings > Editor > Color Scheme > CVW
+    CvwSyntaxHighlighter.kt      # Token-to-color mapping
+    CvwSyntaxHighlighterFactory.kt # Factory registration
+    CvwColorSettingsPage.kt      # Settings > Editor > Color Scheme > CVW
 
   completion/
-    CvwCompletionContributor.kt  — Directive + code body completion
+    CvwCompletionContributor.kt  # Directive + code body completion
 
   annotator/
-    CvwAnnotator.kt              — Error/warning annotations (single-file)
-    CvwModelMismatchAnnotator.kt — Cross-file model type mismatch detection
-    CvwQuickFixes.kt             — Quick-fix intentions (add @model, add return)
+    CvwAnnotator.kt              # Error/warning annotations (single-file)
+    CvwModelMismatchAnnotator.kt # Cross-file model type mismatch detection
+    CvwQuickFixes.kt             # Quick-fix intentions (add @model, add return)
 
   documentation/
-    CvwDocumentationProvider.kt  — Hover docs for directives and framework types
+    CvwDocumentationProvider.kt  # Hover docs for directives and framework types
 
   editor/
-    CvwWordSelectionHandler.kt   — Smart Ctrl+W extend selection
+    CvwWordSelectionHandler.kt   # Smart Ctrl+W extend selection
 
   navigation/
-    CvwViewLineMarkerProvider.kt — Gutter icons linking .cvw to controllers
-    CvwGotoRelatedProvider.kt    — Bidirectional view <-> controller nav
+    CvwViewLineMarkerProvider.kt # Gutter icons linking .cvw to controllers
+    CvwGotoRelatedProvider.kt    # Bidirectional view <-> controller nav
 
   structure/
-    CvwStructureViewFactory.kt   — Structure view factory
-    CvwStructureViewModel.kt     — Structure view model
-    CvwStructureViewElement.kt   — Tree elements (directives, nav targets)
+    CvwStructureViewFactory.kt   # Structure view factory
+    CvwStructureViewModel.kt     # Structure view model
+    CvwStructureViewElement.kt   # Tree elements (directives, nav targets)
 
   folding/
-    CvwFoldingBuilder.kt         — Code folding for directives, braces, comments
+    CvwFoldingBuilder.kt         # Code folding for directives, braces, comments
 
 src/main/resources/
-  META-INF/plugin.xml            — Plugin descriptor with all extension registrations
-  icons/cvw.svg                  — File icon (purple rounded rect with "cvw" text)
-  liveTemplates/CvwTemplates.xml — Live template definitions
+  META-INF/plugin.xml            # Plugin descriptor with all extension registrations
+  icons/cvw.svg                  # File icon (purple rounded rect with "cvw" text)
+  liveTemplates/CvwTemplates.xml # Live template definitions
   fileTemplates/internal/
-    ConsoleMVC View.cvw.ft       — New file template
+    ConsoleMVC View.cvw.ft       # New file template
 ```
 
 ### Lexer Design
@@ -109,44 +109,44 @@ CvwFile (root)
 ### Plugin Registration (plugin.xml)
 
 All extensions are registered under `com.intellij.` namespace:
-- `fileType` — CvwFileType
-- `lang.parserDefinition` — CvwParserDefinition
-- `lang.syntaxHighlighterFactory` — CvwSyntaxHighlighterFactory
-- `completion.contributor` — CvwCompletionContributor
-- `annotator` — CvwAnnotator, CvwModelMismatchAnnotator
-- `lang.braceMatcher` — CvwBraceMatcher
-- `lang.commenter` — CvwCommenter
-- `liveTemplateContext` — CvwLiveTemplateContext
-- `defaultLiveTemplates` — /liveTemplates/CvwTemplates
-- `internalFileTemplate` — ConsoleMVC View.cvw
-- `codeInsight.lineMarkerProvider` — CvwViewLineMarkerProvider
-- `gotoRelatedProvider` — CvwGotoRelatedProvider
-- `lang.psiStructureViewFactory` — CvwStructureViewFactory
-- `editorTabTitleProvider` — CvwEditorTabTitleProvider
-- `lang.foldingBuilder` — CvwFoldingBuilder
-- `colorSettingsPage` — CvwColorSettingsPage
+- `fileType`: CvwFileType
+- `lang.parserDefinition`: CvwParserDefinition
+- `lang.syntaxHighlighterFactory`: CvwSyntaxHighlighterFactory
+- `completion.contributor`: CvwCompletionContributor
+- `annotator`: CvwAnnotator, CvwModelMismatchAnnotator
+- `lang.braceMatcher`: CvwBraceMatcher
+- `lang.commenter`: CvwCommenter
+- `liveTemplateContext`: CvwLiveTemplateContext
+- `defaultLiveTemplates`: /liveTemplates/CvwTemplates
+- `internalFileTemplate`: ConsoleMVC View.cvw
+- `codeInsight.lineMarkerProvider`: CvwViewLineMarkerProvider
+- `gotoRelatedProvider`: CvwGotoRelatedProvider
+- `lang.psiStructureViewFactory`: CvwStructureViewFactory
+- `editorTabTitleProvider`: CvwEditorTabTitleProvider
+- `lang.foldingBuilder`: CvwFoldingBuilder
+- `colorSettingsPage`: CvwColorSettingsPage
 
 Action: `ConsoleMVC.NewCvwFile` in `NewGroup`
 
-## Phase 2 — Backend (In Progress)
+## Phase 2: Backend (In Progress)
 
 ### Backend File Structure
 
 ```
 src/dotnet/
-  CvwSupport.sln                           — .NET solution
-  Plugin.props                             — SDK version (2025.1.1)
-  Directory.Build.props                    — Common build properties
+  CvwSupport.sln                           # .NET solution
+  Plugin.props                             # SDK version (2025.1.1)
+  Directory.Build.props                    # Common build properties
   CvwSupport/
-    CvwSupport.csproj                      — net472 + JetBrains.Rider.SDK
-    ZoneMarker.cs                          — ICvwSupportZone + ZoneMarker
-    CvwProjectFileType.cs                  — .cvw file type registration
-    CvwLanguage.cs                         — PSI language definition
-    CvwProjectFileLanguageService.cs       — File type -> language bridge
-    CvwFileParser.cs                       — Parses .cvw into directives + code body
-    CvwGeneratedDocumentFactory.cs         — Generates virtual C# documents
-    CvwPsiFileManager.cs                   — Solution component for document access
-    CvwGeneratedDocumentService.cs         — Wires into ReSharper's secondary document pipeline
+    CvwSupport.csproj                      # net472 + JetBrains.Rider.SDK
+    ZoneMarker.cs                          # ICvwSupportZone + ZoneMarker
+    CvwProjectFileType.cs                  # .cvw file type registration
+    CvwLanguage.cs                         # PSI language definition
+    CvwProjectFileLanguageService.cs       # File type -> language bridge
+    CvwFileParser.cs                       # Parses .cvw into directives + code body
+    CvwGeneratedDocumentFactory.cs         # Generates virtual C# documents
+    CvwPsiFileManager.cs                   # Solution component for document access
+    CvwGeneratedDocumentService.cs         # Wires into ReSharper's secondary document pipeline
 ```
 
 ### Virtual Document Generation

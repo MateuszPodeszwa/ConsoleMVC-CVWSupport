@@ -1,0 +1,14 @@
+@* The layout: every view is drawn inside it unless it says '@layout none' or names another layout.
+   The part before <body /> is drawn before the view; the part after it is drawn just before the view first
+   waits for the user (an <input>, <select>, <checkbox> or <menu>), so it sits between the page content and
+   what the user answers. *@
+@* The app bar: where the user is (Home › About) on the left, the app name on the right.
+   width="*" makes the first column take the space the second one leaves. *@
+<columns gap="1">
+    <column width="*"><breadcrumbs class="muted" /></column>
+    <column><text class="muted">ConsoleMVC</text></column>
+</columns>
+<body />
+<separator class="muted" />
+@* The shortcuts mapped with app.MapKey in Program.cs that have a description *@
+<shortcuts class="muted" />
